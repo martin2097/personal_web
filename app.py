@@ -3,6 +3,7 @@ import plotly.express as px
 import pandas as pd
 
 app = Dash(__name__)
+server = app.server
 
 # assume you have a "long-form" data frame
 # see https://plotly.com/python/px-arguments/ for more options
@@ -28,4 +29,4 @@ app.layout = html.Div(children=[
 ])
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
