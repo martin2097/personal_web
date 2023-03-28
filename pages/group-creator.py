@@ -130,9 +130,10 @@ def final_algo(lst, maxsum):
     result = []
     for uni in set(lst):
         if maxsum//uni > 1:
-            for times in range((lst.count(uni))//(maxsum//uni)):
-                result.append([uni] * (maxsum//uni))
-                for i in ([uni] * (maxsum//uni)):
+            maxtimes = min(maxsum//uni, 3)
+            for times in range((lst.count(uni))//maxtimes):
+                result.append([uni] * maxtimes)
+                for i in ([uni] * maxtimes):
                     lst.remove(i)
     while max(lst)+min(lst) > maxsum:
         result.append([max(lst)])
