@@ -1,7 +1,7 @@
 import dash
 from dash import html, Output, Input, State, callback
 import dash_mantine_components as dmc
-import math
+import itertools
 
 dash.register_page(__name__)
 
@@ -22,58 +22,71 @@ layout = dmc.LoadingOverlay(
 )
 
 
-def sorted_k_partitions(seq, k):
-    """Returns a list of all unique k-partitions of `seq`.
+def first_group(previous_ele, len_rema):
+    output = []
+    if len_rema == 0:
+        output = previous_ele
+    if len_rema >= 3:
+        output += next_group(previous_ele+[3], len_rema-3)
+    if len_rema >= 2:
+        output += next_group(previous_ele+[2], len_rema-2)
+    if len_rema >= 1:
+        output += next_group(previous_ele+[1], len_rema-1)
+    return output
 
-    Each partition is a list of parts, and each part is a tuple.
 
-    The parts in each individual partition will be sorted in shortlex
-    order (i.e., by length first, then lexicographically).
+def next_group(previous_ele, len_rema):
+    output = []
+    if len_rema == 0:
+        output.append(previous_ele)
+    if (previous_ele[-1] in (1, 2, 3)) and (len_rema >= 3):
+        output += next_group(previous_ele+[3], len_rema-3)
+    if (previous_ele[-1] in (1, 2)) and (len_rema >= 2):
+        output += next_group(previous_ele+[2], len_rema-2)
+    if (previous_ele[-1] == 1) and (len_rema >= 1):
+        output += next_group(previous_ele+[1], len_rema-1)
+    return output
 
-    The overall list of partitions will then be sorted by the length
-    of their first part, the length of their second part, ...,
-    the length of their last part, and then lexicographically.
-    """
-    n = len(seq)
-    groups = []  # a list of lists, currently empty
 
-    def generate_partitions(i):
-        if i >= n:
-            yield list(map(tuple, groups))
-        else:
-            if n - i > k - len(groups):
-                for group in groups:
-                    group.append(seq[i])
-                    yield from generate_partitions(i + 1)
-                    group.pop()
 
-            if len(groups) < k:
-                groups.append([seq[i]])
-                yield from generate_partitions(i + 1)
-                groups.pop()
 
-    result = generate_partitions(0)
 
-    # Sort the parts in each partition in shortlex order
-    result = [sorted(ps, key=lambda p: (len(p), p)) for ps in result]
-    # Sort partitions by the length of each part, then lexicographically.
-    result = sorted(result, key=lambda ps: (*map(len, ps), ps))
-
-    return result
+def get_combs(candidate, input_list, maxsum, groups):
+    output = []
+    for comb in list(itertools.combinations(input_list, groups[0])):
+        local_candidate = candidate.copy()
+        if sum(comb) <= maxsum:
+            if len(groups) == 1:
+                local_candidate.append(list(comb))
+                output.append(local_candidate)
+            else:
+                local_candidate.append(list(comb))
+                new_input = input_list.copy()
+                for ele in comb:
+                    new_input.remove(ele)
+                output += get_combs(local_candidate, new_input, maxsum, groups[1:])
+    return output
 
 
 def fast_solution(lst, maxsum):
-    output = None
-    for n_size in range(math.ceil(sum(lst)/maxsum), len(lst)+1):
-        for split in sorted_k_partitions(lst, n_size):
-            correct = True
-            for group in split:
-                if sum(group) > maxsum:
-                    correct = False
-            if correct:
-                output = split
-                return output
-    return output
+    least_groups = 1000
+    best = 0
+    best_results = []
+    for groups in first_group([], len(lst)):
+        if len(groups) <= least_groups:
+            for out in get_combs([], lst, maxsum, groups):
+                if len(groups) < least_groups:
+                    best_results = []
+                    best = 0
+                    least_groups = len(groups)
+                full = 0
+                for g in out:
+                    if sum(g) == maxsum:
+                        full += 1
+                if full > best:
+                    best = full
+                    best_results = out
+    return best_results
 
 
 @callback(
