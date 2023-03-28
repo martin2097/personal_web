@@ -2,6 +2,7 @@ import dash
 from dash import html, Output, Input, State, callback
 import dash_mantine_components as dmc
 import itertools
+from datetime import datetime
 
 dash.register_page(__name__)
 
@@ -227,4 +228,5 @@ def update_output_div(n_clicks, lst_type_a, lst_type_b, lst_type_c, lst_type_d, 
                 text_group = text_group + "   (sum " + str(sum(groups)) + ")"
                 inout.append(dmc.Text(text_group))
             out.append(dmc.Col(inout, span="content"))
+    out.append(dmc.Col([dmc.Text("Last Update:"), dmc.Text(datetime.now())], span="content", offset=1))
     return out
