@@ -62,35 +62,29 @@ layout = dmc.LoadingOverlay(
 )
 
 
-def first_group(previous_ele, len_rema):
+def first_group(previous_ele, len_rema, max_len):
     output = []
     if len_rema == 0:
         output = previous_ele
-    if len_rema >= 3:
-        output += next_group(previous_ele+[3], len_rema-3)
-    if len_rema >= 2:
-        output += next_group(previous_ele+[2], len_rema-2)
-    if len_rema >= 1:
-        output += next_group(previous_ele+[1], len_rema-1)
+    for r in range(max_len, 0, -1):
+        if len_rema >= r:
+            output += next_group(previous_ele+[r], len_rema-r, max_len)
     return output
 
 
-def next_group(previous_ele, len_rema):
+def next_group(previous_ele, len_rema, max_len):
     output = []
     if len_rema == 0:
         output.append(previous_ele)
-    if (previous_ele[-1] in (1, 2, 3)) and (len_rema >= 3):
-        output += next_group(previous_ele+[3], len_rema-3)
-    if (previous_ele[-1] in (1, 2)) and (len_rema >= 2):
-        output += next_group(previous_ele+[2], len_rema-2)
-    if (previous_ele[-1] == 1) and (len_rema >= 1):
-        output += next_group(previous_ele+[1], len_rema-1)
+    for r in range(max_len, 0, -1):
+        if (previous_ele[-1] in range(r, 0, -1)) and (len_rema >= r):
+            output += next_group(previous_ele+[r], len_rema-r, max_len)
     return output
 
 
 def get_combs(candidate, input_list, maxsum, groups):
     output = []
-    for comb in list(itertools.combinations(input_list, groups[0])):
+    for comb in list(set(itertools.combinations(input_list, groups[0]))):
         local_candidate = candidate.copy()
         if sum(comb) <= maxsum:
             if len(groups) == 1:
@@ -105,11 +99,11 @@ def get_combs(candidate, input_list, maxsum, groups):
     return output
 
 
-def fast_solution(lst, maxsum):
+def best_solution(lst, maxsum, max_len):
     least_groups = 1000
     best = 0
     best_results = []
-    for groups in first_group([], len(lst)):
+    for groups in first_group([], len(lst), max_len):
         if len(groups) <= least_groups:
             for out in get_combs([], lst, maxsum, groups):
                 if len(groups) < least_groups:
@@ -126,21 +120,29 @@ def fast_solution(lst, maxsum):
     return best_results
 
 
-def final_algo(lst, maxsum):
+def fast_solution(lst, maxsum, max_len):
+    out = []
+    groups_opt = first_group([], len(lst), max_len)
+    groups_opt.sort(key=len)
+    for groups in groups_opt:
+        for out in get_combs([], lst, maxsum, groups):
+            return out
+
+
+def final_algo(lst, maxsum, max_len):
     result = []
     for uni in set(lst):
         if maxsum//uni > 1:
-            maxtimes = min(maxsum//uni, 3)
-            for times in range((lst.count(uni))//maxtimes):
-                result.append([uni] * maxtimes)
-                for i in ([uni] * maxtimes):
+            for times in range((lst.count(uni))//(maxsum//uni)):
+                result.append([uni] * (maxsum//uni))
+                for i in ([uni] * (maxsum//uni)):
                     lst.remove(i)
     while max(lst)+min(lst) > maxsum:
         result.append([max(lst)])
         lst.remove(max(lst))
         if len(lst) == 0:
             break
-    scrubbs = fast_solution(lst, maxsum)
+    scrubbs = fast_solution(lst, maxsum, max_len)
     return result+scrubbs
 
 
@@ -171,10 +173,11 @@ def update_output_div(n_clicks, lst_type_a, lst_type_b, lst_type_c, lst_type_d, 
     lst_type_c = list_from_input(lst_type_c)
     lst_type_d = list_from_input(lst_type_d)
     lst_type_e = list_from_input(lst_type_e)
+    max_len = 20
     out = []
     # A
     if len(lst_type_a) > 0:
-        solution = final_algo(lst_type_a, group_max)
+        solution = final_algo(lst_type_a, group_max, max_len)
         if solution is None:
             out.append(dmc.Col(dmc.Text("Type A solution does not exist"), span="content"))
         else:
@@ -189,7 +192,7 @@ def update_output_div(n_clicks, lst_type_a, lst_type_b, lst_type_c, lst_type_d, 
             out.append(dmc.Col(inout, span="content"))
     # B
     if len(lst_type_b) > 0:
-        solution = final_algo(lst_type_b, group_max)
+        solution = final_algo(lst_type_b, group_max, max_len)
         if solution is None:
             out.append(dmc.Col(dmc.Text("Type B solution does not exist"), span="content"))
         else:
@@ -204,7 +207,7 @@ def update_output_div(n_clicks, lst_type_a, lst_type_b, lst_type_c, lst_type_d, 
             out.append(dmc.Col(inout, span="content"))
     # C, D, E
     if len(lst_type_c) + len(lst_type_d) + len(lst_type_e) > 0:
-        solution = final_algo(lst_type_c+lst_type_d+lst_type_e, group_max)
+        solution = final_algo(lst_type_c+lst_type_d+lst_type_e, group_max, max_len)
         if solution is None:
             out.append(dmc.Col(dmc.Text("Type C,D,E solution does not exist"), span="content"))
         else:
