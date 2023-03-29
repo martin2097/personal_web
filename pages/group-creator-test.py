@@ -56,7 +56,7 @@ layout = dmc.LoadingOverlay(
                 style={"width": 250},
             ),
             dmc.Button("Calculate", id="group-creator-calculate-btn"),
-            dmc.Grid(id="group-creator-output")
+            dmc.Grid(id="group-creator-test-output")
         ])
     ])
 )
@@ -148,7 +148,7 @@ def list_from_input(lst):
 
 
 @callback(
-    Output("group-creator-output", 'children'),
+    Output("group-creator-test-output", 'children'),
     Input("group-creator-calculate-btn", 'n_clicks'),
     State("group-creator-list-input-type-a", 'value'),
     State("group-creator-list-input-type-b", 'value'),
