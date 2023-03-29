@@ -99,7 +99,7 @@ def get_combs(candidate, input_list, maxsum, groups):
     return output
 
 
-def fast_solution(lst, maxsum, max_len):
+def best_solution(lst, maxsum, max_len):
     least_groups = 1000
     best = 0
     best_results = []
@@ -118,6 +118,15 @@ def fast_solution(lst, maxsum, max_len):
                     best = full
                     best_results = out
     return best_results
+
+
+def fast_solution(lst, maxsum, max_len):
+    out = []
+    groups_opt = first_group([], len(lst), max_len)
+    groups_opt.sort(key=len)
+    for groups in groups_opt:
+        for out in get_combs([], lst, maxsum, groups):
+            return out
 
 
 def final_algo(lst, maxsum, max_len):
