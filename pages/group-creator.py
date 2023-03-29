@@ -123,6 +123,7 @@ def best_solution(lst, maxsum, max_len):
     groups_opt.sort(key=len)
     for groups in groups_opt:
         if len(groups) <= least_groups:
+            groups.sort(reverse=True)
             for out in get_combs([], lst, maxsum, groups):
                 if len(groups) < least_groups:
                     best_results = []
@@ -143,6 +144,7 @@ def fast_solution(lst, maxsum, max_len):
     groups_opt = first_group([], len(lst), max_len)
     groups_opt.sort(key=len)
     for groups in groups_opt:
+        groups.sort(reverse=True)
         for out in get_combs([], lst, maxsum, groups):
             return out
 
