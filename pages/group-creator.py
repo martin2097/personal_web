@@ -3,6 +3,7 @@ from dash import html, Output, Input, State, callback
 import dash_mantine_components as dmc
 import itertools
 from datetime import datetime
+from time import time
 
 dash.register_page(__name__)
 
@@ -53,9 +54,24 @@ layout = dmc.LoadingOverlay(
                 id="group-creator-group-max",
                 label="Set maximal size of each group",
                 value=1100,
-                style={"width": 250},
+                style={"width": 350},
             ),
-            dmc.Button("Calculate", id="group-creator-calculate-btn"),
+            dmc.NumberInput(
+                id="group-creator-group-max-cnt",
+                label="Set maximal number of elements in each group",
+                value=20,
+                style={"width": 350},
+            ),
+            dmc.Text("Choose algorithm type: "),
+            dmc.SegmentedControl(
+                id="group-creator-algorithm-type",
+                value="best",
+                data=[
+                    {"value": "fast", "label": "Fast"},
+                    {"value": "best", "label": "Best"},
+                ],
+            ),
+            dmc.Grid(dmc.Col(dmc.Button("Calculate", id="group-creator-calculate-btn"), span="auto")),
             dmc.Grid(id="group-creator-output")
         ])
     ])
@@ -103,7 +119,9 @@ def best_solution(lst, maxsum, max_len):
     least_groups = 1000
     best = 0
     best_results = []
-    for groups in first_group([], len(lst), max_len):
+    groups_opt = first_group([], len(lst), max_len)
+    groups_opt.sort(key=len)
+    for groups in groups_opt:
         if len(groups) <= least_groups:
             for out in get_combs([], lst, maxsum, groups):
                 if len(groups) < least_groups:
@@ -129,7 +147,7 @@ def fast_solution(lst, maxsum, max_len):
             return out
 
 
-def final_algo(lst, maxsum, max_len):
+def final_algo(lst, maxsum, max_len, alg_type):
     result = []
     for uni in set(lst):
         if maxsum//uni > 1:
@@ -142,7 +160,10 @@ def final_algo(lst, maxsum, max_len):
         lst.remove(max(lst))
         if len(lst) == 0:
             break
-    scrubbs = fast_solution(lst, maxsum, max_len)
+    if alg_type == 'fast':
+        scrubbs = fast_solution(lst, maxsum, max_len)
+    elif alg_type == 'best':
+        scrubbs = best_solution(lst, maxsum, max_len)
     return result+scrubbs
 
 
@@ -165,19 +186,22 @@ def list_from_input(lst):
     State("group-creator-list-input-type-d", 'value'),
     State("group-creator-list-input-type-e", 'value'),
     State("group-creator-group-max", "value"),
+    State("group-creator-group-max-cnt", "value"),
+    State("group-creator-algorithm-type", "value"),
     prevent_initial_call=True
 )
-def update_output_div(n_clicks, lst_type_a, lst_type_b, lst_type_c, lst_type_d, lst_type_e, group_max):
+def update_output_div(n_clicks, lst_type_a, lst_type_b, lst_type_c, lst_type_d, lst_type_e, group_max, max_len, alg_type):
     lst_type_a = list_from_input(lst_type_a)
     lst_type_b = list_from_input(lst_type_b)
     lst_type_c = list_from_input(lst_type_c)
     lst_type_d = list_from_input(lst_type_d)
     lst_type_e = list_from_input(lst_type_e)
-    max_len = 20
     out = []
     # A
     if len(lst_type_a) > 0:
-        solution = final_algo(lst_type_a, group_max, max_len)
+        start = time()
+        solution = final_algo(lst_type_a, group_max, max_len, alg_type)
+        end = time()
         if solution is None:
             out.append(dmc.Col(dmc.Text("Type A solution does not exist"), span="content"))
         else:
@@ -192,7 +216,7 @@ def update_output_div(n_clicks, lst_type_a, lst_type_b, lst_type_c, lst_type_d, 
             out.append(dmc.Col(inout, span="content"))
     # B
     if len(lst_type_b) > 0:
-        solution = final_algo(lst_type_b, group_max, max_len)
+        solution = final_algo(lst_type_b, group_max, max_len, alg_type)
         if solution is None:
             out.append(dmc.Col(dmc.Text("Type B solution does not exist"), span="content"))
         else:
@@ -207,7 +231,7 @@ def update_output_div(n_clicks, lst_type_a, lst_type_b, lst_type_c, lst_type_d, 
             out.append(dmc.Col(inout, span="content"))
     # C, D, E
     if len(lst_type_c) + len(lst_type_d) + len(lst_type_e) > 0:
-        solution = final_algo(lst_type_c+lst_type_d+lst_type_e, group_max, max_len)
+        solution = final_algo(lst_type_c+lst_type_d+lst_type_e, group_max, max_len, alg_type)
         if solution is None:
             out.append(dmc.Col(dmc.Text("Type C,D,E solution does not exist"), span="content"))
         else:
@@ -232,5 +256,5 @@ def update_output_div(n_clicks, lst_type_a, lst_type_b, lst_type_c, lst_type_d, 
                 text_group = text_group + "   (sum " + str(sum(groups)) + ")"
                 inout.append(dmc.Text(text_group))
             out.append(dmc.Col(inout, span="content"))
-    out.append(dmc.Col([dmc.Text("Last Update:"), dmc.Text(datetime.now())], span="content", offset=1))
+    out.append(dmc.Col([dmc.Text("Last Update:"), dmc.Text(datetime.now()), dmc.Text("Evaluation Time:"), dmc.Text(end-start)], span="content", offset=1))
     return out
