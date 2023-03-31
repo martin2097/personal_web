@@ -4,6 +4,7 @@ import dash_mantine_components as dmc
 import itertools
 from datetime import datetime
 from time import time
+import math
 
 dash.register_page(__name__)
 
@@ -169,6 +170,25 @@ def final_algo(lst, maxsum, max_len, alg_type):
     return result+scrubbs
 
 
+def final_algo_with_splitting(lst, maxsum, max_len, alg_type):
+    result = []
+    half_list = []
+    for i in set(lst):
+        cnt = lst.count(i)
+        half_list += ([i] * math.floor(cnt / 2))
+    solution = final_algo(half_list, maxsum-20, max_len, alg_type)
+    rest_of_list = lst.copy()
+    for i in solution:
+        result.append(i)
+        result.append(i)
+        for j in i:
+            rest_of_list.remove(j)
+            rest_of_list.remove(j)
+    print(rest_of_list)
+    rest_solution = final_algo(rest_of_list, maxsum, max_len, alg_type)
+    return result+rest_solution
+
+
 def list_from_input(lst):
     out_lst = []
     if len(lst) == 0:
@@ -199,11 +219,10 @@ def update_output_div(n_clicks, lst_type_a, lst_type_b, lst_type_c, lst_type_d, 
     lst_type_d = list_from_input(lst_type_d)
     lst_type_e = list_from_input(lst_type_e)
     out = []
+    start = time()
     # A
     if len(lst_type_a) > 0:
-        start = time()
         solution = final_algo(lst_type_a, group_max, max_len, alg_type)
-        end = time()
         if solution is None:
             out.append(dmc.Col(dmc.Text("Type A solution does not exist"), span="content"))
         else:
@@ -233,7 +252,7 @@ def update_output_div(n_clicks, lst_type_a, lst_type_b, lst_type_c, lst_type_d, 
             out.append(dmc.Col(inout, span="content"))
     # C, D, E
     if len(lst_type_c) + len(lst_type_d) + len(lst_type_e) > 0:
-        solution = final_algo(lst_type_c+lst_type_d+lst_type_e, group_max, max_len, alg_type)
+        solution = final_algo_with_splitting(lst_type_c+lst_type_d+lst_type_e, group_max, max_len, alg_type)
         if solution is None:
             out.append(dmc.Col(dmc.Text("Type C,D,E solution does not exist"), span="content"))
         else:
@@ -242,6 +261,7 @@ def update_output_div(n_clicks, lst_type_a, lst_type_b, lst_type_c, lst_type_d, 
             lst_type_c_fo = lst_type_c.copy()
             lst_type_d_fo = lst_type_d.copy()
             lst_type_e_fo = lst_type_e.copy()
+            inc = 0
             for groups in solution:
                 text_group = ""
                 for i in groups:
@@ -257,6 +277,10 @@ def update_output_div(n_clicks, lst_type_a, lst_type_b, lst_type_c, lst_type_d, 
                     text_group = text_group + part + str(i) + " "
                 text_group = text_group + "   (sum " + str(sum(groups)) + ")"
                 inout.append(dmc.Text(text_group))
+                if ((inc % 2) == 1) & (solution[inc-1] == solution[inc]):
+                    inout.append(dmc.Text("---"))
+                inc += 1
             out.append(dmc.Col(inout, span="content"))
+    end = time()
     out.append(dmc.Col([dmc.Text("Last Update:"), dmc.Text(datetime.now()), dmc.Text("Evaluation Time:"), dmc.Text(end-start)], span="content", offset=1))
     return out
