@@ -3,3 +3,7 @@ pandas
 plotly
 gunicorn
 dash-mantine-components
+openpyxl
+pandas
+dash-iconify
+dash_ag_grid
