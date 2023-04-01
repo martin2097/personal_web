@@ -9,12 +9,15 @@ import dash_ag_grid as dag
 
 dash.register_page(__name__)
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+# basedir = os.path.abspath(os.path.dirname(__file__))
 event_log_df = pd.read_excel(
-    os.path.join(basedir, "..", "data\survivor_2023_data.xlsx"), sheet_name="event_log"
+    # os.path.join(basedir, "..", "data\survivor_2023_data.xlsx"),
+    "survivor_2023_data.xlsx",
+    sheet_name="event_log"
 )
 personal_stats_df = pd.read_excel(
-    os.path.join(basedir, "..", "data\survivor_2023_data.xlsx"),
+    # os.path.join(basedir, "..", "data\survivor_2023_data.xlsx"),
+    "survivor_2023_data.xlsx",
     sheet_name="personal_statistics",
 )
 personal_stats_df["DAY"] = personal_stats_df["DAY"].astype(str)
