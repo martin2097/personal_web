@@ -6,4 +6,4 @@ dash-mantine-components
 openpyxl
 pandas
 dash-iconify
-dash_ag_grid==2.0.0a5
+colorlover
