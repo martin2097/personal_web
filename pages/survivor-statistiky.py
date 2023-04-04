@@ -4,7 +4,7 @@ from dash.dash_table import DataTable
 import dash_mantine_components as dmc
 from dash_iconify import DashIconify
 import pandas as pd
-import plotly.express as px
+from plotly.express import imshow
 from dash.dash_table.Format import Format, Scheme
 
 dash.register_page(__name__)
@@ -2269,7 +2269,7 @@ def layout():
                                 [
                                     dcc.Graph(
                                         id="survivor-personal-stats-heatmap",
-                                        figure=px.imshow(
+                                        figure=imshow(
                                             personal_stats_df_heat.iloc[:, :-2],
                                             text_auto=True,
                                             color_continuous_scale="RdYlGn_r",
@@ -2328,7 +2328,7 @@ def update_line_chart(active_player, current_form):
     else:
         dff = pd.DataFrame.from_dict(players, orient="index")
         active_players = list(dff.index)
-    fig_hm = px.imshow(
+    fig_hm = imshow(
         personal_stats_df_pi_history.filter(items=active_players, axis=0),
         text_auto=".2f",
         range_color=[0,1],
