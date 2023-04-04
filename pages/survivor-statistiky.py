@@ -210,9 +210,7 @@ for player in players:
         (24 - vypadnuty.index(player)) if player in vypadnuty else None
     )
 
-print(players)
 df_players = pd.DataFrame.from_dict(players, orient="index")
-print(df_players)
 
 
 def player_card(player):
@@ -2315,7 +2313,6 @@ def update_line_chart(active_player, current_form):
             min_ind = ind-(current_form_index-1)
         else:
             min_ind = 0
-        print(personal_stats_df_heat[list(personal_stats_df_heat.columns)[:-2]].iloc[:, min_ind: ind + 1])
         personal_stats_df_pi_history[i] = (
             1
             - (personal_stats_df_heat[list(personal_stats_df_heat.columns)[:-2]].iloc[:, min_ind: ind + 1] - 1).div(

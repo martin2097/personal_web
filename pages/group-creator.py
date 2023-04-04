@@ -184,7 +184,6 @@ def final_algo_with_splitting(lst, maxsum, max_len, alg_type):
         for j in i:
             rest_of_list.remove(j)
             rest_of_list.remove(j)
-    print(rest_of_list)
     rest_solution = final_algo(rest_of_list, maxsum, max_len, alg_type)
     return result+rest_solution
 
