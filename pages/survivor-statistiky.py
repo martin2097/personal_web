@@ -2066,7 +2066,8 @@ def discrete_background_color_bins(df, n_bins=5, columns="all"):
     return styles
 
 
-layout = [
+def layout():
+    return [
     dmc.Header(
         height=60,
         children=[
