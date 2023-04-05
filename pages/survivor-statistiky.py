@@ -206,12 +206,17 @@ for player in players:
             & (event_log_df["WINNING_ROSTER"] == player)
         ].index
     )
+    players[player]["Odměny"] = len(
+        event_log_df[
+            (event_log_df["EVENT_TYPE"] == "Souboj o odměnu")
+            & (event_log_df["WINNING_ROSTER"].str.contains(player))
+        ].index
+    )
     players[player]["Poradie"] = (
         (24 - vypadnuty.index(player)) if player in vypadnuty else None
     )
 
 df_players = pd.DataFrame.from_dict(players, orient="index")
-
 
 def player_card(player):
     return dmc.Card(
@@ -339,6 +344,29 @@ def player_card(player):
                         )
                     ]
                     * players[player]["Duely"]
+                )
+                + (
+                    [
+                        dmc.Col(
+                            dmc.Tooltip(
+                                DashIconify(
+                                    icon="material-symbols:token-outline",
+                                    width=32,
+                                    height=32,
+                                    style={"color": "#868e96"},
+                                ),
+                                label=i,
+                                position="top",
+                                transition="pop",
+                            ),
+                            span="content",
+                            style={"padding-left": "4px", "padding-right": "4px"},
+                        )
+                        for i in event_log_df[
+                            (event_log_df["EVENT_TYPE"] == "Výhoda")
+                            & (event_log_df["WINNING_ROSTER"] == player)
+                        ]["EVENT_DESC"]
+                    ]
                 ),
                 style={"padding-left": "8px"},
             ),
@@ -346,8 +374,13 @@ def player_card(player):
         withBorder=True,
         shadow="sm",
         radius="lg",
-        style={"padding": "10px", "height": "170px", "width": "300px"},# "height": "20vh", "width": "15vw"
+        style={
+            "padding": "10px",
+            "height": "170px",
+            "width": "300px",
+        },  # "height": "20vh", "width": "15vw"
     )
+
 
 
 def best_players_card(card_label, title_icon, top_table, col_labels, by_id):
@@ -423,12 +456,12 @@ def best_players_card(card_label, title_icon, top_table, col_labels, by_id):
                                                         size="xl",
                                                     ),
                                                     DashIconify(
-                                                        icon="twemoji:1st-place-medal",
+                                                        icon="twemoji:cupcake" if by_id == "Odměny" else "twemoji:1st-place-medal",
                                                         width=40,
                                                         height=40,
                                                         style={
                                                             "position": "absolute",
-                                                            "transform": "translate(70px, -90px)",
+                                                            "transform": "translate(65px, -95px)" if by_id == "Odměny" else "translate(70px, -90px)",
                                                         },
                                                     ),
                                                 ],
@@ -1592,7 +1625,7 @@ def eventlog_item(data_string):
                 icon="material-symbols:swords-outline", width=17, height=17
             ),
         )
-    elif data_string["EVENT_TYPE"] == "Noví hráči":
+    elif data_string["EVENT_TYPE"] in ["Noví hráči", "Výměna členů"]:
         item = dmc.TimelineItem(
             children=[
                 dmc.Card(
@@ -1713,6 +1746,8 @@ def eventlog_item(data_string):
                                                             style={
                                                                 "color": survivor_colors[
                                                                     "Rebelové"
+                                                                ] if data_string["WINNING_SIDE"] == "Hrdinové" else survivor_colors[
+                                                                    "Hrdinové"
                                                                 ]
                                                             },
                                                         ),
@@ -1788,6 +1823,9 @@ def eventlog_item(data_string):
             style={"margin-top": "8px"},
             bullet=DashIconify(
                 icon="material-symbols:person-add-outline", width=18, height=18
+            ) if data_string["EVENT_TYPE"] == "Noví hráči"
+            else DashIconify(
+                icon="material-symbols:sync", width=20, height=20
             ),
         )
     elif data_string["EVENT_TYPE"] == "Odstoupení":
@@ -1941,6 +1979,175 @@ def eventlog_item(data_string):
                 height=20,
                 style={"padding-left": "1px"},
             ),
+        )
+    elif data_string["EVENT_TYPE"] == "Výhoda":
+        item = dmc.TimelineItem(
+            children=[
+                dmc.Card(
+                    [
+                        dmc.Grid(
+                            [
+                                dmc.Col(
+                                    [
+                                        dmc.Grid(
+                                            [
+                                                dmc.Col(
+                                                    [
+                                                        dmc.Text(
+                                                            [
+                                                                "Den "
+                                                                + str(
+                                                                    data_string["DAY"]
+                                                                )
+                                                                + " - "
+                                                                + data_string[
+                                                                    "EVENT_TYPE"
+                                                                ]
+                                                                +
+                                                                " ("
+                                                                + str(
+                                                                    data_string[
+                                                                        "EVENT_DESC"
+                                                                    ]
+                                                                )
+                                                                + ")"
+                                                            ],
+                                                            weight=500,
+                                                            size="sm",
+                                                        ),
+                                                    ],
+                                                    span="content",
+                                                    style={
+                                                        "padding-top": "5px",
+                                                        "padding-bottom": "4px",
+                                                        "padding-right": "2px",
+                                                    },
+                                                ),
+                                                dmc.Col(
+                                                    [episode_timestamp],
+                                                    span="content",
+                                                    style={
+                                                        "padding-top": "5px",
+                                                        "padding-bottom": "4px",
+                                                        "padding-left": "0px",
+                                                    },
+                                                ),
+                                            ],
+                                            align="center",
+                                        ),
+                                        dmc.Grid(
+                                            [
+                                                dmc.Col(
+                                                    [
+                                                        DashIconify(
+                                                            icon="material-symbols:trending-up",
+                                                            width=18,
+                                                            height=18,
+                                                            style={
+                                                                "color": survivor_colors[
+                                                                    data_string[
+                                                                        "WINNING_SIDE"
+                                                                    ]
+                                                                ],
+                                                                "padding-top": "2px",
+                                                            },
+                                                        ),
+                                                    ],
+                                                    span="content",
+                                                    style={
+                                                        "padding-top": "4px",
+                                                        "padding-bottom": "5px",
+                                                        "padding-right": "3px",
+                                                    },
+                                                ),
+                                                dmc.Col(
+                                                    [
+                                                        dmc.Text(
+                                                            data_string[
+                                                                "WINNING_ROSTER"
+                                                            ],
+                                                            size="sm",
+                                                            weight=700,
+                                                            style={
+                                                                "color": survivor_colors[
+                                                                    data_string[
+                                                                        "WINNING_SIDE"
+                                                                    ]
+                                                                ]
+                                                            },
+                                                        ),
+                                                    ],
+                                                    span="content",
+                                                    style={
+                                                        "padding-top": "4px",
+                                                        "padding-bottom": "5px",
+                                                        "padding-left": "0px",
+                                                        "padding-right": "4px",
+                                                    },
+                                                ),
+                                                dmc.Col(
+                                                    [
+                                                        dmc.AvatarGroup(
+                                                            children=[
+                                                                dmc.Tooltip(
+                                                                    dmc.Avatar(
+                                                                        src=players[
+                                                                            member
+                                                                        ][
+                                                                            "profile_picture"
+                                                                        ],
+                                                                        radius="lg",
+                                                                        size="sm",
+                                                                    ),
+                                                                    label=member,
+                                                                    position="top",
+                                                                    transition="pop",
+                                                                    style={
+                                                                        "padding": "1px",
+                                                                        "padding-left": "2px",
+                                                                        "padding-right": "5px",
+                                                                    },
+                                                                )
+                                                                for member in data_string[
+                                                                    "WINNING_ROSTER"
+                                                                ].split(
+                                                                    ", "
+                                                                )
+                                                            ],
+                                                        )
+                                                    ],
+                                                    span="content",
+                                                    style={
+                                                        "padding-top": "4px",
+                                                        "padding-bottom": "5px",
+                                                        "padding-left": "0px",
+                                                    },
+                                                ),
+                                            ],
+                                            align="center",
+                                        ),
+                                    ],
+                                    span="content",
+                                )
+                            ]
+                        )
+                    ],
+                    withBorder=True,
+                    shadow="xs",
+                    radius="lg",
+                    style={
+                        "width": "fit-content",
+                        # "border-color": survivor_colors[data_string["WINNING_SIDE"]],
+                        # "border-style": "solid",
+                        # "border-width": "2px",
+                        "padding": "5px",
+                        "padding-left": "10px",
+                        "padding-right": "10px",
+                    },
+                )
+            ],
+            style={"margin-top": "8px"},
+            bullet=DashIconify(icon="material-symbols:token-outline", width=20, height=20)
         )
     else:
         item = dmc.TimelineItem(
@@ -2124,57 +2331,106 @@ def layout():
                                 xl=4,
                                 sm=6,
                             ),
+                            dmc.Col(
+                                [
+                                    best_players_card(
+                                        "Účasti na odměnách",
+                                        "mdi:gift-outline",
+                                        pd.DataFrame.from_dict(players, orient="index")
+                                        .sort_values(
+                                            ["Odměny"],
+                                            ascending=False,
+                                        )
+                                        .iloc[0:5][["Odměny"]],
+                                        ["", "Odměny"],
+                                        "Odměny",
+                                    ),
+                                ],
+                                xl=4,
+                                sm=6,
+                            ),
                         ]
                     ),
                     dmc.Grid([dmc.Col([dmc.Text("Hráči:", size="xl", weight=600)])]),
-                    dmc.ScrollArea(
-                        dmc.Grid(
-                            [
-                                dmc.Col(player_card(player), span="content")
-                                for player in list(
-                                    df_players.sort_values(
-                                        "Poradie", na_position="first"
-                                    ).index
-                                )
+                    dmc.Grid([
+                        dmc.Col([
+                            dmc.ScrollArea(
+                                dmc.Grid(
+                                    [
+                                        dmc.Col(player_card(player), span="content")
+                                        for player in list(
+                                        df_players.sort_values(
+                                            "Poradie", na_position="first"
+                                        ).index
+                                    )
+                                    ],
+                                    style={"width": "7584px"},
+                                ),
+                                style={"height": "180px", "padding": "8px"},
+                                type="always",
+                            ),
+                        ])
+                    ]),
+                    dmc.Grid(
+                        [
+                            dmc.Col([
+                                dmc.Text("Vývoj Power Indexu:", size="xl", weight=600),
+                            ], span="content"),
+                            dmc.Col(
+                                [dmc.Grid([
+                                     dmc.Col([
+                                         dmc.Switch(
+                                             id="power_index_active_switch",
+                                             size="md",
+                                             radius="lg",
+                                             label="Aktivní hráči",
+                                             checked=False,
+                                         )
+                                     ], span="content"),
+                                     dmc.Col([
+                                         dmc.Switch(
+                                             id="power_index_current_switch",
+                                             size="md",
+                                             radius="lg",
+                                             label="Aktualní forma",
+                                             checked=False,
+                                         )
+                                     ], span="content")
+                                 ], align="flex-end"),
+                                 ], span="content"
+                            )
+                        ], justify="space-between", align="flex-end"
+                    ),
+                    dmc.Grid([
+                        dmc.Col([
+                            dmc.Card([
+                                dmc.Grid([
+                                    dmc.Col([
+                                        dmc.Grid(
+                                            [
+                                                dmc.Col(
+                                                    [
+                                                        dcc.Graph(
+                                                            id="power_index_history_heatmap",
+                                                            # style={"height": "90vh"},
+                                                            config={"staticPlot": True},
+                                                        ),
+                                                    ],
+                                                )
+                                            ]
+                                        ),
+                                    ])
+                                ])
                             ],
-                            style={"width": "7584px"},
-                        ),
-                        style={"height": "180px", "padding": "8px"},
-                        type="always",
-                    ),
-                    dmc.Grid(
-                        [
-                            dmc.Col(
-                                [dmc.Text("Vývoj Power Indexu:", size="xl", weight=600)]
-                            )
-                        ]
-                    ),
-                    dmc.Grid(
-                        [
-                            dmc.Col(
-                                [
-                                    dmc.Switch(
-                                        id="power_index_active_switch",
-                                        size="lg",
-                                        radius="sm",
-                                        label="Aktivní hráči",
-                                        checked=False,
-                                    ),
-                                    dmc.Switch(
-                                        id="power_index_current_switch",
-                                        size="lg",
-                                        radius="sm",
-                                        label="Aktualní forma",
-                                        checked=False,
-                                    ),
-                                    dcc.Graph(
-                                        id="power_index_history_heatmap",
-                                        style={"height": "90vh"},
-                                    ),
-                                ]
-                            )
-                        ]
-                    ),
+                                withBorder=True,
+                                shadow="sm",
+                                radius="lg",
+                                style={
+                                    "padding": "10px",
+                                },
+                            ),
+                        ])
+                    ]),
                     dmc.Grid(
                         [
                             dmc.Col(
@@ -2190,28 +2446,6 @@ def layout():
                         [
                             dmc.Col(
                                 [
-                                    # dag.AgGrid(
-                                    #     id="survivor-personal-stats-grid",
-                                    #     rowData=personal_stats_df_heat.reset_index().to_dict(
-                                    #         "records"
-                                    #     ),
-                                    #     columnDefs=[
-                                    #         {
-                                    #             "field": i,
-                                    #             "id": i,
-                                    #             "type": "numericColumn",
-                                    #         }
-                                    #         for i in personal_stats_df_heat.reset_index().columns
-                                    #     ],
-                                    #     defaultColDef={
-                                    #         "resizable": True,
-                                    #         "sortable": True,
-                                    #         "filter": True,
-                                    #         "minWidth": 50,
-                                    #     },
-                                    #     columnSize="autoSizeAll",
-                                    #     # getRowId="params.data.State",
-                                    # )
                                     dmc.Card(
                                         [
                                             DataTable(
@@ -2220,7 +2454,7 @@ def layout():
                                                 ),
                                                 columns=[
                                                     {
-                                                        "name": x,
+                                                        "name": y,
                                                         "id": x,
                                                         "type": "numeric"
                                                         if x == "POWER_INDEX"
@@ -2232,9 +2466,12 @@ def layout():
                                                         if x == "POWER_INDEX"
                                                         else None,
                                                     }
-                                                    for x in personal_stats_df_heat.reset_index().columns
+                                                    for x, y in zip(["index", "POWER_INDEX", "IMMUNITY_WINS"] + list(personal_stats_df_heat.reset_index().iloc[:, 1:-2].columns),
+                                                                    ["Hráč", "Power Index", "Imunity"] + list(i for i in personal_stats_df_heat.reset_index().iloc[:, 1:-2].columns)) # "Den " + 
                                                 ],
-                                                style_data={"lineHeight": "8px"},
+                                                style_table={'overflowX': 'auto'},
+                                                # fill_width=False,
+                                                style_data={"lineHeight": "8px", 'minWidth': '50px'},
                                                 style_cell={
                                                     # "backgroundColor": "#f8f9fa",
                                                     "font-family": "Segoe UI",
@@ -2255,25 +2492,8 @@ def layout():
                                         withBorder=True,
                                         shadow="sm",
                                         radius="lg",
-                                        style={"padding": "10px"},
+                                        style={"padding": "20px"},
                                     )
-                                ]
-                            )
-                        ]
-                    ),
-                    dmc.Grid(
-                        [
-                            dmc.Col(
-                                [
-                                    dcc.Graph(
-                                        id="survivor-personal-stats-heatmap",
-                                        figure=imshow(
-                                            personal_stats_df_heat.iloc[:, :-2],
-                                            text_auto=True,
-                                            color_continuous_scale="RdYlGn_r",
-                                        ),
-                                        style={"height": "90vh"},
-                                    ),
                                 ]
                             )
                         ]
@@ -2326,18 +2546,25 @@ def update_line_chart(active_player, current_form):
         dff = pd.DataFrame.from_dict(players, orient="index")
         active_players = list(dff.index)
     fig_hm = imshow(
-        personal_stats_df_pi_history.filter(items=active_players, axis=0),
+        personal_stats_df_pi_history.filter(items=active_players, axis=0).T,
         text_auto=".2f",
-        range_color=[0,1],
+        range_color=[0, 1],
         color_continuous_scale="RdYlGn",
     )
     fig_hm.update_layout(
         paper_bgcolor="rgba(0, 0, 0, 0)",
+        font=dict(
+            family="Segoe UI",
+            size=14,
+        ),
+        margin=dict(r=0, l=20, b=10, t=10),
         plot_bgcolor="rgba(0, 0, 0, 0)",
         modebar=dict(
             bgcolor="rgba(0, 0, 0, 0)",
             color="rgba(0, 0, 0, 0.3)",
             activecolor="rgba(0, 0, 0, 0.3)",
         ),
+        yaxis_title=None,
     )
+    fig_hm.update_coloraxes(showscale=False)
     return fig_hm
