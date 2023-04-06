@@ -218,6 +218,154 @@ for player in players:
 
 df_players = pd.DataFrame.from_dict(players, orient="index")
 
+
+def best_team(card_label, title_icon, by_id, num_label):
+    if by_id == "all":
+        df_team = event_log_df[event_log_df["EVENT_TYPE"].isin(["Souboj o imunitu", "Souboj o odměnu"])][["DAY", 'WINNING_SIDE']].groupby(
+            ['WINNING_SIDE']).count().reset_index().rename(columns={"DAY": "CNT"}).sort_values(["CNT"], ascending=False)
+    else:
+        df_team = event_log_df[event_log_df["EVENT_TYPE"] == by_id][["DAY", 'WINNING_SIDE']].groupby(
+            ['WINNING_SIDE']).count().reset_index().rename(columns={"DAY": "CNT"}).sort_values(["CNT"], ascending=False)
+    return dmc.Card(
+        [
+            dmc.Grid(
+                [
+                    dmc.Col(
+                        [
+                            dmc.Center(
+                                [
+                                    DashIconify(
+                                        icon=title_icon,
+                                        width=20,
+                                        height=20,
+                                        style={
+                                            "padding-top": "2px",
+                                            "padding-right": "8px",
+                                        },
+                                    ),
+                                    dmc.Text(card_label, weight=700, size="xl"),
+                                ]
+                            )
+                        ],
+                        style={"padding-bottom": "12px"},
+                    )
+                ]
+            ),
+            dmc.Grid(
+                [
+                    dmc.Col(
+                        [
+                            dmc.Grid(
+                                [
+                                    dmc.Col(
+                                        [
+                                            dmc.Tooltip(
+                                                [
+                                                    dmc.Avatar(
+                                                        DashIconify(icon="game-icons:eagle-emblem" if df_team["WINNING_SIDE"].values[0] == "Hrdinové" else "game-icons:tiger-head",
+                                                                    style={"color": survivor_colors[df_team["WINNING_SIDE"].values[0]]},
+                                                                    width=60,
+                                                                    height=60,
+                                                                    ),
+                                                        radius="lg",
+                                                        size="xl",
+                                                        styles={"placeholder": {"background-color": "#d4dcde"}}
+                                                    ),
+                                                    DashIconify(
+                                                        icon="twemoji:trophy",
+                                                        width=30,
+                                                        height=30,
+                                                        style={
+                                                            "position": "absolute",
+                                                            "transform": "translate(70px, -90px)",
+                                                        },
+                                                    ),
+                                                ],
+                                                label=df_team["WINNING_SIDE"].values[0],
+                                                position="top",
+                                                transition="pop",
+                                            )
+                                        ],
+                                        span="content",
+                                        style={"padding-bottom": "2px"},
+                                    ),
+                                    dmc.Col(
+                                        [
+                                            dmc.Tooltip(
+                                                [
+                                                    dmc.Avatar(
+                                                        DashIconify(icon="game-icons:eagle-emblem" if df_team["WINNING_SIDE"].values[1] == "Hrdinové" else "game-icons:tiger-head",
+                                                                    style={"color": survivor_colors[df_team["WINNING_SIDE"].values[1]]},
+                                                                    width=35,
+                                                                    height=35,),
+                                                        radius="lg",
+                                                        size="lg",
+                                                        styles={"placeholder": {"background-color": "#d4dcde"}}
+                                                    ),
+                                                ],
+                                                label=df_team["WINNING_SIDE"].values[1],
+                                                position="top",
+                                                transition="pop",
+                                            )
+                                        ],
+                                        span="content",
+                                        style={"padding-bottom": "2px"},
+                                    ),
+                                ],
+                                align="end",
+                                justify="space-around",
+                            ),
+                            dmc.Grid(
+                                [
+                                    dmc.Col(
+                                        [
+                                            dmc.Text(
+                                                num_label
+                                                + ": "
+                                                + str(
+                                                    df_team["CNT"].values[0]
+                                                ),
+                                                color="dimmed",
+                                            )
+                                        ],
+                                        span="content",
+                                        style={"padding-top": "4px"},
+                                    ),
+                                    dmc.Col(
+                                        [
+                                            dmc.Text(
+                                                num_label
+                                                + ": "
+                                                + str(
+                                                    df_team["CNT"].values[1]
+                                                ),
+                                                color="dimmed",
+                                                style={"padding-left": "16px"},
+                                            )
+                                        ],
+                                        span="content",
+                                        style={"padding-top": "4px"},
+                                    ),
+                                ],
+                                align="top",
+                                justify="space-around",
+                            ),
+                        ]
+                    )
+                ]
+            ),
+        ],
+        withBorder=True,
+        shadow="sm",
+        radius="lg",
+        style={
+            # "width": "25vw",
+            "padding": "10px",
+            # "margin-left": "10px",
+        },
+    )
+
+
 def player_card(player):
     return dmc.Card(
         [
@@ -380,7 +528,6 @@ def player_card(player):
             "width": "300px",
         },  # "height": "20vh", "width": "15vw"
     )
-
 
 
 def best_players_card(card_label, title_icon, top_table, col_labels, by_id):
@@ -2345,6 +2492,34 @@ def layout():
                                         ["", "Odměny"],
                                         "Odměny",
                                     ),
+                                ],
+                                xl=4,
+                                sm=6,
+                            ),
+                        ]
+                    ),
+                    dmc.Grid(
+                        [dmc.Col([dmc.Text("Týmové výkony:", size="xl", weight=600)])]
+                    ),
+                    dmc.Grid(
+                        [
+                            dmc.Col(
+                                [
+                                    best_team("Celková vítězství", "mdi:trophy", "all", "Výhry")
+                                ],
+                                xl=4,
+                                sm=6,
+                            ),
+                            dmc.Col(
+                                [
+                                    best_team("Souboje o imunity", "game-icons:diablo-skull", "Souboj o imunitu", "Imunity")
+                                ],
+                                xl=4,
+                                sm=6,
+                            ),
+                            dmc.Col(
+                                [
+                                    best_team("Souboje o odměnu", "mdi:gift-outline", "Souboj o odměnu", "Odměny")
                                 ],
                                 xl=4,
                                 sm=6,
