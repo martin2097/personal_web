@@ -1,5 +1,5 @@
 import dash
-from dash import dcc, callback, Output, Input, State
+from dash import dcc, callback, Output, Input, State, html
 from dash.dash_table import DataTable
 import dash_mantine_components as dmc
 from dash_iconify import DashIconify
@@ -2351,10 +2351,10 @@ def eventlog_item(data_string):
     return item
 
 
-def create_eventlog(data):
+def create_event_log(data):
     items = []
     for i in range(len(data.index) - 1, -1, -1):
-        items.append(eventlog_item(data.loc[i]))
+        items.append(eventlog_item(data.iloc[i]))
     eventlog = dmc.Timeline(
         active=len(data.index),
         bulletSize=25,
@@ -2364,14 +2364,7 @@ def create_eventlog(data):
         # align="right",
         # styles={"itemContent": {"justify-content": "right", "display": "grid"}}
     )
-    return dmc.Card(
-        [eventlog],
-        withBorder=True,
-        shadow="sm",
-        radius="lg",
-        style={"padding": "10px", "padding-left": "20px", "padding-top": "20px"},
-    )
-
+    return eventlog
 
 def discrete_background_color_bins(df, n_bins=5, columns="all"):
     import colorlover
@@ -2420,278 +2413,453 @@ def discrete_background_color_bins(df, n_bins=5, columns="all"):
 
 def layout():
     return [
-    dmc.Header(
-        height=60,
-        children=[
-            dmc.Grid(
-                [
-                    dmc.Col(
-                        [dmc.Text("SURVIVOR 2023 - Statistiky", weight=500, size=20)],
-                        style={"padding-left": "30px"},
-                    )
-                ],
-                align="center",
-                style={"height": "60px"},
-            )
-        ],
-    ),
-    dmc.Grid(
-        [
-            dmc.Col(
-                [
-                    dmc.Grid(
-                        [dmc.Col([dmc.Text("Nejlepší hráči:", size="xl", weight=600)])]
-                    ),
-                    dmc.Grid(
-                        [
-                            dmc.Col(
-                                [
-                                    best_players_card(
-                                        "Král osobních imunit",
-                                        "icon-park-outline:diamond-necklace",
-                                        personal_stats_df_heat.sort_values(
-                                            ["IMMUNITY_WINS", "POWER_INDEX"],
-                                            ascending=False,
-                                        ).iloc[0:5][["IMMUNITY_WINS", "POWER_INDEX"]],
-                                        ["", "Immunity", "Power Index"],
-                                        "Imunity",
-                                    ),
-                                ],
-                                xl=4,
-                                sm=6,
-                            ),
-                            dmc.Col(
-                                [
-                                    best_players_card(
-                                        "Královna duelů",
-                                        "material-symbols:swords-outline",
-                                        pd.DataFrame.from_dict(players, orient="index")
-                                        .sort_values(
-                                            ["Duely"],
-                                            ascending=False,
-                                        )
-                                        .iloc[0:5][["Duely"]],
-                                        ["", "Duely"],
-                                        "Duely",
-                                    ),
-                                ],
-                                xl=4,
-                                sm=6,
-                            ),
-                            dmc.Col(
-                                [
-                                    best_players_card(
-                                        "Účasti na odměnách",
-                                        "mdi:gift-outline",
-                                        pd.DataFrame.from_dict(players, orient="index")
-                                        .sort_values(
-                                            ["Odměny"],
-                                            ascending=False,
-                                        )
-                                        .iloc[0:5][["Odměny"]],
-                                        ["", "Odměny"],
-                                        "Odměny",
-                                    ),
-                                ],
-                                xl=4,
-                                sm=6,
-                            ),
-                        ]
-                    ),
-                    dmc.Grid(
-                        [dmc.Col([dmc.Text("Týmové výkony:", size="xl", weight=600)])]
-                    ),
-                    dmc.Grid(
-                        [
-                            dmc.Col(
-                                [
-                                    best_team("Celková vítězství", "mdi:trophy", "all", "Výhry")
-                                ],
-                                xl=4,
-                                sm=6,
-                            ),
-                            dmc.Col(
-                                [
-                                    best_team("Souboje o imunity", "game-icons:diablo-skull", "Souboj o imunitu", "Imunity")
-                                ],
-                                xl=4,
-                                sm=6,
-                            ),
-                            dmc.Col(
-                                [
-                                    best_team("Souboje o odměnu", "mdi:gift-outline", "Souboj o odměnu", "Odměny")
-                                ],
-                                xl=4,
-                                sm=6,
-                            ),
-                        ]
-                    ),
-                    dmc.Grid([dmc.Col([dmc.Text("Hráči:", size="xl", weight=600)])]),
-                    dmc.Grid([
+        dmc.Header(
+            height=60,
+            children=[
+                dmc.Grid(
+                    [
+                        dmc.Col(
+                            [
+                                dmc.Text(
+                                    "SURVIVOR 2023 - Statistiky", weight=500, size=20
+                                )
+                            ],
+                            span="content",
+                            style={"padding-left": "30px"},
+                        ),
                         dmc.Col([
-                            dmc.ScrollArea(
-                                dmc.Grid(
-                                    [
-                                        dmc.Col(player_card(player), span="content")
-                                        for player in list(
-                                        df_players.sort_values(
-                                            "Poradie", na_position="first"
-                                        ).index
+                            dmc.Grid([
+                                dmc.Col([
+                                    html.A(
+                                        dmc.Tooltip(
+                                            dmc.ActionIcon(
+                                                DashIconify(icon="mdi:github", width=30),
+                                                size="lg"
+                                            ),
+                                            label="Github",
+                                            position="top",
+                                            transition="pop",
+                                        ),
+                                        href="https://github.com/martin2097/",
+                                        target="_blank",
+                                    ),
+                                ], span="content", style={"padding": "0px"}),
+                                dmc.Col([
+                                    html.A(
+                                        dmc.Tooltip(
+                                            dmc.ActionIcon(
+                                                DashIconify(icon="mdi:linkedin", width=30),
+                                                size="lg"
+                                            ),
+                                            label="Linkedin",
+                                            position="top",
+                                            transition="pop",
+                                        ),
+                                        href="https://linkedin.com/in/martin-rapavy",
+                                        target="_blank",
                                     )
+                                ], span="content", style={"padding": "0px"}),
+                            ])
+                        ],
+                            span="content",
+                            style={"padding-right": "30px"},)
+                    ],
+                    align="center",
+                    justify="space-between",
+                    style={"height": "60px"},
+                )
+            ],
+        ),
+        dmc.Grid(
+            [
+                dmc.Col(
+                    [
+                        dmc.Grid(
+                            [
+                                dmc.Col(
+                                    [dmc.Text("Nejlepší hráči:", size="xl", weight=600)]
+                                )
+                            ]
+                        ),
+                        dmc.Grid(
+                            [
+                                dmc.Col(
+                                    [
+                                        best_players_card(
+                                            "Král osobních imunit",
+                                            "icon-park-outline:diamond-necklace",
+                                            personal_stats_df_heat.sort_values(
+                                                ["IMMUNITY_WINS", "POWER_INDEX"],
+                                                ascending=False,
+                                            ).iloc[0:5][
+                                                ["IMMUNITY_WINS", "POWER_INDEX"]
+                                            ],
+                                            ["", "Immunity", "Power Index"],
+                                            "Imunity",
+                                        ),
                                     ],
-                                    style={"width": "7584px"},
+                                    xl=4,
+                                    sm=6,
                                 ),
-                                style={"height": "180px", "padding": "8px"},
-                                type="always",
-                            ),
-                        ])
-                    ]),
-                    dmc.Grid(
-                        [
-                            dmc.Col([
-                                dmc.Text("Vývoj Power Indexu:", size="xl", weight=600),
-                            ], span="content"),
-                            dmc.Col(
-                                [dmc.Grid([
-                                     dmc.Col([
-                                         dmc.Switch(
-                                             id="power_index_active_switch",
-                                             size="md",
-                                             radius="lg",
-                                             label="Aktivní hráči",
-                                             checked=False,
-                                         )
-                                     ], span="content"),
-                                     dmc.Col([
-                                         dmc.Switch(
-                                             id="power_index_current_switch",
-                                             size="md",
-                                             radius="lg",
-                                             label="Aktualní forma",
-                                             checked=False,
-                                         )
-                                     ], span="content")
-                                 ], align="flex-end"),
-                                 ], span="content"
-                            )
-                        ], justify="space-between", align="flex-end"
-                    ),
-                    dmc.Grid([
-                        dmc.Col([
-                            dmc.Card([
-                                dmc.Grid([
-                                    dmc.Col([
+                                dmc.Col(
+                                    [
+                                        best_players_card(
+                                            "Královna duelů",
+                                            "material-symbols:swords-outline",
+                                            pd.DataFrame.from_dict(
+                                                players, orient="index"
+                                            )
+                                            .sort_values(
+                                                ["Duely"],
+                                                ascending=False,
+                                            )
+                                            .iloc[0:5][["Duely"]],
+                                            ["", "Duely"],
+                                            "Duely",
+                                        ),
+                                    ],
+                                    xl=4,
+                                    sm=6,
+                                ),
+                                dmc.Col(
+                                    [
+                                        best_players_card(
+                                            "Účasti na odměnách",
+                                            "mdi:gift-outline",
+                                            pd.DataFrame.from_dict(
+                                                players, orient="index"
+                                            )
+                                            .sort_values(
+                                                ["Odměny"],
+                                                ascending=False,
+                                            )
+                                            .iloc[0:5][["Odměny"]],
+                                            ["", "Odměny"],
+                                            "Odměny",
+                                        ),
+                                    ],
+                                    xl=4,
+                                    sm=6,
+                                ),
+                            ]
+                        ),
+                        dmc.Grid(
+                            [
+                                dmc.Col(
+                                    [dmc.Text("Týmové výkony:", size="xl", weight=600)]
+                                )
+                            ]
+                        ),
+                        dmc.Grid(
+                            [
+                                dmc.Col(
+                                    [
+                                        best_team(
+                                            "Celková vítězství",
+                                            "mdi:trophy",
+                                            "all",
+                                            "Výhry",
+                                        )
+                                    ],
+                                    xl=4,
+                                    sm=6,
+                                ),
+                                dmc.Col(
+                                    [
+                                        best_team(
+                                            "Souboje o imunity",
+                                            "game-icons:diablo-skull",
+                                            "Souboj o imunitu",
+                                            "Imunity",
+                                        )
+                                    ],
+                                    xl=4,
+                                    sm=6,
+                                ),
+                                dmc.Col(
+                                    [
+                                        best_team(
+                                            "Souboje o odměnu",
+                                            "mdi:gift-outline",
+                                            "Souboj o odměnu",
+                                            "Odměny",
+                                        )
+                                    ],
+                                    xl=4,
+                                    sm=6,
+                                ),
+                            ]
+                        ),
+                        dmc.Grid(
+                            [dmc.Col([dmc.Text("Hráči:", size="xl", weight=600)])]
+                        ),
+                        dmc.Grid(
+                            [
+                                dmc.Col(
+                                    [
+                                        dmc.ScrollArea(
+                                            dmc.Grid(
+                                                [
+                                                    dmc.Col(
+                                                        player_card(player),
+                                                        span="content",
+                                                    )
+                                                    for player in list(
+                                                        df_players.sort_values(
+                                                            "Poradie",
+                                                            na_position="first",
+                                                        ).index
+                                                    )
+                                                ],
+                                                style={"width": "7584px"},
+                                            ),
+                                            style={"height": "180px", "padding": "8px"},
+                                            type="always",
+                                        ),
+                                    ]
+                                )
+                            ]
+                        ),
+                        dmc.Grid(
+                            [
+                                dmc.Col(
+                                    [
+                                        dmc.Text(
+                                            "Vývoj Power Indexu:", size="xl", weight=600
+                                        ),
+                                    ],
+                                    span="content",
+                                ),
+                                dmc.Col(
+                                    [
                                         dmc.Grid(
                                             [
                                                 dmc.Col(
                                                     [
-                                                        dcc.Graph(
-                                                            id="power_index_history_heatmap",
-                                                            # style={"height": "90vh"},
-                                                            config={"staticPlot": True},
-                                                        ),
-                                                    ],
-                                                )
-                                            ]
-                                        ),
-                                    ])
-                                ])
-                            ],
-                                withBorder=True,
-                                shadow="sm",
-                                radius="lg",
-                                style={
-                                    "padding": "10px",
-                                },
-                            ),
-                        ])
-                    ]),
-                    dmc.Grid(
-                        [
-                            dmc.Col(
-                                [
-                                    dmc.Text(
-                                        "Individuálne výsledky:", size="xl", weight=600
-                                    )
-                                ]
-                            )
-                        ]
-                    ),
-                    dmc.Grid(
-                        [
-                            dmc.Col(
-                                [
-                                    dmc.Card(
-                                        [
-                                            DataTable(
-                                                data=personal_stats_df_heat.reset_index().to_dict(
-                                                    "records"
-                                                ),
-                                                columns=[
-                                                    {
-                                                        "name": y,
-                                                        "id": x,
-                                                        "type": "numeric"
-                                                        if x == "POWER_INDEX"
-                                                        else None,
-                                                        "format": Format(
-                                                            precision=2,
-                                                            scheme=Scheme.fixed,
+                                                        dmc.Switch(
+                                                            id="power_index_active_switch",
+                                                            size="md",
+                                                            radius="lg",
+                                                            label="Aktivní hráči",
+                                                            checked=False,
                                                         )
-                                                        if x == "POWER_INDEX"
-                                                        else None,
-                                                    }
-                                                    for x, y in zip(["index", "POWER_INDEX", "IMMUNITY_WINS"] + list(personal_stats_df_heat.reset_index().iloc[:, 1:-2].columns),
-                                                                    ["Hráč", "Power Index", "Imunity"] + list(i for i in personal_stats_df_heat.reset_index().iloc[:, 1:-2].columns)) # "Den " + 
-                                                ],
-                                                style_table={'overflowX': 'auto'},
-                                                # fill_width=False,
-                                                style_data={"lineHeight": "8px", 'minWidth': '50px'},
-                                                style_cell={
-                                                    # "backgroundColor": "#f8f9fa",
-                                                    "font-family": "Segoe UI",
-                                                    "font_size": "14px",
-                                                    "padding": "5px",
-                                                },
-                                                style_as_list_view=True,
-                                                style_header={
-                                                    "backgroundColor": "white",
-                                                    "fontWeight": "bold",
-                                                },
-                                                style_data_conditional=discrete_background_color_bins(
-                                                    personal_stats_df_heat,
-                                                    columns=["POWER_INDEX"],
+                                                    ],
+                                                    span="content",
                                                 ),
-                                            ),
-                                        ],
-                                        withBorder=True,
-                                        shadow="sm",
-                                        radius="lg",
-                                        style={"padding": "20px"},
-                                    )
-                                ]
-                            )
-                        ]
+                                                dmc.Col(
+                                                    [
+                                                        dmc.Switch(
+                                                            id="power_index_current_switch",
+                                                            size="md",
+                                                            radius="lg",
+                                                            label="Aktualní forma",
+                                                            checked=False,
+                                                        )
+                                                    ],
+                                                    span="content",
+                                                ),
+                                            ],
+                                            align="flex-end",
+                                        ),
+                                    ],
+                                    span="content",
+                                ),
+                            ],
+                            justify="space-between",
+                            align="flex-end",
+                        ),
+                        dmc.Grid(
+                            [
+                                dmc.Col(
+                                    [
+                                        dmc.Card(
+                                            [
+                                                dmc.Grid(
+                                                    [
+                                                        dmc.Col(
+                                                            [
+                                                                dmc.ScrollArea([
+                                                                    dmc.Grid([
+                                                                        dmc.Col([
+                                                                            dcc.Graph(
+                                                                                id="power_index_history_heatmap",
+                                                                                # style={"height": "90vh"},
+                                                                                config={
+                                                                                    "staticPlot": True
+                                                                                },
+                                                                            ),
+                                                                        ], span="content", style={"padding": "0px"})
+                                                                    ], justify="center", style={"margin": "0px"})
+                                                                ])
+                                                            ],
+                                                        )
+                                                    ]
+                                                ),
+                                            ],
+                                            withBorder=True,
+                                            shadow="sm",
+                                            radius="lg",
+                                            style={
+                                                "padding": "10px",
+                                            },
+                                        ),
+                                    ]
+                                )
+                            ]
+                        ),
+                        dmc.Grid(
+                            [
+                                dmc.Col(
+                                    [
+                                        dmc.Text(
+                                            "Individuálne výsledky:",
+                                            size="xl",
+                                            weight=600,
+                                        )
+                                    ]
+                                )
+                            ]
+                        ),
+                        dmc.Grid(
+                            [
+                                dmc.Col(
+                                    [
+                                        dmc.Card(
+                                            [
+                                                DataTable(
+                                                    data=personal_stats_df_heat.reset_index().to_dict(
+                                                        "records"
+                                                    ),
+                                                    columns=[
+                                                        {
+                                                            "name": y,
+                                                            "id": x,
+                                                            "type": "numeric"
+                                                            if x == "POWER_INDEX"
+                                                            else None,
+                                                            "format": Format(
+                                                                precision=2,
+                                                                scheme=Scheme.fixed,
+                                                            )
+                                                            if x == "POWER_INDEX"
+                                                            else None,
+                                                        }
+                                                        for x, y in zip(
+                                                            [
+                                                                "index",
+                                                                "POWER_INDEX",
+                                                                "IMMUNITY_WINS",
+                                                            ]
+                                                            + list(
+                                                                personal_stats_df_heat.reset_index()
+                                                                .iloc[:, 1:-2]
+                                                                .columns
+                                                            ),
+                                                            [
+                                                                "Hráč",
+                                                                "Power Index",
+                                                                "Imunity",
+                                                            ]
+                                                            + list(
+                                                                i
+                                                                for i in personal_stats_df_heat.reset_index()
+                                                                .iloc[:, 1:-2]
+                                                                .columns
+                                                            ),
+                                                        )  # "Den " +
+                                                    ],
+                                                    style_table={"overflowX": "auto"},
+                                                    # fill_width=False,
+                                                    style_data={
+                                                        "lineHeight": "8px",
+                                                        "minWidth": "50px",
+                                                    },
+                                                    style_cell={
+                                                        # "backgroundColor": "#f8f9fa",
+                                                        "font-family": "Segoe UI",
+                                                        "font_size": "14px",
+                                                        "padding": "5px",
+                                                    },
+                                                    style_as_list_view=True,
+                                                    style_header={
+                                                        "backgroundColor": "white",
+                                                        "fontWeight": "bold",
+                                                    },
+                                                    style_data_conditional=discrete_background_color_bins(
+                                                        personal_stats_df_heat,
+                                                        columns=["POWER_INDEX"],
+                                                    ),
+                                                ),
+                                            ],
+                                            withBorder=True,
+                                            shadow="sm",
+                                            radius="lg",
+                                            style={"padding": "20px"},
+                                        )
+                                    ]
+                                )
+                            ]
+                        ),
+                    ],
+                    xl=9,
+                    lg=8,
+                ),
+                dmc.Col(
+                    [
+                        dmc.Grid(
+                            [dmc.Col([dmc.Text("Časová osa:", size="xl", weight=600)])]
+                        ),
+                        dmc.Grid([dmc.Col([dmc.Card(
+                            children=[dmc.Grid([
+                                dmc.Col([
+                                    create_event_log(event_log_df.tail(31))
+                                ],
+                            id="event-log-output",)
+                            ]),
+                            dmc.Grid([
+                                dmc.Col([
+                                    dmc.Button(
+                                        "Ukázat vše",
+                                        id="event-log-more-button",
+                                        variant="light",
+                                        size="md",
+                                        radius="xl",
+                                        color="gray",
+                                        fullWidth=True,
+                                        leftIcon=DashIconify(icon="material-symbols:expand-more-rounded", width=25, height=25),
+                                    ),
+                                ], span="auto", style={"padding-top": "16px"}
+                                )
+                            ], justify="center")],
+                            withBorder=True,
+                            shadow="sm",
+                            radius="lg",
+                            style={"padding": "10px", "padding-left": "20px", "padding-top": "20px"},
+                        )])]),
+                    ],
+                    style={"padding-left": "2vw"},
+                    xl=3,
+                    lg=4,
+                ),
+            ],
+            style={"padding": "20px"},
+        ),
+        dmc.Center(
+            my=65,
+            children=dmc.Group(
+                spacing="xs",
+                children=[
+                    dmc.Text("Made with"),
+                    DashIconify(
+                        icon="akar-icons:heart",
+                        width=19,
+                        color=dmc.theme.DEFAULT_COLORS["red"][8],
                     ),
+                    dmc.Text("by Martin Rapavý"),
                 ],
-                xl=9,
-                lg=8
             ),
-            dmc.Col(
-                [
-                    dmc.Grid(
-                        [dmc.Col([dmc.Text("Časová osa:", size="xl", weight=600)])]
-                    ),
-                    dmc.Grid([dmc.Col([create_eventlog(event_log_df)])]),
-                ],
-                style={"padding-left": "2vw"},
-                xl=3,
-                lg=4
-            ),
-        ],
-        style={"padding": "20px"},
-    ),
-]
+        ),
+    ]
 
 
 @callback(
@@ -2701,30 +2869,46 @@ def layout():
 )
 def update_line_chart(active_player, current_form):
     current_form_index = 5
-    personal_stats_df_pi_history = personal_stats_df_heat[list(personal_stats_df_heat.columns)[:-2]].copy()
+    personal_stats_df_pi_history = personal_stats_df_heat[
+        list(personal_stats_df_heat.columns)[:-2]
+    ].copy()
     for i in personal_stats_df_heat[list(personal_stats_df_heat.columns)[:-2]].columns:
-        ind = personal_stats_df_heat[list(personal_stats_df_heat.columns)[:-2]].columns.get_loc(i)
-        if current_form & (ind > (current_form_index-1)):
-            min_ind = ind-(current_form_index-1)
+        ind = personal_stats_df_heat[
+            list(personal_stats_df_heat.columns)[:-2]
+        ].columns.get_loc(i)
+        if current_form & (ind > (current_form_index - 1)):
+            min_ind = ind - (current_form_index - 1)
         else:
             min_ind = 0
         personal_stats_df_pi_history[i] = (
             1
-            - (personal_stats_df_heat[list(personal_stats_df_heat.columns)[:-2]].iloc[:, min_ind: ind + 1] - 1).div(
-                personal_stats_df_heat[list(personal_stats_df_heat.columns)[:-2]].iloc[:, min_ind: ind + 1].count(axis=0) - 1
+            - (
+                personal_stats_df_heat[list(personal_stats_df_heat.columns)[:-2]].iloc[
+                    :, min_ind : ind + 1
+                ]
+                - 1
+            ).div(
+                personal_stats_df_heat[list(personal_stats_df_heat.columns)[:-2]]
+                .iloc[:, min_ind : ind + 1]
+                .count(axis=0)
+                - 1
             )
         ).mean(axis=1)
     if active_player:
         dff = pd.DataFrame.from_dict(players, orient="index")
         active_players = list(dff[dff["Poradie"].isna()].index)
+        width = 600
     else:
         dff = pd.DataFrame.from_dict(players, orient="index")
         active_players = list(dff.index)
+        width = 1200
     fig_hm = imshow(
         personal_stats_df_pi_history.filter(items=active_players, axis=0).T,
         text_auto=".2f",
         range_color=[0, 1],
         color_continuous_scale="RdYlGn",
+        height=550,
+        width=width,
     )
     fig_hm.update_layout(
         paper_bgcolor="rgba(0, 0, 0, 0)",
@@ -2732,7 +2916,7 @@ def update_line_chart(active_player, current_form):
             family="Segoe UI",
             size=14,
         ),
-        margin=dict(r=0, l=20, b=10, t=10),
+        margin=dict(r=0, b=10, t=10),
         plot_bgcolor="rgba(0, 0, 0, 0)",
         modebar=dict(
             bgcolor="rgba(0, 0, 0, 0)",
@@ -2743,3 +2927,25 @@ def update_line_chart(active_player, current_form):
     )
     fig_hm.update_coloraxes(showscale=False)
     return fig_hm
+
+
+@callback(
+    Output("event-log-output", "children"),
+    Output("event-log-more-button", "children"),
+    Output("event-log-more-button", "leftIcon"),
+    Input("event-log-more-button", "n_clicks"),
+    prevent_initial_call=True,
+)
+def update_eventlog(more_n_clicks):
+    data = event_log_df.copy()
+    if more_n_clicks is None:
+        more_n_clicks = 0
+    if more_n_clicks % 2 == 0:
+        data = data.tail(31)
+        text = "Ukázat vše"
+        icon = DashIconify(icon="material-symbols:expand-more-rounded", width=25, height=25),
+    else:
+        text = "Skrýt"
+        icon = DashIconify(icon="material-symbols:expand-less-rounded", width=25, height=25),
+    eventlog = create_event_log(data)
+    return eventlog, text, icon
