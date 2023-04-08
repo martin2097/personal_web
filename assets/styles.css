@@ -1,0 +1,5 @@
+body {margin:0;padding:0}
+
+.dash-spreadsheet-container .dash-spreadsheet-inner table {
+        --hover: rgba(134, 142, 150, 0.2) !important;
+}
