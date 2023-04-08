@@ -1,5 +1,5 @@
 import dash
-from dash import dcc, callback, Output, Input, State, html
+from dash import dcc, callback, Output, Input, State, html, clientside_callback
 from dash.dash_table import DataTable
 import dash_mantine_components as dmc
 from dash_iconify import DashIconify
@@ -238,10 +238,6 @@ def best_team(card_label, title_icon, by_id, num_label):
                                         icon=title_icon,
                                         width=20,
                                         height=20,
-                                        style={
-                                            "padding-top": "2px",
-                                            "padding-right": "8px",
-                                        },
                                     ),
                                     dmc.Text(card_label, weight=700, size="xl"),
                                 ]
@@ -543,10 +539,6 @@ def best_players_card(card_label, title_icon, top_table, col_labels, by_id):
                                         icon=title_icon,
                                         width=20,
                                         height=20,
-                                        style={
-                                            "padding-top": "2px",
-                                            "padding-right": "8px",
-                                        },
                                     ),
                                     dmc.Text(card_label, weight=700, size="xl"),
                                 ]
@@ -798,15 +790,18 @@ def best_players_card(card_label, title_icon, top_table, col_labels, by_id):
                                                     ],
                                                     style_data={"lineHeight": "8px"},
                                                     style_cell={
-                                                        "backgroundColor": "#f8f9fa",
+                                                        "backgroundColor": "rgba(0,0,0,0)",
                                                         "font-family": "Segoe UI",
                                                         "font_size": "14px",
                                                         "padding": "5px",
+                                                        "border": "none",
                                                     },
-                                                    style_as_list_view=True,
+                                                    # style_as_list_view=True,
+                                                    cell_selectable=False,
                                                     style_header={
-                                                        "backgroundColor": "#f8f9fa",
+                                                        "backgroundColor": "rgba(0,0,0,0)",
                                                         "fontWeight": "bold",
+                                                        "border": "none",
                                                     },
                                                 ),
                                             ),
@@ -835,7 +830,6 @@ def eventlog_item(data_string):
     episode_timestamp = dmc.Tooltip(
         DashIconify(
             icon="mdi:television-classic",
-            style={"padding-top": "4px"},
             width=15,
             height=15,
         ),
@@ -1403,7 +1397,6 @@ def eventlog_item(data_string):
                                                             width=18,
                                                             height=18,
                                                             style={
-                                                                "color": "black",
                                                                 "padding-top": "2px",
                                                             },
                                                         ),
@@ -1659,7 +1652,6 @@ def eventlog_item(data_string):
                                                             width=18,
                                                             height=18,
                                                             style={
-                                                                "color": "black",
                                                                 "padding-top": "2px",
                                                             },
                                                         ),
@@ -2412,7 +2404,8 @@ def discrete_background_color_bins(df, n_bins=5, columns="all"):
 
 
 def layout():
-    return [
+    return dmc.MantineProvider([
+        dcc.Store(id="theme-store", storage_type="local"),
         dmc.Header(
             height=60,
             children=[
@@ -2420,15 +2413,41 @@ def layout():
                     [
                         dmc.Col(
                             [
-                                dmc.Text(
-                                    "SURVIVOR 2023 - Statistiky", weight=500, size=20
-                                )
+                                dmc.MediaQuery(
+                                    dmc.Container([
+                                        dmc.Text(
+                                            "SURVIVOR 2023", weight=500, size=20
+                                        ),
+                                    ], style={"padding": "0px", "padding-left": "10px"}),
+                                    largerThan="sm",
+                                    styles={"display": "none"},
+                                ),
+                                dmc.MediaQuery(
+                                    dmc.Container([
+                                        dmc.Text(
+                                            "SURVIVOR 2023 - Statistiky", weight=500, size=20
+                                        ),
+                                    ], style={"padding": "0px", "padding-left": "30px"}),
+                                    smallerThan="sm",
+                                    styles={"display": "none"},
+                                ),
                             ],
                             span="content",
-                            style={"padding-left": "30px"},
+
                         ),
                         dmc.Col([
+                            dmc.MediaQuery(
+                            dmc.Container([
                             dmc.Grid([
+                                dmc.Col([
+                                    dmc.ActionIcon(
+                                        DashIconify(
+                                            icon="radix-icons:blending-mode", width=30
+                                        ),
+                                        size="lg",
+                                        id="color-scheme-toggle",
+                                    ),
+                                ], span="content", style={"padding": "0px"}),
                                 dmc.Col([
                                     html.A(
                                         dmc.Tooltip(
@@ -2458,15 +2477,20 @@ def layout():
                                         href="https://linkedin.com/in/martin-rapavy",
                                         target="_blank",
                                     )
-                                ], span="content", style={"padding": "0px"}),
+                                ], span="content", style={"padding": "0px", "padding-right": "10px"}),
                             ])
+                                ], style={"padding": "0px"}),
+                                    largerThan="sm",
+                                    styles={"padding-right": "20px"}
+                                )
                         ],
                             span="content",
-                            style={"padding-right": "30px"},)
+
+                        )
                     ],
                     align="center",
                     justify="space-between",
-                    style={"height": "60px"},
+                    style={"height": "60px", "margin": "0px"},
                 )
             ],
         ),
@@ -2613,10 +2637,10 @@ def layout():
                                                 ],
                                                 style={"width": "7584px"},
                                             ),
-                                            style={"height": "180px", "padding": "8px"},
+                                            style={"height": "196px", "padding": "8px"},
                                             type="always",
                                         ),
-                                    ]
+                                    ], style={"padding": "0px"}
                                 )
                             ]
                         ),
@@ -2773,16 +2797,19 @@ def layout():
                                                     style_data={
                                                         "lineHeight": "8px",
                                                         "minWidth": "50px",
+                                                        "border": "none",
                                                     },
                                                     style_cell={
-                                                        # "backgroundColor": "#f8f9fa",
+                                                        "backgroundColor": "rgba(0,0,0,0)",
                                                         "font-family": "Segoe UI",
                                                         "font_size": "14px",
                                                         "padding": "5px",
+                                                        "border": "none",
                                                     },
-                                                    style_as_list_view=True,
+                                                    cell_selectable=False,
+                                                    # style_as_list_view=True,
                                                     style_header={
-                                                        "backgroundColor": "white",
+                                                        "backgroundColor": "rgba(0,0,0,0)",
                                                         "fontWeight": "bold",
                                                     },
                                                     style_data_conditional=discrete_background_color_bins(
@@ -2837,15 +2864,14 @@ def layout():
                             style={"padding": "10px", "padding-left": "20px", "padding-top": "20px"},
                         )])]),
                     ],
-                    style={"padding-left": "2vw"},
                     xl=3,
                     lg=4,
                 ),
             ],
-            style={"padding": "20px"},
+            gutterLg=40, style={"margin": "0px"}
         ),
         dmc.Center(
-            my=65,
+            my=20,
             children=dmc.Group(
                 spacing="xs",
                 children=[
@@ -2859,7 +2885,11 @@ def layout():
                 ],
             ),
         ),
-    ]
+    ],
+        theme={"colorScheme": "light"},
+        withGlobalStyles=True,
+        id="mantine-docs-theme-provider",
+    )
 
 
 @callback(
@@ -2924,6 +2954,8 @@ def update_line_chart(active_player, current_form):
             activecolor="rgba(0, 0, 0, 0.3)",
         ),
         yaxis_title=None,
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=False),
     )
     fig_hm.update_coloraxes(showscale=False)
     return fig_hm
@@ -2949,3 +2981,28 @@ def update_eventlog(more_n_clicks):
         icon = DashIconify(icon="material-symbols:expand-less-rounded", width=25, height=25),
     eventlog = create_event_log(data)
     return eventlog, text, icon
+
+
+clientside_callback(
+    """ function(data) { return data } """,
+    Output("mantine-docs-theme-provider", "theme"),
+    Input("theme-store", "data"),
+)
+
+
+clientside_callback(
+    """function(n_clicks, data) {
+        if (data) {
+            if (n_clicks) {
+                const scheme = data["colorScheme"] == "dark" ? "light" : "dark"
+                return { colorScheme: scheme } 
+            }
+            return dash_clientside.no_update
+        } else {
+            return { colorScheme: "light" }
+        }
+    }""",
+    Output("theme-store", "data"),
+    Input("color-scheme-toggle", "n_clicks"),
+    State("theme-store", "data"),
+)
