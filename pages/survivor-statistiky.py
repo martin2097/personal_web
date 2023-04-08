@@ -2404,8 +2404,7 @@ def discrete_background_color_bins(df, n_bins=5, columns="all"):
 
 
 def layout():
-    return dmc.MantineProvider([
-        dcc.Store(id="theme-store", storage_type="local"),
+    return [
         dmc.Header(
             height=60,
             children=[
@@ -2885,11 +2884,7 @@ def layout():
                 ],
             ),
         ),
-    ],
-        theme={"colorScheme": "light"},
-        withGlobalStyles=True,
-        id="mantine-docs-theme-provider",
-    )
+    ]
 
 
 @callback(
