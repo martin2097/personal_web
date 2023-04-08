@@ -239,7 +239,7 @@ def best_team(card_label, title_icon, by_id, num_label):
                                         width=20,
                                         height=20,
                                     ),
-                                    dmc.Text(card_label, weight=700, size="xl"),
+                                    dmc.Text(card_label, weight=700, size="xl", style={"padding-left": "6px"}),
                                 ]
                             )
                         ],
@@ -540,7 +540,7 @@ def best_players_card(card_label, title_icon, top_table, col_labels, by_id):
                                         width=20,
                                         height=20,
                                     ),
-                                    dmc.Text(card_label, weight=700, size="xl"),
+                                    dmc.Text(card_label, weight=700, size="xl", style={"padding-left": "6px"}),
                                 ]
                             )
                         ],
@@ -2860,7 +2860,7 @@ def layout():
                             withBorder=True,
                             shadow="sm",
                             radius="lg",
-                            style={"padding": "10px", "padding-left": "20px", "padding-top": "20px"},
+                            style={"padding": "10px"},
                         )])]),
                     ],
                     xl=3,
@@ -2891,8 +2891,9 @@ def layout():
     Output("power_index_history_heatmap", "figure"),
     Input("power_index_active_switch", "checked"),
     Input("power_index_current_switch", "checked"),
+    Input("theme-store", "data"),
 )
-def update_line_chart(active_player, current_form):
+def update_line_chart(active_player, current_form, theme):
     current_form_index = 5
     personal_stats_df_pi_history = personal_stats_df_heat[
         list(personal_stats_df_heat.columns)[:-2]
@@ -2949,8 +2950,8 @@ def update_line_chart(active_player, current_form):
             activecolor="rgba(0, 0, 0, 0.3)",
         ),
         yaxis_title=None,
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=False),
+        xaxis=dict(showgrid=False, color="#444" if theme["colorScheme"] == "light" else "#FFFFFF"),
+        yaxis=dict(showgrid=False, color="#444" if theme["colorScheme"] == "light" else "#FFFFFF"),
     )
     fig_hm.update_coloraxes(showscale=False)
     return fig_hm
