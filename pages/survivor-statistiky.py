@@ -7,7 +7,7 @@ import pandas as pd
 from plotly.express import imshow
 from dash.dash_table.Format import Format, Scheme
 
-dash.register_page(__name__, title="Survivor - Statistiky", description="Statistiky česko-slovenské verze reality show Survivor", image="survivor-statistky-nahlad.png")
+dash.register_page(__name__, title="Survivor - Statistiky", description="Statistiky česko-slovenské verze reality show Survivor", image="survivor-statistky-nahlad.PNG")
 
 survivor_colors = {"Hrdinové": "#f70000", "Rebelové": "#0122dc"}
 
