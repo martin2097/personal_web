@@ -20,12 +20,6 @@ app.index_string = """<!DOCTYPE html>
         <title>{%title%}</title>
         {%favicon%}
         {%css%}
-        <meta property="og:type" content="article">
-        <meta property="og:title" content="Cryptocurrency Indicators Dashboard"">
-        <meta property="og:site_name" content="https://crypto-indicators-dashboard.herokuapp.com">
-        <meta property="og:url" content="https://crypto-indicators-dashboard.herokuapp.com">
-        <meta property="og:image" content="https://raw.githubusercontent.com/dc-aichara/DS-ML-Public/master/Medium_Files/dashboard_demo/assets/favicon.ico">
-        <meta property="article:published_time" content="2020-11-01">
     </head>
     <body>
         {%app_entry%}
