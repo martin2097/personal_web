@@ -2693,7 +2693,7 @@ def layout():
                                         size="lg",
                                         id="color-scheme-toggle",
                                     ),
-                                ], span="content", style={"padding": "0px"}),
+                                ], span="content", style={"padding": "0px", "padding-left": "9px", "padding-right": "9px"}),
                                 dmc.Col([
                                     html.A(
                                         dmc.Tooltip(
@@ -2708,7 +2708,7 @@ def layout():
                                         href="https://github.com/martin2097/",
                                         target="_blank",
                                     ),
-                                ], span="content", style={"padding": "0px"}),
+                                ], span="content", style={"padding": "0px", "padding-left": "9px", "padding-right": "9px"}),
                                 dmc.Col([
                                     html.A(
                                         dmc.Tooltip(
@@ -2723,7 +2723,7 @@ def layout():
                                         href="https://linkedin.com/in/martin-rapavy",
                                         target="_blank",
                                     )
-                                ], span="content", style={"padding": "0px", "padding-right": "10px"}),
+                                ], span="content", style={"padding": "0px", "padding-left": "9px", "padding-right": "9px"}),
                             ])
                                 ], style={"padding": "0px"}),
                                     largerThan="sm",
