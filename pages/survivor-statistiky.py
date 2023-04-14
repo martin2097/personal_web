@@ -2690,7 +2690,7 @@ def layout():
                                         DashIconify(
                                             icon="radix-icons:blending-mode", width=48, height=48
                                         ),
-                                        size="xl",
+                                        size=50,
                                         id="color-scheme-toggle",
                                     ),
                                 ], span="content", style={"padding": "0px"}),
@@ -2699,7 +2699,7 @@ def layout():
                                         dmc.Tooltip(
                                             dmc.ActionIcon(
                                                 DashIconify(icon="mdi:github", width=48, height=48),
-                                                size="xl"
+                                                size=50
                                             ),
                                             label="Github",
                                             position="top",
@@ -2714,7 +2714,7 @@ def layout():
                                         dmc.Tooltip(
                                             dmc.ActionIcon(
                                                 DashIconify(icon="mdi:linkedin", width=48, height=48),
-                                                size="xl"
+                                                size=50
                                             ),
                                             label="Linkedin",
                                             position="top",
