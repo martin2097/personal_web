@@ -2688,18 +2688,18 @@ def layout():
                                 dmc.Col([
                                     dmc.ActionIcon(
                                         DashIconify(
-                                            icon="radix-icons:blending-mode", width=30
+                                            icon="radix-icons:blending-mode", width=48, height=48
                                         ),
-                                        size="lg",
+                                        size="xl",
                                         id="color-scheme-toggle",
                                     ),
-                                ], span="content", style={"padding": "0px", "padding-left": "9px", "padding-right": "9px"}),
+                                ], span="content", style={"padding": "0px"}),
                                 dmc.Col([
                                     html.A(
                                         dmc.Tooltip(
                                             dmc.ActionIcon(
-                                                DashIconify(icon="mdi:github", width=30),
-                                                size="lg"
+                                                DashIconify(icon="mdi:github", width=48, height=48),
+                                                size="xl"
                                             ),
                                             label="Github",
                                             position="top",
@@ -2708,13 +2708,13 @@ def layout():
                                         href="https://github.com/martin2097/",
                                         target="_blank",
                                     ),
-                                ], span="content", style={"padding": "0px", "padding-left": "9px", "padding-right": "9px"}),
+                                ], span="content", style={"padding": "0px"}),
                                 dmc.Col([
                                     html.A(
                                         dmc.Tooltip(
                                             dmc.ActionIcon(
-                                                DashIconify(icon="mdi:linkedin", width=30),
-                                                size="lg"
+                                                DashIconify(icon="mdi:linkedin", width=48, height=48),
+                                                size="xl"
                                             ),
                                             label="Linkedin",
                                             position="top",
@@ -2723,7 +2723,7 @@ def layout():
                                         href="https://linkedin.com/in/martin-rapavy",
                                         target="_blank",
                                     )
-                                ], span="content", style={"padding": "0px", "padding-left": "9px", "padding-right": "9px"}),
+                                ], span="content", style={"padding": "0px"}),
                             ])
                                 ], style={"padding": "0px"}),
                                     largerThan="sm",
