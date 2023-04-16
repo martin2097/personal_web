@@ -20,6 +20,7 @@ app.index_string = """<!DOCTYPE html>
         <title>{%title%}</title>
         {%favicon%}
         {%css%}
+        <meta name="seznam-wmt" content="XHyoishcgDiRoWjHaGC2Myu4JV2rYxQ8" />
     </head>
     <body>
         {%app_entry%}
