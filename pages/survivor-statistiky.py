@@ -208,7 +208,7 @@ for player in players:
     )
     players[player]["Odměny"] = len(
         event_log_df[
-            (event_log_df["EVENT_TYPE"] == "Souboj o odměnu")
+            (event_log_df["EVENT_TYPE"].isin(["Souboj o odměnu", "Odměna"]))
             & (event_log_df["WINNING_ROSTER"].str.contains(player))
         ].index
     )
@@ -936,7 +936,7 @@ def eventlog_item(data_string):
         position="top",
         transition="pop",
     )
-    if data_string["EVENT_TYPE"] in ["Souboj o odměnu", "Souboj o imunitu"]:
+    if data_string["EVENT_TYPE"] in ["Souboj o odměnu", "Souboj o imunitu", "Odměna"]:
         item = dmc.TimelineItem(
             children=[
                 dmc.Card(
@@ -970,7 +970,7 @@ def eventlog_item(data_string):
                                                                     if data_string[
                                                                         "EVENT_TYPE"
                                                                     ]
-                                                                    == "Souboj o odměnu"
+                                                                    in ["Souboj o odměnu", "Odměna"]
                                                                     else ""
                                                                 )
                                                             ],
@@ -1049,6 +1049,9 @@ def eventlog_item(data_string):
                                                         "padding-right": "4px",
                                                     },
                                                 ),
+                                                ] if data_string["EVENT_TYPE"] in ["Souboj o odměnu", "Souboj o osobní imunitu"] else []
+                                                +
+                                            [
                                                 dmc.Col(
                                                     [
                                                         dmc.Text(
@@ -1067,65 +1070,7 @@ def eventlog_item(data_string):
                                                         "padding-right": "0px",
                                                     },
                                                 ) if data_string["WINNING_SIDE"] in ["Hrdinové", "Rebelové"] else
-                                                dmc.Col(
-                                                    dmc.Grid(
-                                                        [
-                                                        dmc.Col(
-                                                            [
-                                                                dmc.Tooltip(
-                                                                    dmc.Avatar(
-                                                                        src=players[
-                                                                            data_string[
-                                                                                "WINNING_SIDE"
-                                                                            ]
-                                                                        ]["profile_picture"],
-                                                                        radius="lg",
-                                                                        size="sm",
-                                                                    ),
-                                                                    label=data_string[
-                                                                        "WINNING_SIDE"
-                                                                    ],
-                                                                    position="top",
-                                                                    transition="pop",
-                                                                    style={
-                                                                        "padding": "1px",
-                                                                        "padding-left": "5px",
-                                                                        "padding-right": "5px",
-                                                                    },
-                                                                ),
-
-                                                            ],
-                                                            span="content",
-                                                            style={
-                                                                "padding-top": "4px",
-                                                                "padding-bottom": "5px",
-                                                                "padding-left": "4px",
-                                                            },
-                                                        ),
-                                                        dmc.Col(
-                                                            [
-                                                                DashIconify(
-                                                                    icon="heroicons:user-group-solid",
-                                                                    width=20,
-                                                                    height=20,
-                                                                    style={
-                                                                        "padding-top": "4px",
-                                                                    },
-                                                                ),
-                                                            ],
-                                                            span="content",
-                                                            style={
-                                                                "padding-top": "4px",
-                                                                "padding-bottom": "5px",
-                                                                "padding-right": "0px",
-                                                                "padding-left": "0px",
-                                                                "margin-right": "-8px"
-                                                            },
-                                                        ),
-                                                            ]
-                                                    )
-                                                            ,span="content",
-                                                ),
+                                                None,
                                                 dmc.Col(
                                                     [
                                                         dmc.AvatarGroup(
@@ -1188,7 +1133,7 @@ def eventlog_item(data_string):
             ],
             style={"margin-top": "8px"},
             bullet=DashIconify(icon="mdi:gift-outline", width=17, height=17)
-            if data_string["EVENT_TYPE"] == "Souboj o odměnu"
+            if data_string["EVENT_TYPE"] in ["Souboj o odměnu", "Odměna"]
             else DashIconify(
                 icon="material-symbols:shield-outline", width=17, height=17
             ),
@@ -2688,9 +2633,9 @@ def layout():
                                 dmc.Col([
                                     dmc.ActionIcon(
                                         DashIconify(
-                                            icon="radix-icons:blending-mode", width=48, height=48
+                                            icon="radix-icons:blending-mode", width=30
                                         ),
-                                        size=50,
+                                        size="lg",
                                         id="color-scheme-toggle",
                                     ),
                                 ], span="content", style={"padding": "0px"}),
@@ -2698,8 +2643,8 @@ def layout():
                                     html.A(
                                         dmc.Tooltip(
                                             dmc.ActionIcon(
-                                                DashIconify(icon="mdi:github", width=48, height=48),
-                                                size=50
+                                                DashIconify(icon="mdi:github", width=30),
+                                                size="lg"
                                             ),
                                             label="Github",
                                             position="top",
@@ -2713,8 +2658,8 @@ def layout():
                                     html.A(
                                         dmc.Tooltip(
                                             dmc.ActionIcon(
-                                                DashIconify(icon="mdi:linkedin", width=48, height=48),
-                                                size=50
+                                                DashIconify(icon="mdi:linkedin", width=30),
+                                                size="lg"
                                             ),
                                             label="Linkedin",
                                             position="top",
@@ -2723,7 +2668,7 @@ def layout():
                                         href="https://linkedin.com/in/martin-rapavy",
                                         target="_blank",
                                     )
-                                ], span="content", style={"padding": "0px"}),
+                                ], span="content", style={"padding": "0px", "padding-right": "10px"}),
                             ])
                                 ], style={"padding": "0px"}),
                                     largerThan="sm",
@@ -2774,7 +2719,7 @@ def layout():
                                 dmc.Col(
                                     [
                                         best_players_card(
-                                            "Královna duelů",
+                                            "Král duelů",
                                             "material-symbols:swords-outline",
                                             pd.DataFrame.from_dict(
                                                 players, orient="index"
@@ -3080,12 +3025,42 @@ def layout():
                 dmc.Col(
                     [
                         dmc.Grid(
-                            [dmc.Col([dmc.Text("Časová osa:", size="xl", weight=600)])]
+                            [dmc.Col([dmc.Text("Časová osa:", size="xl", weight=600)], span="content"),
+                             # dmc.Col([
+                             #     dmc.Menu(
+                             #         [
+                             #             dmc.MenuTarget(dmc.ActionIcon(
+                             #                    DashIconify(
+                             #                        icon="material-symbols:filter-alt-outline", width=30
+                             #                    ),
+                             #                    size="lg",
+                             #                )),
+                             #             dmc.MenuDropdown(
+                             #                 [
+                             #                     dmc.ChipGroup(
+                             #                                     [
+                             #                                         dmc.Chip(
+                             #                                             x,
+                             #                                             value=x,
+                             #                                             variant="outline",
+                             #                                         )
+                             #                                         for x in ["React", "Django", "Dash", "Vue"]
+                             #                                     ],
+                             #                                     id="chips-values",
+                             #                                     value=["React", "Dash"],
+                             #                                     multiple=True,
+                             #                                 )
+                             #                 ]
+                             #             ),
+                             #         ]
+                             #     ),
+                             # ],span="content")
+                             ], justify="space-between"
                         ),
                         dmc.Grid([dmc.Col([dmc.Card(
                             children=[dmc.Grid([
                                 dmc.Col([
-                                    create_event_log(event_log_df.tail(31))
+                                    create_event_log(event_log_df.tail(33))
                                 ],
                             id="event-log-output",)
                             ]),
@@ -3180,7 +3155,7 @@ def update_line_chart(active_player, current_form, theme):
         text_auto=".2f",
         range_color=[0, 1],
         color_continuous_scale="RdYlGn",
-        height=550,
+        height=650,
         width=width,
     )
     fig_hm.update_layout(
@@ -3216,7 +3191,7 @@ def update_eventlog(more_n_clicks):
     if more_n_clicks is None:
         more_n_clicks = 0
     if more_n_clicks % 2 == 0:
-        data = data.tail(31)
+        data = data.tail(33)
         text = "Ukázat vše"
         icon = DashIconify(icon="material-symbols:expand-more-rounded", width=25, height=25),
     else:
