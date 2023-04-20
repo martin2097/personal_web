@@ -2719,7 +2719,7 @@ def layout():
                                 dmc.Col(
                                     [
                                         best_players_card(
-                                            "Král duelů",
+                                            "Královna duelů",
                                             "material-symbols:swords-outline",
                                             pd.DataFrame.from_dict(
                                                 players, orient="index"
