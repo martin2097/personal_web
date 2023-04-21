@@ -998,7 +998,7 @@ def eventlog_item(data_string):
                                             align="center",
                                         ),
                                         dmc.Grid(
-                                            [
+                                            ([
                                                 dmc.Col(
                                                     [
                                                         DashIconify(
@@ -1049,7 +1049,7 @@ def eventlog_item(data_string):
                                                         "padding-right": "4px",
                                                     },
                                                 ),
-                                                ] if data_string["EVENT_TYPE"] in ["Souboj o odměnu", "Souboj o osobní imunitu"] else []
+                                                ] if data_string["EVENT_TYPE"] in ["Souboj o odměnu", "Souboj o imunitu"] else [])
                                                 +
                                             [
                                                 dmc.Col(
