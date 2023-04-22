@@ -7,3 +7,4 @@ openpyxl
 pandas
 dash-iconify
 colorlover
+numpy
