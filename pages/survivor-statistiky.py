@@ -1,5 +1,6 @@
 import dash
-from dash import dcc, callback, Output, Input, State, html, clientside_callback
+from dash import dcc, callback, Output, Input, State, html, clientside_callback, ctx
+from dash.exceptions import PreventUpdate
 from dash.dash_table import DataTable
 import dash_mantine_components as dmc
 from dash_iconify import DashIconify
@@ -3307,35 +3308,71 @@ def layout():
                                     [dmc.Text("Časová osa:", size="xl", weight=600)],
                                     span="content",
                                 ),
-                                # dmc.Col([
-                                #     dmc.Menu(
-                                #         [
-                                #             dmc.MenuTarget(dmc.ActionIcon(
-                                #                    DashIconify(
-                                #                        icon="material-symbols:filter-alt-outline", width=30
-                                #                    ),
-                                #                    size="lg",
-                                #                )),
-                                #             dmc.MenuDropdown(
-                                #                 [
-                                #                     dmc.ChipGroup(
-                                #                                     [
-                                #                                         dmc.Chip(
-                                #                                             x,
-                                #                                             value=x,
-                                #                                             variant="outline",
-                                #                                         )
-                                #                                         for x in ["React", "Django", "Dash", "Vue"]
-                                #                                     ],
-                                #                                     id="chips-values",
-                                #                                     value=["React", "Dash"],
-                                #                                     multiple=True,
-                                #                                 )
-                                #                 ]
-                                #             ),
-                                #         ]
-                                #     ),
-                                # ],span="content")
+                                dmc.Col([
+                                    dmc.Menu(
+                                        shadow="sm",
+                                        radius="lg",
+                                        position="bottom-start",
+                                        # withArrow=True,
+                                        offset=0,
+                                        # arrowSize=10,
+                                        children=[
+                                            dmc.MenuTarget(dmc.ActionIcon(
+                                                   DashIconify(
+                                                       icon="material-symbols:filter-alt-outline", width=30
+                                                   ),
+                                                   size="lg",
+                                               )),
+                                            dmc.MenuDropdown(
+                                                dmc.Container([
+                                                    dmc.Grid([
+                                                        dmc.Col([
+                                                            dmc.Text("Typ události:", weight=600),
+                                                        ])
+                                                    ]),
+                                                    dmc.Grid([
+                                                        dmc.Col([
+                                                            dmc.ChipGroup(
+                                                                [
+                                                                    dmc.Chip(
+                                                                        x,
+                                                                        value=x,
+                                                                        variant="outline",
+                                                                        color="yellow",
+                                                                    )
+                                                                    for x in event_log_df["EVENT_TYPE"].unique()
+                                                                ],
+                                                                id="filter-event",
+                                                                value=event_log_df["EVENT_TYPE"].unique(),
+                                                                multiple=True,
+                                                                spacing=5,
+                                                            ),
+                                                        ])
+                                                    ]),
+                                                    dmc.Grid([
+                                                        dmc.Col([
+                                                            dmc.Button(
+                                                                "Filtrovat",
+                                                                id="event-log-filter-button",
+                                                                variant="outline",
+                                                                size="sm",
+                                                                radius="xl",
+                                                                color="yellow",
+                                                                fullWidth=True,
+                                                                leftIcon=DashIconify(
+                                                                    icon="material-symbols:filter-alt-outline",
+                                                                    width=25,
+                                                                    height=25,
+                                                                ),
+                                                            ),
+                                                        ])
+                                                    ])
+                                                ], p=10, style={"max-width": "400px"}
+                                                )
+                                            ),
+                                        ]
+                                    ),
+                                ],span="content")
                             ],
                             justify="space-between",
                         ),
@@ -3510,10 +3547,13 @@ def update_line_chart(active_player, current_form, theme):
     Output("event-log-more-button", "children"),
     Output("event-log-more-button", "leftIcon"),
     Input("event-log-more-button", "n_clicks"),
+    Input("event-log-filter-button", "n_clicks"),
+    State("filter-event", "value"),
     prevent_initial_call=True,
 )
-def update_eventlog(more_n_clicks):
+def update_eventlog(more_n_clicks, filter_n_clicks, filtered_events):
     data = event_log_df.copy()
+    data = data[data["EVENT_TYPE"].isin(filtered_events)]
     if more_n_clicks is None:
         more_n_clicks = 0
     if more_n_clicks % 2 == 0:
@@ -3533,6 +3573,20 @@ def update_eventlog(more_n_clicks):
         )
     eventlog = create_event_log(data)
     return eventlog, text, icon
+
+
+@callback(
+    Output("event-log-filter-button", "variant"),
+    Input("event-log-filter-button", "n_clicks"),
+    Input("filter-event", "value"),
+)
+def highlight_filter_button(n_clicks_fire_filters, filter_value_change):
+    if ctx.triggered_id is None:
+        raise PreventUpdate
+    if ctx.triggered_id == "event-log-filter-button":
+        return "outline"
+    else:
+        return "filled"
 
 
 clientside_callback(
