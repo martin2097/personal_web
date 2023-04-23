@@ -938,6 +938,7 @@ def best_players_card(card_label, title_icon, top_table, col_labels, by_id):
 
 def eventlog_item(data_string):
     episode_timestamp = dmc.Menu(
+        transition="pop",
         shadow="sm",
         radius="lg",
         withArrow="true",
@@ -3044,6 +3045,7 @@ def layout():
                                                 dmc.Col(
                                                     [
                                                         dmc.Menu(
+                                                            transition="pop",
                                                             shadow="sm",
                                                             radius="lg",
                                                             position="bottom-start",
@@ -3311,9 +3313,10 @@ def layout():
                                 dmc.Col(
                                     [
                                         dmc.Menu(
-                                            shadow="sm",
+                                            transition="pop",
+                                            shadow="md",
                                             radius="lg",
-                                            # position="bottom-start",
+                                            position="bottom-end",
                                             # withArrow=True,
                                             offset=0,
                                             # arrowSize=10,
@@ -3336,12 +3339,26 @@ def layout():
                                                                         dmc.Col(
                                                                             [
                                                                                 dmc.Text(
-                                                                                    "Typ události:",
+                                                                                    "Typ události",
                                                                                     weight=600,
                                                                                 ),
-                                                                            ]
-                                                                        )
-                                                                    ]
+                                                                            ],
+                                                                            span="content",
+                                                                        ),
+                                                                        dmc.Col(
+                                                                            [
+                                                                                dmc.ActionIcon(
+                                                                                    DashIconify(icon="bi:check-all", width=25),
+                                                                                    id="filter-event-all",
+                                                                                    n_clicks=0
+                                                                                )
+                                                                            ],
+                                                                            span="content",
+                                                                            pt=6,
+                                                                            pl=0,
+                                                                        ),
+                                                                    ],
+                                                                    # justify="space-between",
                                                                 ),
                                                                 dmc.Grid(
                                                                     [
@@ -3377,7 +3394,7 @@ def layout():
                                                                                 dmc.Button(
                                                                                     "Filtrovat",
                                                                                     id="event-log-filter-button",
-                                                                                    variant="outline",
+                                                                                    variant="filled",
                                                                                     size="sm",
                                                                                     radius="xl",
                                                                                     color="yellow",
@@ -3394,16 +3411,17 @@ def layout():
                                                                 ),
                                                             ],
                                                             p=10,
-                                                            style={"max-width": "97vw"},
+                                                            style={"max-width": "70vw"},
                                                         ),
                                                         largerThan="sm",
-                                                        styles={"max-width": "400px"},
+                                                        styles={"max-width": "300px"},
                                                     )
                                                 ),
                                             ],
                                         ),
                                     ],
                                     span="content",
+                                    # pr=20,
                                 ),
                             ],
                             justify="space-between",
@@ -3608,17 +3626,33 @@ def update_eventlog(more_n_clicks, filter_n_clicks, filtered_events):
 
 
 @callback(
-    Output("event-log-filter-button", "variant"),
-    Input("event-log-filter-button", "n_clicks"),
-    Input("filter-event", "value"),
+    Output("filter-event", "value"),
+    Input("filter-event-all", "n_clicks"),
+    State("filter-event", "value"),
 )
-def highlight_filter_button(n_clicks_fire_filters, filter_value_change):
-    if ctx.triggered_id is None:
+def filter_all_events(n_clicks, current_values):
+    if n_clicks == 0:
         raise PreventUpdate
-    if ctx.triggered_id == "event-log-filter-button":
-        return "outline"
     else:
-        return "filled"
+        if len(current_values) == 0:
+            out = event_log_df["EVENT_TYPE"].unique()
+        else:
+            out = []
+        return out
+
+
+# @callback(
+#     Output("event-log-filter-button", "variant"),
+#     Input("event-log-filter-button", "n_clicks"),
+#     Input("filter-event", "value"),
+# )
+# def highlight_filter_button(n_clicks_fire_filters, filter_value_change):
+#     if ctx.triggered_id is None:
+#         raise PreventUpdate
+#     if ctx.triggered_id == "event-log-filter-button":
+#         return "outline"
+#     else:
+#         return "filled"
 
 
 clientside_callback(
