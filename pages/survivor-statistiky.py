@@ -3308,71 +3308,103 @@ def layout():
                                     [dmc.Text("Časová osa:", size="xl", weight=600)],
                                     span="content",
                                 ),
-                                dmc.Col([
-                                    dmc.Menu(
-                                        shadow="sm",
-                                        radius="lg",
-                                        position="bottom-start",
-                                        # withArrow=True,
-                                        offset=0,
-                                        # arrowSize=10,
-                                        children=[
-                                            dmc.MenuTarget(dmc.ActionIcon(
-                                                   DashIconify(
-                                                       icon="material-symbols:filter-alt-outline", width=30
-                                                   ),
-                                                   size="lg",
-                                               )),
-                                            dmc.MenuDropdown(
-                                                dmc.Container([
-                                                    dmc.Grid([
-                                                        dmc.Col([
-                                                            dmc.Text("Typ události:", weight=600),
-                                                        ])
-                                                    ]),
-                                                    dmc.Grid([
-                                                        dmc.Col([
-                                                            dmc.ChipGroup(
-                                                                [
-                                                                    dmc.Chip(
-                                                                        x,
-                                                                        value=x,
-                                                                        variant="outline",
-                                                                        color="yellow",
-                                                                    )
-                                                                    for x in event_log_df["EVENT_TYPE"].unique()
-                                                                ],
-                                                                id="filter-event",
-                                                                value=event_log_df["EVENT_TYPE"].unique(),
-                                                                multiple=True,
-                                                                spacing=5,
-                                                            ),
-                                                        ])
-                                                    ]),
-                                                    dmc.Grid([
-                                                        dmc.Col([
-                                                            dmc.Button(
-                                                                "Filtrovat",
-                                                                id="event-log-filter-button",
-                                                                variant="outline",
-                                                                size="sm",
-                                                                radius="xl",
-                                                                color="yellow",
-                                                                fullWidth=True,
-                                                                leftIcon=DashIconify(
-                                                                    icon="material-symbols:filter-alt-outline",
-                                                                    width=25,
-                                                                    height=25,
+                                dmc.Col(
+                                    [
+                                        dmc.Menu(
+                                            shadow="sm",
+                                            radius="lg",
+                                            # position="bottom-start",
+                                            # withArrow=True,
+                                            offset=0,
+                                            # arrowSize=10,
+                                            children=[
+                                                dmc.MenuTarget(
+                                                    dmc.ActionIcon(
+                                                        DashIconify(
+                                                            icon="material-symbols:filter-alt-outline",
+                                                            width=30,
+                                                        ),
+                                                        size="lg",
+                                                    )
+                                                ),
+                                                dmc.MenuDropdown(
+                                                    dmc.MediaQuery(
+                                                        dmc.Container(
+                                                            [
+                                                                dmc.Grid(
+                                                                    [
+                                                                        dmc.Col(
+                                                                            [
+                                                                                dmc.Text(
+                                                                                    "Typ události:",
+                                                                                    weight=600,
+                                                                                ),
+                                                                            ]
+                                                                        )
+                                                                    ]
                                                                 ),
-                                                            ),
-                                                        ])
-                                                    ])
-                                                ], p=10, style={"max-width": "400px"}
-                                                )
-                                            ),
-                                        ]
-                                    ),
-                                ],span="content")
+                                                                dmc.Grid(
+                                                                    [
+                                                                        dmc.Col(
+                                                                            [
+                                                                                dmc.ChipGroup(
+                                                                                    [
+                                                                                        dmc.Chip(
+                                                                                            x,
+                                                                                            value=x,
+                                                                                            variant="outline",
+                                                                                            color="yellow",
+                                                                                        )
+                                                                                        for x in event_log_df[
+                                                                                            "EVENT_TYPE"
+                                                                                        ].unique()
+                                                                                    ],
+                                                                                    id="filter-event",
+                                                                                    value=event_log_df[
+                                                                                        "EVENT_TYPE"
+                                                                                    ].unique(),
+                                                                                    multiple=True,
+                                                                                    spacing=5,
+                                                                                ),
+                                                                            ]
+                                                                        )
+                                                                    ]
+                                                                ),
+                                                                dmc.Grid(
+                                                                    [
+                                                                        dmc.Col(
+                                                                            [
+                                                                                dmc.Button(
+                                                                                    "Filtrovat",
+                                                                                    id="event-log-filter-button",
+                                                                                    variant="outline",
+                                                                                    size="sm",
+                                                                                    radius="xl",
+                                                                                    color="yellow",
+                                                                                    fullWidth=True,
+                                                                                    leftIcon=DashIconify(
+                                                                                        icon="material-symbols:filter-alt-outline",
+                                                                                        width=25,
+                                                                                        height=25,
+                                                                                    ),
+                                                                                ),
+                                                                            ]
+                                                                        )
+                                                                    ]
+                                                                ),
+                                                            ],
+                                                            p=10,
+                                                            style={"max-width": "97vw"},
+                                                        ),
+                                                        largerThan="sm",
+                                                        styles={"max-width": "400px"},
+                                                    )
+                                                ),
+                                            ],
+                                        ),
+                                    ],
+                                    span="content",
+                                ),
                             ],
                             justify="space-between",
                         ),
