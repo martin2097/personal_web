@@ -539,7 +539,7 @@ def player_card(player):
                                 transition="pop",
                             ),
                             span="content",
-                            style={"padding-left": "4px", "padding-right": "4px"},
+                            style={"padding-left": "4px", "padding-right": "4px", "padding-bottom": "0px"},
                         )
                     ]
                     * players[player]["Imunity"]
@@ -559,7 +559,7 @@ def player_card(player):
                                 transition="pop",
                             ),
                             span="content",
-                            style={"padding-left": "4px", "padding-right": "4px"},
+                            style={"padding-left": "4px", "padding-right": "4px", "padding-bottom": "0px"},
                         )
                     ]
                     * players[player]["Duely"]
@@ -579,7 +579,7 @@ def player_card(player):
                                 transition="pop",
                             ),
                             span="content",
-                            style={"padding-left": "4px", "padding-right": "4px"},
+                            style={"padding-left": "4px", "padding-right": "4px", "padding-bottom": "0px"},
                             pt=6,
                         )
                         for i in event_log_df[
@@ -605,6 +605,7 @@ def player_card(player):
                             span="content",
                             px=0,
                             pt=4,
+                            pb=0
                         )
                         if player
                         in event_log_df[event_log_df["EVENT_TYPE"] == "Sloučení"][
@@ -621,7 +622,7 @@ def player_card(player):
         radius="lg",
         style={
             "padding": "10px",
-            "height": "170px",
+            "height": "220px",
             "width": "300px",
         },  # "height": "20vh", "width": "15vw"
     )
@@ -2376,7 +2377,7 @@ def eventlog_item(data_string):
                                                                     data_string[
                                                                         "WINNING_SIDE"
                                                                     ]
-                                                                ],
+                                                                ] if data_string["WINNING_SIDE"] in ["Hrdinové", "Rebelové"] else None,
                                                                 "padding-top": "2px",
                                                             },
                                                         ),
@@ -2401,7 +2402,7 @@ def eventlog_item(data_string):
                                                                     data_string[
                                                                         "WINNING_SIDE"
                                                                     ]
-                                                                ]
+                                                                ] if data_string["WINNING_SIDE"] in ["Hrdinové", "Rebelové"] else None
                                                             },
                                                         ),
                                                     ],
@@ -2909,7 +2910,7 @@ def layout():
                                 dmc.Col(
                                     [
                                         best_players_card(
-                                            "Královna duelů",
+                                            "Král duelů",
                                             "material-symbols:swords-outline",
                                             pd.DataFrame.from_dict(
                                                 players, orient="index"
@@ -3018,7 +3019,7 @@ def layout():
                                                 ],
                                                 style={"width": "7584px"},
                                             ),
-                                            style={"height": "196px", "padding": "8px"},
+                                            style={"height": "246px", "padding": "8px"},
                                             type="always",
                                         ),
                                     ],
