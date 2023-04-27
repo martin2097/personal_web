@@ -5,7 +5,7 @@ from dash.dash_table import DataTable
 import dash_mantine_components as dmc
 from dash_iconify import DashIconify
 import pandas as pd
-from plotly.express import imshow
+from plotly.express import imshow, line, bar
 from dash.dash_table.Format import Format, Scheme
 import numpy as np
 
@@ -23,6 +23,11 @@ event_log_df = pd.read_excel(
     # os.path.join(basedir, "..", "data\survivor_2023_data.xlsx"),
     "survivor_2023_data.xlsx",
     sheet_name="event_log",
+)
+sledovanost_df = pd.read_excel(
+    # os.path.join(basedir, "..", "data\survivor_2023_data.xlsx"),
+    "survivor_2023_data.xlsx",
+    sheet_name="sledovanost",
 )
 personal_stats_df = pd.read_excel(
     # os.path.join(basedir, "..", "data\survivor_2023_data.xlsx"),
@@ -3031,6 +3036,100 @@ def layout():
                             [
                                 dmc.Col(
                                     [
+
+                                        dmc.Grid(
+                                            [
+                                                dmc.Col(
+                                                    [
+                                                        dmc.Text(
+                                                            "Počet diváků:",
+                                                            size="xl",
+                                                            weight=600,
+                                                        )
+                                                    ]
+                                                )
+                                            ]
+                                        ),
+                                        dmc.Grid([
+                                            dmc.Col([
+                                                dmc.Card(
+                                                    [
+                                                        dcc.Graph(
+                                                            id="sledovanost",
+                                                            # style={"height": "90vh"},
+                                                            # config={
+                                                            #     "staticPlot": True
+                                                            # },
+                                                            config={'displayModeBar': False,
+                                                                    "scrollZoom": False,
+                                                                    "doubleClick": False,
+                                                                    "showAxisDragHandles": False,
+                                                                    }
+                                                        )
+                                                    ],
+                                                    withBorder=True,
+                                                    shadow="sm",
+                                                    radius="lg",
+                                                    style={
+                                                        "padding": "10px",
+                                                    },
+                                                ),
+                                            ])
+                                        ])
+                                    ],
+                                    xl=6
+                                ),
+                                dmc.Col(
+                                    [
+                                        dmc.Grid(
+                                            [
+                                                dmc.Col(
+                                                    [
+                                                        dmc.Text(
+                                                            "Podíl na trhu:",
+                                                            size="xl",
+                                                            weight=600,
+                                                        )
+                                                    ]
+                                                )
+                                            ]
+                                        ),
+                                        dmc.Grid([
+                                            dmc.Col([
+                                                dmc.Card(
+                                                    [
+                                                        dcc.Graph(
+                                                            id="sledovanost-share",
+                                                            # style={"height": "90vh"},
+                                                            # config={
+                                                            #     "staticPlot": True
+                                                            # },
+                                                            config={
+                                                                'displayModeBar': False,
+                                                                "scrollZoom": False,
+                                                                "doubleClick": False,
+                                                                "showAxisDragHandles": False,
+                                                            }
+                                                        ),
+                                                    ],
+                                                    withBorder=True,
+                                                    shadow="sm",
+                                                    radius="lg",
+                                                    style={
+                                                        "padding": "10px",
+                                                    },
+                                                ),
+                                            ])
+                                        ])
+                                    ],
+                                    xl=6
+                                )
+                            ]
+                        ),
+                        dmc.Grid(
+                            [
+                                dmc.Col(
+                                    [
                                         dmc.Grid(
                                             [
                                                 dmc.Col(
@@ -3439,7 +3538,7 @@ def layout():
                                                             [
                                                                 create_event_log(
                                                                     event_log_df.tail(
-                                                                        33
+                                                                        39
                                                                     )
                                                                 )
                                                             ],
@@ -3608,7 +3707,7 @@ def update_eventlog(more_n_clicks, filter_n_clicks, filtered_events):
     if more_n_clicks is None:
         more_n_clicks = 0
     if more_n_clicks % 2 == 0:
-        data = data.tail(33)
+        data = data.tail(39)
         text = "Ukázat vše"
         icon = (
             DashIconify(
@@ -3654,6 +3753,140 @@ def filter_all_events(n_clicks, current_values):
 #         return "outline"
 #     else:
 #         return "filled"
+
+
+@callback(
+    Output("sledovanost", "figure"),
+    Output("sledovanost-share", "figure"),
+    Input("theme-store","modified_timestamp"),
+    State("theme-store", "data"),
+)
+def update_line_chart(n_clicks, theme):
+
+    fig_share = line(x=sledovanost_df["EPISODE"], y=sledovanost_df["SHARE"])
+
+    fig_sledovanost = bar(x=sledovanost_df["EPISODE"], y=sledovanost_df["VIEWERS"])
+
+    fig_sledovanost.update_traces(marker_color='rgb(207,219,137)',
+                                  hovertemplate='%{x:,.0f}. díl<br>%{y:,.0f} diváků',
+                                  )
+
+    fig_share.update_traces(line_color='rgb(3,195,168)',
+                            hovertemplate='%{x:,.0f}. díl<br>%{y:.2%} podíl',
+                            )
+
+    fig_sledovanost.add_annotation(
+        x=14,
+        y=320000,
+        xref="x",
+        yref="y",
+        text="Gender Pravidlo <br> Odstoupení Jirky",
+        showarrow=True,
+        font=dict(
+            family="Segoe UI",
+            size=14,
+            color="#444" if theme["colorScheme"] == "light" else "#FFFFFF"
+        ),
+        align="center",
+        arrowhead=2,
+        arrowsize=1,
+        arrowwidth=2,
+        arrowcolor="#444" if theme["colorScheme"] == "light" else "#FFFFFF",
+        ax=30,
+        ay=-40,
+    )
+
+    fig_share.add_annotation(
+        x=14,
+        y=0.1536,
+        xref="x",
+        yref="y",
+        text="Gender Pravidlo <br> Odstoupení Jirky",
+        showarrow=True,
+        font=dict(
+            family="Segoe UI",
+            size=14,
+            color="#444" if theme["colorScheme"] == "light" else "#FFFFFF"
+        ),
+        align="center",
+        arrowhead=2,
+        arrowsize=1,
+        arrowwidth=2,
+        arrowcolor="#444" if theme["colorScheme"] == "light" else "#FFFFFF",
+        ax=30,
+        ay=-40,
+    )
+
+    fig_share.update_layout(
+        height=300,
+        # width=1200,
+        yaxis_title=None,
+        xaxis_title=None,
+        dragmode=False,
+        yaxis=dict(
+            # showgrid=False,
+            tickmode='array',
+            tickvals=[0.05, 0.1, 0.15],
+            gridcolor="whitesmoke" if theme["colorScheme"] == "light" else "#484848",
+            gridwidth=0.5,
+            zeroline=False,
+            color="#444" if theme["colorScheme"] == "light" else "#FFFFFF",
+            tickformat=".2%",
+            nticks=5,
+            range=[0, 0.2],
+        ),
+        paper_bgcolor="rgba(0, 0, 0, 0)",
+        font=dict(
+            family="Segoe UI",
+            size=14,
+        ),
+        margin=dict(r=0, b=0, t=10, l=0),
+        plot_bgcolor="rgba(0, 0, 0, 0)",
+        xaxis=dict(
+            tickmode='array',
+            tickvals=[1, 6, 11, 16, 21, 26, 31, 36, 41],
+            ticktext=["1. Díl", "6. Díl", "11. Díl", "16. Díl", "21. Díl", "26. Díl", "31. Díl", "36. Díl", "41. Díl"],
+            showgrid=False,
+            zeroline=False,
+            color="#444" if theme["colorScheme"] == "light" else "#FFFFFF",
+        ),
+    )
+
+    fig_sledovanost.update_layout(
+        height=300,
+        # width=1200,
+        yaxis_title=None,
+        xaxis_title=None,
+        dragmode=False,
+        bargap=0.4,
+        yaxis=dict(
+            # showgrid=False,
+            tickmode='array',
+            tickvals=[100000, 200000, 300000],
+            ticktext=["100 tis.", "200 tis.", "300 tis.", "400 tis."],
+            gridcolor="whitesmoke" if theme["colorScheme"] == "light" else "#484848",
+            gridwidth=0.2,
+            zeroline=False,
+            color="#444" if theme["colorScheme"] == "light" else "#FFFFFF",
+            nticks=5,
+        ),
+        paper_bgcolor="rgba(0, 0, 0, 0)",
+        font=dict(
+            family="Segoe UI",
+            size=14,
+        ),
+        margin=dict(r=0, b=10, t=0, l=0),
+        plot_bgcolor="rgba(0, 0, 0, 0)",
+        xaxis=dict(
+            tickmode='array',
+            tickvals=[1, 6, 11, 16, 21, 26, 31, 36, 41],
+            ticktext=["1. Díl", "6. Díl", "11. Díl", "16. Díl", "21. Díl", "26. Díl", "31. Díl", "36. Díl", "41. Díl"],
+            showgrid=False,
+            zeroline=False,
+            color="#444" if theme["colorScheme"] == "light" else "#FFFFFF",
+        ),
+    )
+    return fig_sledovanost, fig_share
 
 
 clientside_callback(
