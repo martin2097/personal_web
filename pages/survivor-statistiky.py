@@ -1,5 +1,5 @@
 import dash
-from dash import dcc, callback, Output, Input, State, html, clientside_callback, ctx
+from dash import dcc, callback, Output, Input, State, html, clientside_callback
 from dash.exceptions import PreventUpdate
 from dash.dash_table import DataTable
 import dash_mantine_components as dmc
@@ -28,6 +28,11 @@ sledovanost_df = pd.read_excel(
     # os.path.join(basedir, "..", "data\survivor_2023_data.xlsx"),
     "survivor_2023_data.xlsx",
     sheet_name="sledovanost",
+)
+kmenovky_hlasovani_df = pd.read_excel(
+    # os.path.join(basedir, "..", "data\survivor_2023_data.xlsx"),
+    "survivor_2023_data.xlsx",
+    sheet_name="kmenovky_hlasovani",
 )
 personal_stats_df = pd.read_excel(
     # os.path.join(basedir, "..", "data\survivor_2023_data.xlsx"),
@@ -241,6 +246,41 @@ for player in players:
     )
 
 df_players = pd.DataFrame.from_dict(players, orient="index")
+
+
+hlasovani_vypad_df = pd.merge(kmenovky_hlasovani_df[kmenovky_hlasovani_df["TYPE"] == "Primární"], event_log_df[event_log_df["EVENT_TYPE"] == "Kmenová rada"],  how='left', left_on=["DAY", "EPISODE"], right_on = ["DAY", "EPISODE"])
+uspesne_hlasovani = {}
+for p in players:
+    uspesne_hlasovani[p] = len(hlasovani_vypad_df[hlasovani_vypad_df[p] == hlasovani_vypad_df["WINNING_ROSTER"]].index)
+df_uspesne_hlasovani = pd.DataFrame.from_dict(uspesne_hlasovani, orient="index", columns=["Vyhlasování"])
+
+
+def avatar_group(members, avatar_style):
+    return dmc.AvatarGroup(
+        children=[
+            dmc.Tooltip(
+                dmc.Avatar(
+                    src=players[
+                        member
+                    ][
+                        "profile_picture"
+                    ],
+                    radius="lg",
+                    size="sm",
+                    style=avatar_style,
+                ),
+                label=member,
+                position="top",
+                transition="pop",
+                style={
+                    "padding": "1px",
+                    "padding-left": "5px",
+                    "padding-right": "5px",
+                },
+            )
+            for member in members
+        ],
+    )
 
 
 def best_team(card_label, title_icon, by_id, num_label):
@@ -769,7 +809,7 @@ def best_players_card(card_label, title_icon, top_table, col_labels, by_id):
                                                 by_id
                                                 + ": "
                                                 + str(
-                                                    players[top_table.index[1]][by_id]
+                                                    int(top_table.iloc[1, 0])
                                                 ),
                                                 color="dimmed",
                                                 style={"padding-right": "16px"},
@@ -784,7 +824,7 @@ def best_players_card(card_label, title_icon, top_table, col_labels, by_id):
                                                 by_id
                                                 + ": "
                                                 + str(
-                                                    players[top_table.index[0]][by_id]
+                                                    int(top_table.iloc[0, 0])
                                                 ),
                                                 color="dimmed",
                                             )
@@ -798,7 +838,7 @@ def best_players_card(card_label, title_icon, top_table, col_labels, by_id):
                                                 by_id
                                                 + ": "
                                                 + str(
-                                                    players[top_table.index[2]][by_id]
+                                                    int(top_table.iloc[2, 0])
                                                 ),
                                                 color="dimmed",
                                                 style={"padding-left": "16px"},
@@ -2751,6 +2791,242 @@ def discrete_background_color_bins(df, n_bins=5, columns="all"):
     return styles
 
 
+def kmenovka_hlasovani_item(episode, day, first=False):
+    odhlasovan = event_log_df[(event_log_df["DAY"] == day) & (event_log_df["EPISODE"] == episode) & (event_log_df["EVENT_TYPE"] == "Kmenová rada")]["WINNING_ROSTER"].values
+    p_row = kmenovky_hlasovani_df[
+        (kmenovky_hlasovani_df["EPISODE"] == episode)
+        & (kmenovky_hlasovani_df["TYPE"] == "Primární")
+    ]
+    p_hlasy = {}
+    for p in players:
+        if str(p_row[p].values[0]) != "nan":
+            for one_p in p_row[p].values[0].split(", "):
+                if one_p in p_hlasy:
+                    p_hlasy[one_p].append(p)
+                else:
+                    p_hlasy[one_p] = [p]
+    s_row = kmenovky_hlasovani_df[
+        (kmenovky_hlasovani_df["EPISODE"] == episode)
+        & (kmenovky_hlasovani_df["TYPE"] == "Doplňkové")
+    ]
+    if not s_row.empty:
+        s_hlasy = {}
+        for p in players:
+            if str(s_row[p].values[0]) != "nan":
+                for one_p in s_row[p].values[0].split(", "):
+                    if one_p in s_hlasy:
+                        s_hlasy[one_p].append(p)
+                    else:
+                        s_hlasy[one_p] = [p]
+        doplnkove_row = [
+            dmc.Grid(
+                [
+                    # dmc.Col([dmc.Space(w=50)], span="content"),
+                    dmc.Col(
+                        [DashIconify(icon="material-symbols:subdirectory-arrow-right")],
+                        span="content", pr=0,
+                    ),
+                    dmc.Col(
+                        [dmc.Text("Opakované hlasování", style={"width": "160px"})],
+                        span="content", px=0,
+                    ),
+                ]
+                + [
+                            dmc.Col([
+                                dmc.Grid([
+                                    dmc.Col(
+                                        [
+                                            dmc.Grid(
+                                                [
+                                                    dmc.Col(
+                                                        [
+                                                            dmc.Tooltip(
+                                                                dmc.Indicator(
+                                                                    dmc.Avatar(
+                                                                        src=players[hlas_pre][
+                                                                            "profile_picture"
+                                                                        ],
+                                                                        radius="sm",
+                                                                        size="sm",
+                                                                        style={
+                                                                            "opacity": "0.5",
+                                                                            "background-color": "grey",
+                                                                        } if hlas_pre != odhlasovan else {}
+                                                                    ),
+                                                                    label=DashIconify(
+                                                                        icon="twemoji:crossed-swords",
+                                                                        style={
+                                                                            "opacity": "0.5",
+                                                                        } if hlas_pre != odhlasovan else {}
+                                                                    ),
+                                                                    color="rgba(0,0,0,0)",
+                                                                    position="top-end",
+                                                                    size=14,
+                                                                ),
+                                                                label=hlas_pre,
+                                                                position="top",
+                                                                transition="pop",
+                                                                style={
+                                                                    "padding": "1px",
+                                                                    "padding-left": "5px",
+                                                                    "padding-right": "5px",
+                                                                },
+                                                            )
+                                                        ],
+                                                        span="content",
+                                                    ),
+                                                    dmc.Col(
+                                                        [
+                                                            dmc.Text(
+                                                                hlas_pre
+                                                                + ": "
+                                                                + str(len(s_hlasy[hlas_pre])),
+                                                                color="dimmed" if hlas_pre != odhlasovan else None
+                                                            )
+                                                        ],
+                                                        span="content",
+                                                    ),
+                                                ],
+                                                style={"width": "147px"},
+                                                justify="flex-end",
+                                                ),
+                                            ], span="content"),
+                                    dmc.Col([
+                                            dmc.Grid([
+                                                dmc.Col(
+                                                    [avatar_group(
+                                                        s_hlasy[hlas_pre],
+                                                        {
+                                                            "opacity": "0.5",
+                                                            "background-color": "grey",
+                                                        } if hlas_pre != odhlasovan else {}
+                                                    )],
+                                                    span="content",
+                                                ),
+                                                ],
+                                                style={"width": "150px"},
+                                                justify="flex-start",
+                                            )
+                                        ],
+                                        span="content",
+                                    )
+                                ])
+                            ], span="content")
+                            for hlas_pre in sorted(s_hlasy, key=lambda k: len(s_hlasy[k]), reverse=True)
+                        ]
+            )
+        ]
+    else:
+        doplnkove_row = []
+    out = dmc.Grid(
+        [
+            dmc.Col(
+                [
+                    dmc.Grid([dmc.Col([dmc.Divider()])]) if not first else None,
+                    dmc.Grid(
+                        [
+                            dmc.Col(
+                                [
+                                    dmc.Text(
+                                        "Den " + str(day) + ", Epizoda " + str(episode),
+                                        style={"width": "168px"},
+                                    )
+                                ],
+                                span="content",
+                            )
+                        ]
+                        + [
+                            dmc.Col([
+                                dmc.Grid([
+                                    dmc.Col(
+                                        [
+                                            dmc.Grid(
+                                                [
+                                                    dmc.Col(
+                                                        [
+                                                            dmc.Tooltip(
+                                                                dmc.Indicator(
+                                                                    dmc.Avatar(
+                                                                        src=players[hlas_pre][
+                                                                            "profile_picture"
+                                                                        ],
+                                                                        radius="sm",
+                                                                        size="sm",
+                                                                        style={
+                                                                            "opacity": "0.5",
+                                                                            "background-color": "grey",
+                                                                        } if hlas_pre != odhlasovan else {}
+                                                                    ),
+                                                                    label=DashIconify(
+                                                                        icon="twemoji:crossed-swords",
+                                                                        style={
+                                                                            "opacity": "0.5",
+                                                                        } if hlas_pre != odhlasovan else {}
+                                                                    ),
+                                                                    color="rgba(0,0,0,0)",
+                                                                    position="top-end",
+                                                                    size=14,
+                                                                ),
+                                                                label=hlas_pre,
+                                                                position="top",
+                                                                transition="pop",
+                                                                style={
+                                                                    "padding": "1px",
+                                                                    "padding-left": "5px",
+                                                                    "padding-right": "5px",
+                                                                },
+                                                            )
+                                                        ],
+                                                        span="content",
+                                                    ),
+                                                    dmc.Col(
+                                                        [
+                                                            dmc.Text(
+                                                                hlas_pre
+                                                                + ": "
+                                                                + str(len(p_hlasy[hlas_pre])),
+                                                                color="dimmed" if hlas_pre != odhlasovan else None
+                                                            )
+                                                        ],
+                                                        span="content",
+                                                    ),
+                                                ],
+                                                style={"width": "147px"},
+                                                justify="flex-end",
+                                                ),
+                                            ], span="content"),
+                                    dmc.Col([
+                                            dmc.Grid([
+                                                dmc.Col(
+                                                    [avatar_group(
+                                                        p_hlasy[hlas_pre],
+                                                        {
+                                                            "opacity": "0.5",
+                                                            "background-color": "grey",
+                                                        } if hlas_pre != odhlasovan else {}
+                                                    )],
+                                                    span="content",
+                                                ),
+                                                ],
+                                                style={"width": "150px"},
+                                                justify="flex-start",
+                                            )
+                                        ],
+                                        span="content",
+                                    )
+                                ])
+                            ], span="content")
+                            for hlas_pre in sorted(p_hlasy, key=lambda k: len(p_hlasy[k]), reverse=True)
+                        ]
+                    ),
+                ]
+                + doplnkove_row
+            )
+        ]
+    )
+    return out
+
+
 def layout():
     return [
         dmc.Header(
@@ -2947,6 +3223,62 @@ def layout():
                                             .iloc[0:5][["Odměny"]],
                                             ["", "Odměny"],
                                             "Odměny",
+                                        ),
+                                    ],
+                                    xl=4,
+                                    sm=6,
+                                ),
+                            ]
+                        ),
+                        dmc.Grid(
+                            [
+                                dmc.Col(
+                                    [dmc.Text("Statistiky hlasování:", size="xl", weight=600)]
+                                )
+                            ]
+                        ),
+                        dmc.Grid(
+                            [
+                                dmc.Col(
+                                    [
+                                        best_players_card(
+                                            "Nejvíc hlasů na kmenových radách",
+                                            "material-symbols:how-to-vote",
+                                            kmenovky_hlasovani_df[kmenovky_hlasovani_df["TYPE"] == "Primární"].iloc[:, 3:].stack().reset_index()[0].str.split(
+                                                pat=", ").explode().value_counts().rename_axis(
+                                                'unique_values').reset_index(name='Počet hlasů').set_index("unique_values").iloc[0:5],
+                                            ["", "Počet hlasů"],
+                                            "Počet hlasů",
+                                        ),
+                                    ],
+                                    xl=4,
+                                    sm=6,
+                                ),
+                                dmc.Col(
+                                    [
+                                        best_players_card(
+                                            "Nejmíň hlasů na kmenových radách",
+                                            "game-icons:avoidance",
+                                            kmenovky_hlasovani_df[kmenovky_hlasovani_df["TYPE"] == "Primární"].iloc[:, 3:].stack().reset_index()[0].str.split(
+                                                pat=", ").explode().value_counts(ascending=True).rename_axis(
+                                                'unique_values').reset_index(name='Počet hlasů').set_index(
+                                                "unique_values").iloc[0:5],
+                                            ["", "Počet hlasů"],
+                                            "Počet hlasů",
+                                        ),
+                                    ],
+                                    xl=4,
+                                    sm=6,
+                                ),
+                                dmc.Col(
+                                    [
+                                        best_players_card(
+                                            "Nejvíc úspěšných vyhlasování",
+                                            "mdi:bookmark-success-outline",
+                                            df_uspesne_hlasovani.sort_values(by="Vyhlasování", ascending=False)
+                                            .iloc[0:5][["Vyhlasování"]],
+                                            ["", "Vyhlasování"],
+                                            "Vyhlasování",
                                         ),
                                     ],
                                     xl=4,
@@ -3398,6 +3730,34 @@ def layout():
                                 )
                             ]
                         ),
+                        dmc.Grid(
+                            [
+                                dmc.Col(
+                                    [
+                                        dmc.Text(
+                                            "Výsledky hlasování na kmenových radách:",
+                                            size="xl",
+                                            weight=600,
+                                        )
+                                    ]
+                                )
+                            ]
+                        ),
+                        dmc.Grid([
+                            dmc.Col([
+                                dmc.Card([
+                                    kmenovka_hlasovani_item(episode, day, True if i == 0 else False) for episode, day, i in zip(kmenovky_hlasovani_df[kmenovky_hlasovani_df["TYPE"] == "Primární"]["EPISODE"].values, kmenovky_hlasovani_df[kmenovky_hlasovani_df["TYPE"] == "Primární"]["DAY"].values, range(len(kmenovky_hlasovani_df[kmenovky_hlasovani_df["TYPE"] == "Primární"]["DAY"].values)))
+                                ],
+                                    withBorder=True,
+                                    shadow="sm",
+                                    radius="lg",
+                                    style={
+                                        "padding": "10px",
+                                    },
+                                )
+
+                            ])
+                        ])
                     ],
                     xl=9,
                     lg=8,
@@ -3538,7 +3898,7 @@ def layout():
                                                             [
                                                                 create_event_log(
                                                                     event_log_df.tail(
-                                                                        39
+                                                                        56
                                                                     )
                                                                 )
                                                             ],
@@ -3707,7 +4067,7 @@ def update_eventlog(more_n_clicks, filter_n_clicks, filtered_events):
     if more_n_clicks is None:
         more_n_clicks = 0
     if more_n_clicks % 2 == 0:
-        data = data.tail(39)
+        data = data.tail(56)
         text = "Ukázat vše"
         icon = (
             DashIconify(
