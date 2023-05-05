@@ -11,8 +11,8 @@ import numpy as np
 
 dash.register_page(
     __name__,
-    title="Survivor - Statistiky",
-    description="Statistiky česko-slovenské verze reality show Survivor",
+    title="Survivor Česko & Slovensko - Statistiky",
+    description="Statistiky reality show Survivor Česko & Slovensko. Podrobné spracování průběhu jednotlivých řad, rekordy, hlasování na kmenových radách a statistika soubojů.",
     image="survivor-statistky-nahlad.PNG",
 )
 
@@ -3179,7 +3179,7 @@ def layout():
                                     dmc.Container(
                                         [
                                             dmc.Text(
-                                                "SURVIVOR 2023 - Statistiky",
+                                                "Survivor Česko & Slovensko 2023 - Statistiky",
                                                 weight=500,
                                                 size=20,
                                             ),
@@ -4164,7 +4164,7 @@ def layout():
                                                             [
                                                                 create_event_log(
                                                                     event_log_df.tail(
-                                                                        56
+                                                                        61
                                                                     )
                                                                 )
                                                             ],
@@ -4333,7 +4333,7 @@ def update_eventlog(more_n_clicks, filter_n_clicks, filtered_events):
     if more_n_clicks is None:
         more_n_clicks = 0
     if more_n_clicks % 2 == 0:
-        data = data.tail(56)
+        data = data.tail(61)
         text = "Ukázat vše"
         icon = (
             DashIconify(
