@@ -14,6 +14,7 @@ dash.register_page(
     title="Survivor Česko & Slovensko - Statistiky",
     description="Statistiky reality show Survivor Česko & Slovensko. Podrobné spracování průběhu jednotlivých řad, rekordy, hlasování na kmenových radách a statistika soubojů.",
     image="survivor-statistky-nahlad.PNG",
+    redirect_from=["/survivor", "/statistiky-survivor", "/survivor-statistics"]
 )
 
 survivor_colors = {"Hrdinové": "#f70000", "Rebelové": "#0122dc"}
@@ -293,6 +294,42 @@ for p in players:
         ].value_counts(subset=[p]).rename_axis("unique_values").reset_index(name="cnt").set_index("unique_values")
     df_nezapocitane_hlasy = pd.concat([df_nezapocitane_hlasy, one_df])
 df_nezapocitane_hlasy = df_nezapocitane_hlasy.groupby(["unique_values"])["cnt"].sum().reset_index().set_index("unique_values")
+
+
+def information_bubble(content_container, desktop_width=800):
+    return dmc.Menu(
+        transition="pop",
+        shadow="sm",
+        radius="lg",
+        position="bottom-start",
+        # withArrow=True,
+        offset=0,
+        # arrowSize=10,
+        children=[
+            dmc.MenuTarget(
+                DashIconify(
+                    icon="material-symbols:info-outline",
+                    width=25,
+                )
+            ),
+            dmc.MenuDropdown(
+                dmc.MediaQuery(
+                    dmc.Container(
+                        content_container,
+                        p=10,
+                        style={
+                            "max-width": "97vw"
+                        },
+                    ),
+                    largerThan="sm",
+                    styles={
+                        "max-width": str(desktop_width) + "px"
+                    },
+                )
+            ),
+        ],
+    )
+
 
 def avatar_group(members, avatar_style):
     return dmc.AvatarGroup(
@@ -3372,7 +3409,7 @@ def layout():
                                 dmc.Col(
                                     [
                                         best_players_card(
-                                            "Nejvíc hlasů na kmenových radách",
+                                            "Nejvíc obdržených hlasů",
                                             "material-symbols:how-to-vote",
                                             kmenovky_hlasovani_df[
                                                 kmenovky_hlasovani_df["TYPE"]
@@ -3398,7 +3435,7 @@ def layout():
                                 dmc.Col(
                                     [
                                         best_players_card(
-                                            "Nejmíň hlasů na kmenových radách",
+                                            "Nejmíň obdržených hlasů",
                                             "game-icons:avoidance",
                                             kmenovky_hlasovani_df[
                                                 kmenovky_hlasovani_df["TYPE"]
@@ -3424,13 +3461,13 @@ def layout():
                                 dmc.Col(
                                     [
                                         best_players_card(
-                                            "Nejvíc úspěšných vyhlasování",
+                                            "Nejvíc úspěšných odhlasování",
                                             "mdi:bookmark-success-outline",
                                             df_uspesne_hlasovani.sort_values(
                                                 by="Vyhlasování", ascending=False
                                             ).iloc[0:5][["Vyhlasování"]],
                                             ["", "Vyhlasování"],
-                                            "Vyhlasování",
+                                            "Počet",
                                         ),
                                     ],
                                     xl=4,
@@ -3438,6 +3475,28 @@ def layout():
                                 ),
                             ]
                         ),
+                        dmc.Grid([
+                           dmc.Col([
+                               dmc.Center([
+                                   html.A(
+                                       dmc.Group([
+                                           DashIconify(
+                                               icon="material-symbols:keyboard-double-arrow-down",
+                                               style={
+                                                   "color": "#868e96",
+                                               },
+                                               width=20,
+                                               height=20,
+                                           ),
+                                           dmc.Text("Přehled všech hlasování", color="dimmed", size="md",
+                                                    variant="text"),
+                                       ], spacing=0),
+                                       style={"textTransform": "capitalize", "textDecoration": "none"},
+                                       href="#kmenovky-hlasovani",
+                                   ),
+                               ])
+                           ], p=2, pt=4)
+                        ]),
                         dmc.Grid(
                             [
                                 dmc.Col(
@@ -3456,7 +3515,7 @@ def layout():
                                 dmc.Col(
                                     [
                                         best_players_card(
-                                            "Nejvíc zahraných skrytých imunit",
+                                            "Nejvíc zahraných imunit",
                                             "material-symbols:token-outline",
                                             pd.DataFrame.from_dict(
                                                 players, orient="index"
@@ -3604,7 +3663,23 @@ def layout():
                                                             size="xl",
                                                             weight=600,
                                                         )
-                                                    ]
+                                                    ],
+                                                    span="content"
+                                                ),
+                                                dmc.Col(
+                                                    [
+                                                        information_bubble(
+                                                            [
+                                                                dmc.Text("Skupina 15+"),
+                                                                dmc.Space(
+                                                                    h=20
+                                                                ),
+                                                                dmc.Text("Zdroj dat: ATO - Nielsen")
+                                                             ], 500)
+                                                    ],
+                                                    span="content",
+                                                    pl=0,
+                                                    pt=12,
                                                 )
                                             ]
                                         ),
@@ -3653,7 +3728,23 @@ def layout():
                                                             size="xl",
                                                             weight=600,
                                                         )
-                                                    ]
+                                                    ],
+                                                    span="content",
+                                                ),
+                                                dmc.Col(
+                                                    [
+                                                        information_bubble(
+                                                            [
+                                                                dmc.Text("Skupina 15+"),
+                                                                dmc.Space(
+                                                                    h=20
+                                                                ),
+                                                                dmc.Text("Zdroj dat: ATO - Nielsen")
+                                                             ], 500)
+                                                    ],
+                                                    span="content",
+                                                    pl=0,
+                                                    pt=12,
                                                 )
                                             ]
                                         ),
@@ -3834,15 +3925,15 @@ def layout():
                                                                                     [
                                                                                         dcc.Graph(
                                                                                             id="power_index_history_heatmap",
-                                                                                            # style={"height": "90vh"},
                                                                                             config={
                                                                                                 "staticPlot": True
                                                                                             },
+                                                                                            responsive=True,
+                                                                                            style={"height": "650px", "min-width": "820px"}
                                                                                         ),
                                                                                     ],
-                                                                                    span="content",
                                                                                     style={
-                                                                                        "padding": "0px"
+                                                                                        "padding": "0px",
                                                                                     },
                                                                                 )
                                                                             ],
@@ -3851,7 +3942,7 @@ def layout():
                                                                                 "margin": "0px"
                                                                             },
                                                                         )
-                                                                    ]
+                                                                    ],
                                                                 )
                                                             ],
                                                         )
@@ -3973,6 +4064,7 @@ def layout():
                                             "Výsledky hlasování na kmenových radách:",
                                             size="xl",
                                             weight=600,
+                                            id="kmenovky-hlasovani"
                                         )
                                     ]
                                 )
@@ -4276,11 +4368,9 @@ def update_line_chart(active_player, current_form, theme):
     if active_player:
         dff = pd.DataFrame.from_dict(players, orient="index")
         active_players = list(dff[dff["Poradie"].isna()].index)
-        width = 600
     else:
         dff = pd.DataFrame.from_dict(players, orient="index")
         active_players = list(dff.index)
-        width = 1200
     fig_hm = imshow(
         personal_stats_df_pi_history.round(2)
         .filter(items=active_players, axis=0)
@@ -4288,8 +4378,6 @@ def update_line_chart(active_player, current_form, theme):
         text_auto=True,  # ".2f",
         range_color=[0, 1],
         color_continuous_scale="RdYlGn",
-        height=650,
-        width=width,
     )
     fig_hm.update_layout(
         paper_bgcolor="rgba(0, 0, 0, 0)",
@@ -4297,7 +4385,7 @@ def update_line_chart(active_player, current_form, theme):
             family="Segoe UI",
             size=14,
         ),
-        margin=dict(r=0, b=10, t=10),
+        margin=dict(r=0, b=10, t=10, l=0),
         plot_bgcolor="rgba(0, 0, 0, 0)",
         modebar=dict(
             bgcolor="rgba(0, 0, 0, 0)",

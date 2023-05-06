@@ -3,3 +3,24 @@ body {margin:0;padding:0}
 .dash-spreadsheet-container .dash-spreadsheet-inner table {
         --hover: rgba(134, 142, 150, 0.2) !important;
 }
+
+/* customized scrollbar */
+::-webkit-scrollbar {
+    width: 20px;
+    height: 20px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #999999;
+    border-radius: 20px;
+    border: 6px solid transparent;
+    background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #7c7c7c;
+}
