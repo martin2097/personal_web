@@ -405,41 +405,18 @@ def predikce_viteze(finalist_1, finalist_2, finalist_3, color_finalist_1, color_
                                     dmc.Center([
                                         dmc.Text(
                                             "Body za výzvy",
-                                            pr=8
                                         ),
-                                        information_bubble(
-                                            [
-                                                dmc.Text("Súčet bodov za individuálne disciplíny a úspechy:"),
-                                                dmc.Text("Individuálna imunita: +1 bod"),
-                                                dmc.Text("Vyhraný duel: +0.5 bodu"),
-                                                dmc.Text("Zahraná skrytá imunita: +1 bod"),
-                                                dmc.Text("Zahraná výhoda: +0.5 bodu"),
-                                            ], 500, 20)
                                     ]),
                                     dmc.Center([
                                         dmc.Text(
                                             "Body za kmenové rady",
-                                            pr=8
                                         ),
-                                        information_bubble(
-                                            [
-                                                dmc.Text("Pomer úspešných odhlasovaní iného hráča a schopnosti ochrániť sám seba"),
-                                                dmc.Text("PO = Počet Odhlasovaní"),
-                                                dmc.Text("OH = Obdržené hlasy"),
-                                                dmc.Text("PZK = Počet zúčastnených kmeňových rád"),
-                                                dmc.Text("Vzorec: 4 * [PO / (4+OH)] * (22 / PZK)"),
-                                            ], 500, 20)
                                     ]),
                                     dmc.Space(h=20),
                                     dmc.Center([
                                         dmc.Text(
                                             "Šance na vítězství",
-                                            pr=8
                                         ),
-                                        information_bubble(
-                                            [
-                                                dmc.Text("Pomer súčtu bodov za výzvy a bodov za kmenové rady v %"),
-                                            ], 500, 20)
                                     ]),
                                 ], spacing=5),
                                 dmc.Stack([
@@ -3834,7 +3811,31 @@ def layout(utm_source=None, utm_medium=None, utm_campaign=None):
                         dmc.Grid(
                             [
                                 dmc.Col(
-                                    [dmc.Text("Finálová predikce:", size="xl", weight=600)]
+                                    [dmc.Text("Finálová predikce:", size="xl", weight=600)], span="content"
+                                ),
+                                dmc.Col(
+                                    [
+                                        information_bubble(
+                                            [
+                                                dmc.Text("Body za výzvy - súčet bodov za individuálne disciplíny a úspechy:"),
+                                                dmc.Text("Individuálna imunita: +1 bod"),
+                                                dmc.Text("Vyhraný duel: +0.5 bodu"),
+                                                dmc.Text("Zahraná skrytá imunita: +1 bod"),
+                                                dmc.Text("Zahraná výhoda: +0.5 bodu"),
+                                                dmc.Space(h=10),
+                                                dmc.Text(
+                                                    "Body za kmenové rady - pomer úspešných odhlasovaní iného hráča a schopnosti ochrániť sám seba"),
+                                                dmc.Text("PO = Počet Odhlasovaní"),
+                                                dmc.Text("OH = Obdržené hlasy"),
+                                                dmc.Text("PZK = Počet zúčastnených kmeňových rád"),
+                                                dmc.Text("Vzorec: 4 * [PO / (4+OH)] * (22 / PZK)"),
+                                                dmc.Space(h=10),
+                                                dmc.Text("Šance na vítězství - pomer súčtu bodov za výzvy a bodov za kmenové rady v %"),
+                                            ], 500)
+                                    ],
+                                    span="content",
+                                    pl=0,
+                                    pt=12,
                                 )
                             ]
                         ),
