@@ -4547,7 +4547,10 @@ def layout(utm_source=None, utm_medium=None, utm_campaign=None):
                                             withBorder=True,
                                             shadow="sm",
                                             radius="lg",
-                                            style={"padding": "20px"},
+                                            style={
+                                                "padding": "10px",
+                                                "overflow": "visible",
+                                            },
                                         )
                                     ]
                                 )
