@@ -351,415 +351,1114 @@ def p_jeden_porotce(judge):
     ])
 
 
-def predikce_viteze(finalist_1, finalist_2, finalist_3, color_finalist_1, color_finalist_2):
-    return dmc.Grid(
-        [
-            dmc.Col(
+def icon_with_tip(icon, label, icon_size=18):
+    return dmc.Menu(
+        transition="pop",
+        shadow="sm",
+        radius="lg",
+        withArrow="true",
+        offset=0,
+        position="right",
+        children=[
+            dmc.MenuTarget(
                 [
-                    dmc.MediaQuery(
-                        dmc.Space(w=200),
-                        smallerThan="lg",
-                        styles={"display": "none"},
+                    DashIconify(
+                        icon=icon,
+                        width=icon_size,
+                        height=icon_size,
                     ),
-                ],
-                span="content",
+                ]
             ),
-            dmc.Col([
-                dmc.Grid([
-                    dmc.Col([
-                        dmc.Group(
-                            [
-                                dmc.Stack([
-                                    dmc.Space(h=133),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            "Individuálne imunity"
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            "Vyhrané duely"
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            "Zahrané skryté imunity"
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            "Zahrané výhody"
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            "Úspěšné odhlasování"
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            "Obdržených hlasů proti"
-                                        ),
-                                    ]),
-                                    dmc.Space(h=20),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            "Body za výzvy",
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            "Body za kmenové rady",
-                                        ),
-                                    ]),
-                                    dmc.Space(h=20),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            "Šance na vítězství",
-                                        ),
-                                    ]),
-                                ], spacing=5),
-                                dmc.Stack([
-                                    dmc.Avatar(
-                                        src=players[finalist_1][
-                                            "profile_picture"
-                                        ],
-                                        radius="lg",
-                                        size=100,
-                                    ),
-                                    dmc.Center([
-                                        dmc.Text(finalist_1, size="lg", weight=600),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            str(
-                                                players[finalist_1][
-                                                    "Imunity"
-                                                ]
-                                            )
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            str(
-                                                players[finalist_1][
-                                                    "Duely"
-                                                ]
-                                            )
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            str(
-                                                players[finalist_1][
-                                                    "Skryté Imunity"
-                                                ]
-                                            )
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            str(
-                                                players[finalist_1][
-                                                    "Výhody"
-                                                ]
-                                            )
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            str(
-                                                players[finalist_1][
-                                                    "Odhlasování"
-                                                ]
-                                            )
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            str(
-                                                players[finalist_1][
-                                                    "Hlasu proti"
-                                                ]
-                                            )
-                                        ),
-                                    ]),
-                                    dmc.Space(h=20),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            "4"
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            "2.46"
-                                        ),
-                                    ]),
-                                    dmc.Space(h=20),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            "32%",
-                                            size="xl",
-                                            weight=700,
-                                        ),
-                                    ]),
-                                ], spacing=5),
-                                dmc.Stack([
-                                    dmc.Avatar(
-                                        src=players[finalist_2][
-                                            "profile_picture"
-                                        ],
-                                        radius="lg",
-                                        size=100,
-                                    ),
-                                    dmc.Center([
-                                        dmc.Text(finalist_2, size="lg", weight=600),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            str(
-                                                players[finalist_2][
-                                                    "Imunity"
-                                                ]
-                                            )
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            str(
-                                                players[finalist_2][
-                                                    "Duely"
-                                                ]
-                                            )
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            str(
-                                                players[finalist_2][
-                                                    "Skryté Imunity"
-                                                ]
-                                            )
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            str(
-                                                players[finalist_2][
-                                                    "Výhody"
-                                                ]
-                                            )
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            str(
-                                                players[finalist_2][
-                                                    "Odhlasování"
-                                                ]
-                                            )
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            str(
-                                                players[finalist_2][
-                                                    "Hlasu proti"
-                                                ]
-                                            )
-                                        ),
-                                    ]),
-                                    dmc.Space(h=20),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            "2.5"
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            "1.55"
-                                        ),
-                                    ]),
-                                    dmc.Space(h=20),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            "20%",
-                                            size="xl",
-                                            weight=700,
-                                        ),
-                                    ]),
-                                ], spacing=5),
-                                dmc.Stack([
-                                    dmc.Avatar(
-                                        src=players[finalist_3][
-                                            "profile_picture"
-                                        ],
-                                        radius="lg",
-                                        size=100,
-                                    ),
-                                    dmc.Center([
-                                        dmc.Text(finalist_3, size="lg", weight=600),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            str(
-                                                players[finalist_3][
-                                                    "Imunity"
-                                                ]
-                                            )
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            str(
-                                                players[finalist_3][
-                                                    "Duely"
-                                                ]
-                                            )
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            str(
-                                                players[finalist_3][
-                                                    "Skryté Imunity"
-                                                ]
-                                            )
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            str(
-                                                players[finalist_3][
-                                                    "Výhody"
-                                                ]
-                                            )
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            str(
-                                                players[finalist_3][
-                                                    "Odhlasování"
-                                                ]
-                                            )
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            str(
-                                                players[finalist_3][
-                                                    "Hlasu proti"
-                                                ]
-                                            )
-                                        ),
-                                    ]),
-                                    dmc.Space(h=20),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            "8"
-                                        ),
-                                    ]),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            "1.67"
-                                        ),
-                                    ]),
-                                    dmc.Space(h=20),
-                                    dmc.Center([
-                                        dmc.Text(
-                                            "48%",
-                                            size="xl",
-                                            weight=700,
-                                        ),
-                                    ]),
-                                ], spacing=5)
-                            ],
-                            position="center",
-                        )
-                    ], span="auto")
-                ]),
-            ], span="auto"),
-            # dmc.Col(
-            #     [
-            #         dmc.Stack(
-            #             [
-            #                 dmc.Grid(
-            #                     [
-            #                         dmc.Col(
-            #                             [
-            #                                 dmc.Group(
-            #                                     [
-            #                                         dmc.Stack([
-            #                                             dmc.Avatar(
-            #                                                 src=players[finalist_1][
-            #                                                     "profile_picture"
-            #                                                 ],
-            #                                                 radius="lg",
-            #                                                 size=100,
-            #                                                 style={
-            #                                                     "border-color": color_finalist_1,
-            #                                                     "border-style": "solid",
-            #                                                     "border-width": "5px",
-            #                                                 }
-            #                                             ),
-            #                                             dmc.Center([
-            #                                                 dmc.Text(finalist_1, size="lg", weight=600),
-            #                                             ])
-            #                                         ], spacing=5),
-            #                                         dmc.Stack([
-            #                                             dmc.Avatar(
-            #                                                 src=players[finalist_2][
-            #                                                     "profile_picture"
-            #                                                 ],
-            #                                                 radius="lg",
-            #                                                 size=100,
-            #                                                 style={
-            #                                                     "border-color": color_finalist_2,
-            #                                                     "border-style": "solid",
-            #                                                     "border-width": "5px",
-            #                                                 }
-            #                                             ),
-            #                                             dmc.Center([
-            #                                                 dmc.Text(finalist_2, size="lg", weight=600),
-            #                                             ])
-            #                                         ], spacing=5)
-            #                                     ],
-            #                                     position="center",
-            #                                 )
-            #                             ],
-            #                             span="auto",
-            #                             p=0,
-            #                         ),
-            #                     ]
-            #                 ),
-            #                 dmc.Grid(
-            #                     [
-            #                         dmc.Col(
-            #                             [
-            #                                 p_jeden_porotce(one_judge)
-            #                                 for one_judge in predikce_viteze_df["JUDGE"]
-            #                             ]
-            #                         )
-            #                     ]
-            #                 ),
-            #             ]
-            #         )
-            #     ],
-            #     span="auto",
-            # ),
-            dmc.Col(
+            dmc.MenuDropdown(
                 [
-                    dmc.MediaQuery(
-                        dmc.Space(w=200),
-                        smallerThan="lg",
-                        styles={"display": "none"},
+                    dmc.Grid(
+                        [
+                            dmc.Col(
+                                [
+                                    dmc.Text(
+                                        label,
+                                        size="sm",
+                                    ),
+                                ],
+                                style={
+                                    "padding": "0px",
+                                    "margin": "0px",
+                                },
+                                span="content",
+                            ),
+                        ],
+                        style={
+                            "padding": "0px",
+                            "margin": "0px",
+                        },
+                        align="center",
                     )
-                ],
-                span="content",
+                ]
             ),
-        ]
+        ],
     )
+
+
+def predikce_viteze(
+    finalist_1, finalist_2, finalist_3, color_finalist_1, color_finalist_2
+):
+    return [
+        dmc.MediaQuery(
+            dmc.Grid(
+                [
+                    dmc.Col(
+                        [
+                            dmc.Grid(
+                                [
+                                    dmc.Col(
+                                        [
+                                            dmc.Group(
+                                                [
+                                                    dmc.Stack(
+                                                        [
+                                                            dmc.Space(h=133),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "Individuálne imunity",
+                                                                        pr=12
+                                                                    ),
+                                                                    DashIconify(
+                                                                        icon="icon-park-outline:diamond-necklace",
+                                                                        width=18,
+                                                                        height=18,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "Vyhrané duely",
+                                                                        pr=12
+                                                                    ),
+                                                                    DashIconify(
+                                                                        icon="material-symbols:swords-outline",
+                                                                        width=18,
+                                                                        height=18,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "Zahrané skryté imunity",
+                                                                        pr=12
+                                                                    ),
+                                                                    DashIconify(
+                                                                        icon="material-symbols:token-outline",
+                                                                        width=18,
+                                                                        height=18,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "Zahrané výhody",
+                                                                        pr=12
+                                                                    ),
+                                                                    DashIconify(
+                                                                        icon="material-symbols:trending-up",
+                                                                        width=18,
+                                                                        height=18,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "Úspěšné odhlasování",
+                                                                        pr=12
+                                                                    ),
+                                                                    DashIconify(
+                                                                        icon="mdi:bookmark-success-outline",
+                                                                        width=18,
+                                                                        height=18,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "Obdržených hlasů proti",
+                                                                        pr=12
+                                                                    ),
+                                                                    DashIconify(
+                                                                        icon="material-symbols:how-to-vote",
+                                                                        width=18,
+                                                                        height=18,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Space(h=20),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "Body za výzvy",
+                                                                        pr=12
+                                                                    ),
+                                                                    DashIconify(
+                                                                        icon="fluent-mdl2:mountain-climbing",
+                                                                        width=18,
+                                                                        height=18,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "Body za kmenové rady",
+                                                                        pr=12
+                                                                    ),
+                                                                    DashIconify(
+                                                                        icon="game-icons:totem",
+                                                                        width=18,
+                                                                        height=18,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Space(h=20),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "Šance na vítězství",
+                                                                        pr=8
+                                                                    ),
+                                                                    DashIconify(
+                                                                        icon="mdi:crown",
+                                                                        width=30,
+                                                                        height=30,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                        ],
+                                                        spacing=5,
+                                                        align="flex-end",
+                                                    ),
+                                                    dmc.Stack(
+                                                        [
+                                                            dmc.Avatar(
+                                                                src=players[finalist_1][
+                                                                    "profile_picture"
+                                                                ],
+                                                                radius="lg",
+                                                                size=100,
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        finalist_1,
+                                                                        size="lg",
+                                                                        weight=600,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_1
+                                                                            ]["Imunity"]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_1
+                                                                            ]["Duely"]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_1
+                                                                            ][
+                                                                                "Skryté Imunity"
+                                                                            ]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_1
+                                                                            ]["Výhody"]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_1
+                                                                            ][
+                                                                                "Odhlasování"
+                                                                            ]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_1
+                                                                            ][
+                                                                                "Hlasu proti"
+                                                                            ]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Space(h=20),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text("4"),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text("2.46"),
+                                                                ]
+                                                            ),
+                                                            dmc.Space(h=20),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "32%",
+                                                                        size="xl",
+                                                                        weight=700,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                        ],
+                                                        spacing=5,
+                                                    ),
+                                                    dmc.Stack(
+                                                        [
+                                                            dmc.Avatar(
+                                                                src=players[finalist_2][
+                                                                    "profile_picture"
+                                                                ],
+                                                                radius="lg",
+                                                                size=100,
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        finalist_2,
+                                                                        size="lg",
+                                                                        weight=600,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_2
+                                                                            ]["Imunity"]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_2
+                                                                            ]["Duely"]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_2
+                                                                            ][
+                                                                                "Skryté Imunity"
+                                                                            ]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_2
+                                                                            ]["Výhody"]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_2
+                                                                            ][
+                                                                                "Odhlasování"
+                                                                            ]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_2
+                                                                            ][
+                                                                                "Hlasu proti"
+                                                                            ]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Space(h=20),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text("2.5"),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text("1.55"),
+                                                                ]
+                                                            ),
+                                                            dmc.Space(h=20),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "20%",
+                                                                        size="xl",
+                                                                        weight=700,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                        ],
+                                                        spacing=5,
+                                                    ),
+                                                    dmc.Stack(
+                                                        [
+                                                            dmc.Avatar(
+                                                                src=players[finalist_3][
+                                                                    "profile_picture"
+                                                                ],
+                                                                radius="lg",
+                                                                size=100,
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        finalist_3,
+                                                                        size="lg",
+                                                                        weight=600,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_3
+                                                                            ]["Imunity"]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_3
+                                                                            ]["Duely"]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_3
+                                                                            ][
+                                                                                "Skryté Imunity"
+                                                                            ]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_3
+                                                                            ]["Výhody"]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_3
+                                                                            ][
+                                                                                "Odhlasování"
+                                                                            ]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_3
+                                                                            ][
+                                                                                "Hlasu proti"
+                                                                            ]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Space(h=20),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text("8"),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text("1.67"),
+                                                                ]
+                                                            ),
+                                                            dmc.Space(h=20),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "48%",
+                                                                        size="xl",
+                                                                        weight=700,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                        ],
+                                                        spacing=5,
+                                                    ),
+                                                ],
+                                                position="center",
+                                            )
+                                        ],
+                                        span="auto",
+                                    )
+                                ]
+                            ),
+                        ],
+                        span="auto",
+                    ),
+                    # dmc.Col(
+                    #     [
+                    #         dmc.Stack(
+                    #             [
+                    #                 dmc.Grid(
+                    #                     [
+                    #                         dmc.Col(
+                    #                             [
+                    #                                 dmc.Group(
+                    #                                     [
+                    #                                         dmc.Stack([
+                    #                                             dmc.Avatar(
+                    #                                                 src=players[finalist_1][
+                    #                                                     "profile_picture"
+                    #                                                 ],
+                    #                                                 radius="lg",
+                    #                                                 size=100,
+                    #                                                 style={
+                    #                                                     "border-color": color_finalist_1,
+                    #                                                     "border-style": "solid",
+                    #                                                     "border-width": "5px",
+                    #                                                 }
+                    #                                             ),
+                    #                                             dmc.Center([
+                    #                                                 dmc.Text(finalist_1, size="lg", weight=600),
+                    #                                             ])
+                    #                                         ], spacing=5),
+                    #                                         dmc.Stack([
+                    #                                             dmc.Avatar(
+                    #                                                 src=players[finalist_2][
+                    #                                                     "profile_picture"
+                    #                                                 ],
+                    #                                                 radius="lg",
+                    #                                                 size=100,
+                    #                                                 style={
+                    #                                                     "border-color": color_finalist_2,
+                    #                                                     "border-style": "solid",
+                    #                                                     "border-width": "5px",
+                    #                                                 }
+                    #                                             ),
+                    #                                             dmc.Center([
+                    #                                                 dmc.Text(finalist_2, size="lg", weight=600),
+                    #                                             ])
+                    #                                         ], spacing=5)
+                    #                                     ],
+                    #                                     position="center",
+                    #                                 )
+                    #                             ],
+                    #                             span="auto",
+                    #                             p=0,
+                    #                         ),
+                    #                     ]
+                    #                 ),
+                    #                 dmc.Grid(
+                    #                     [
+                    #                         dmc.Col(
+                    #                             [
+                    #                                 p_jeden_porotce(one_judge)
+                    #                                 for one_judge in predikce_viteze_df["JUDGE"]
+                    #                             ]
+                    #                         )
+                    #                     ]
+                    #                 ),
+                    #             ]
+                    #         )
+                    #     ],
+                    #     span="auto",
+                    # ),
+                ]
+            ),
+            smallerThan="sm",
+            styles={"display": "none"},
+            innerBoxStyle={"width": "100%"},
+        ),
+        dmc.MediaQuery(
+            dmc.Grid(
+                [
+                    dmc.Col(
+                        [
+                            dmc.Grid(
+                                [
+                                    dmc.Col(
+                                        [
+                                            dmc.Group(
+                                                [
+                                                    dmc.Stack(
+                                                        [
+                                                            dmc.Space(h=123),
+                                                            dmc.Center(
+                                                                [
+                                                                    icon_with_tip("icon-park-outline:diamond-necklace", "Individuálne imunity"),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    icon_with_tip("material-symbols:swords-outline", "Vyhrané duely"),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    icon_with_tip("material-symbols:token-outline", "Zahrané skryté imunity"),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    icon_with_tip("material-symbols:trending-up", "Zahrané výhody"),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    icon_with_tip("mdi:bookmark-success-outline", "Úspěšné odhlasování"),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    icon_with_tip("material-symbols:how-to-vote", "Obdržených hlasů proti"),
+                                                                ]
+                                                            ),
+                                                            dmc.Space(h=20),
+                                                            dmc.Center(
+                                                                [
+                                                                    icon_with_tip("fluent-mdl2:mountain-climbing", "Body za výzvy"),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    icon_with_tip("game-icons:totem", "Body za kmenové rady"),
+                                                                ]
+                                                            ),
+                                                            dmc.Space(h=20),
+                                                            dmc.Center(
+                                                                [
+                                                                    icon_with_tip("mdi:crown", "Šance na vítězství", 30),
+                                                                ]
+                                                            ),
+                                                        ],
+                                                        spacing=5,
+                                                    ),
+                                                    dmc.Stack(
+                                                        [
+                                                            dmc.Avatar(
+                                                                src=players[finalist_1][
+                                                                    "profile_picture"
+                                                                ],
+                                                                radius="lg",
+                                                                size=80,
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        finalist_1,
+                                                                        size="lg",
+                                                                        weight=600,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_1
+                                                                            ]["Imunity"]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_1
+                                                                            ]["Duely"]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_1
+                                                                            ][
+                                                                                "Skryté Imunity"
+                                                                            ]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_1
+                                                                            ]["Výhody"]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_1
+                                                                            ][
+                                                                                "Odhlasování"
+                                                                            ]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_1
+                                                                            ][
+                                                                                "Hlasu proti"
+                                                                            ]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Space(h=20),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text("4"),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text("2.46"),
+                                                                ]
+                                                            ),
+                                                            dmc.Space(h=20),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "32%",
+                                                                        size="xl",
+                                                                        weight=700,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                        ],
+                                                        spacing=5,
+                                                    ),
+                                                    dmc.Stack(
+                                                        [
+                                                            dmc.Avatar(
+                                                                src=players[finalist_2][
+                                                                    "profile_picture"
+                                                                ],
+                                                                radius="lg",
+                                                                size=80,
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        finalist_2,
+                                                                        size="lg",
+                                                                        weight=600,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_2
+                                                                            ]["Imunity"]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_2
+                                                                            ]["Duely"]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_2
+                                                                            ][
+                                                                                "Skryté Imunity"
+                                                                            ]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_2
+                                                                            ]["Výhody"]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_2
+                                                                            ][
+                                                                                "Odhlasování"
+                                                                            ]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_2
+                                                                            ][
+                                                                                "Hlasu proti"
+                                                                            ]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Space(h=20),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text("2.5"),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text("1.55"),
+                                                                ]
+                                                            ),
+                                                            dmc.Space(h=20),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "20%",
+                                                                        size="xl",
+                                                                        weight=700,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                        ],
+                                                        spacing=5,
+                                                    ),
+                                                    dmc.Stack(
+                                                        [
+                                                            dmc.Avatar(
+                                                                src=players[finalist_3][
+                                                                    "profile_picture"
+                                                                ],
+                                                                radius="lg",
+                                                                size=80,
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        finalist_3,
+                                                                        size="lg",
+                                                                        weight=600,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_3
+                                                                            ]["Imunity"]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_3
+                                                                            ]["Duely"]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_3
+                                                                            ][
+                                                                                "Skryté Imunity"
+                                                                            ]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_3
+                                                                            ]["Výhody"]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_3
+                                                                            ][
+                                                                                "Odhlasování"
+                                                                            ]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        str(
+                                                                            players[
+                                                                                finalist_3
+                                                                            ][
+                                                                                "Hlasu proti"
+                                                                            ]
+                                                                        )
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dmc.Space(h=20),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text("8"),
+                                                                ]
+                                                            ),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text("1.67"),
+                                                                ]
+                                                            ),
+                                                            dmc.Space(h=20),
+                                                            dmc.Center(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "48%",
+                                                                        size="xl",
+                                                                        weight=700,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                        ],
+                                                        spacing=5,
+                                                    ),
+                                                ],
+                                                position="center",
+                                            )
+                                        ],
+                                        span="auto",
+                                    )
+                                ]
+                            ),
+                        ],
+                        span="auto",
+                    ),
+                    # dmc.Col(
+                    #     [
+                    #         dmc.Stack(
+                    #             [
+                    #                 dmc.Grid(
+                    #                     [
+                    #                         dmc.Col(
+                    #                             [
+                    #                                 dmc.Group(
+                    #                                     [
+                    #                                         dmc.Stack([
+                    #                                             dmc.Avatar(
+                    #                                                 src=players[finalist_1][
+                    #                                                     "profile_picture"
+                    #                                                 ],
+                    #                                                 radius="lg",
+                    #                                                 size=100,
+                    #                                                 style={
+                    #                                                     "border-color": color_finalist_1,
+                    #                                                     "border-style": "solid",
+                    #                                                     "border-width": "5px",
+                    #                                                 }
+                    #                                             ),
+                    #                                             dmc.Center([
+                    #                                                 dmc.Text(finalist_1, size="lg", weight=600),
+                    #                                             ])
+                    #                                         ], spacing=5),
+                    #                                         dmc.Stack([
+                    #                                             dmc.Avatar(
+                    #                                                 src=players[finalist_2][
+                    #                                                     "profile_picture"
+                    #                                                 ],
+                    #                                                 radius="lg",
+                    #                                                 size=100,
+                    #                                                 style={
+                    #                                                     "border-color": color_finalist_2,
+                    #                                                     "border-style": "solid",
+                    #                                                     "border-width": "5px",
+                    #                                                 }
+                    #                                             ),
+                    #                                             dmc.Center([
+                    #                                                 dmc.Text(finalist_2, size="lg", weight=600),
+                    #                                             ])
+                    #                                         ], spacing=5)
+                    #                                     ],
+                    #                                     position="center",
+                    #                                 )
+                    #                             ],
+                    #                             span="auto",
+                    #                             p=0,
+                    #                         ),
+                    #                     ]
+                    #                 ),
+                    #                 dmc.Grid(
+                    #                     [
+                    #                         dmc.Col(
+                    #                             [
+                    #                                 p_jeden_porotce(one_judge)
+                    #                                 for one_judge in predikce_viteze_df["JUDGE"]
+                    #                             ]
+                    #                         )
+                    #                     ]
+                    #                 ),
+                    #             ]
+                    #         )
+                    #     ],
+                    #     span="auto",
+                    # ),
+                ]
+            ),
+            largerThan="sm",
+            styles={"display": "none"},
+            innerBoxStyle={"width": "100%"},
+        ),
+    ]
 
 
 def information_bubble(content_container, desktop_width=800, icon_size=25):
