@@ -1,5 +1,15 @@
 import dash
-from dash import dcc, callback, Output, Input, State, html, clientside_callback, ALL, ctx
+from dash import (
+    dcc,
+    callback,
+    Output,
+    Input,
+    State,
+    html,
+    clientside_callback,
+    ALL,
+    ctx,
+)
 from dash.exceptions import PreventUpdate
 from dash.dash_table import DataTable
 import dash_mantine_components as dmc
@@ -12,9 +22,10 @@ import numpy as np
 dash.register_page(
     __name__,
     title="Survivor Česko & Slovensko - Statistiky",
-    description="Statistiky reality show Survivor Česko & Slovensko. Podrobné spracování průběhu jednotlivých řad, rekordy, hlasování na kmenových radách a statistika soubojů.",
+    description="Statistiky reality show Survivor Česko & Slovensko. Podrobné spracování průběhu jednotlivých řad, "
+    "rekordy, hlasování na kmenových radách a statistika soubojů.",
     image="survivor-statistky-nahlad.PNG",
-    redirect_from=["/survivor", "/statistiky-survivor", "/survivor-statistics"]
+    redirect_from=["/survivor", "/statistiky-survivor", "/survivor-statistics"],
 )
 
 survivor_colors = {"Hrdinové": "#f70000", "Rebelové": "#0122dc"}
@@ -248,31 +259,51 @@ df_uspesne_hlasovani = pd.DataFrame.from_dict(
 
 hlasovani_nezapoc_df = pd.merge(
     kmenovky_hlasovani_df[kmenovky_hlasovani_df["TYPE"] == "Primární"],
-    event_log_df[(event_log_df["EVENT_TYPE"] == "Výhoda") & (event_log_df["EVENT_DESC"] == "Skrytá imunita")],
+    event_log_df[
+        (event_log_df["EVENT_TYPE"] == "Výhoda")
+        & (event_log_df["EVENT_DESC"] == "Skrytá imunita")
+    ],
     how="left",
     left_on=["DAY", "EPISODE"],
     right_on=["DAY", "EPISODE"],
 )
 df_nezapocitane_hlasy = pd.DataFrame()
 for p in players:
-    one_df = hlasovani_nezapoc_df[
+    one_df = (
+        hlasovani_nezapoc_df[
             hlasovani_nezapoc_df[p] == hlasovani_nezapoc_df["LOSING_ROSTER"]
-        ].value_counts(subset=[p]).rename_axis("unique_values").reset_index(name="cnt").set_index("unique_values")
+        ]
+        .value_counts(subset=[p])
+        .rename_axis("unique_values")
+        .reset_index(name="cnt")
+        .set_index("unique_values")
+    )
     df_nezapocitane_hlasy = pd.concat([df_nezapocitane_hlasy, one_df])
-df_nezapocitane_hlasy = df_nezapocitane_hlasy.groupby(["unique_values"])["cnt"].sum().reset_index().set_index("unique_values")
+df_nezapocitane_hlasy = (
+    df_nezapocitane_hlasy.groupby(["unique_values"])["cnt"]
+    .sum()
+    .reset_index()
+    .set_index("unique_values")
+)
 
 
-df_pocet_hlasu = kmenovky_hlasovani_df[kmenovky_hlasovani_df["TYPE"] == "Primární"].iloc[
-    :, 3:
-].stack().reset_index()[0].str.split(pat=", ").explode().value_counts().rename_axis(
-    "unique_values"
-).reset_index(
-    name="Počet hlasů"
+df_pocet_hlasu = (
+    kmenovky_hlasovani_df[kmenovky_hlasovani_df["TYPE"] == "Primární"]
+    .iloc[:, 3:]
+    .stack()
+    .reset_index()[0]
+    .str.split(pat=", ")
+    .explode()
+    .value_counts()
+    .rename_axis("unique_values")
+    .reset_index(name="Počet hlasů")
 )
 
 for player in players:
     try:
-        players[player]["Hlasu proti"] = df_pocet_hlasu[df_pocet_hlasu["unique_values"] == player]["Počet hlasů"].values[0]
+        players[player]["Hlasu proti"] = df_pocet_hlasu[
+            df_pocet_hlasu["unique_values"] == player
+        ]["Počet hlasů"].values[0]
     except IndexError:
         players[player]["Hlasu proti"] = 0
     players[player]["Odhlasování"] = uspesne_hlasovani[player]
@@ -318,37 +349,71 @@ for player in players:
 
 df_players = pd.DataFrame.from_dict(players, orient="index")
 
+
 def p_jeden_porotce(judge):
-    f1_plus = predikce_viteze_df[predikce_viteze_df["JUDGE"] == judge]["FINALIST_1_PLUS"].values[0]
-    f1_minus = predikce_viteze_df[predikce_viteze_df["JUDGE"] == judge]["FINALIST_1_MINUS"].values[0]
-    f2_plus = predikce_viteze_df[predikce_viteze_df["JUDGE"] == judge]["FINALIST_2_PLUS"].values[0]
-    f2_minus = predikce_viteze_df[predikce_viteze_df["JUDGE"] == judge]["FINALIST_2_MINUS"].values[0]
+    f1_plus = predikce_viteze_df[predikce_viteze_df["JUDGE"] == judge][
+        "FINALIST_1_PLUS"
+    ].values[0]
+    f1_minus = predikce_viteze_df[predikce_viteze_df["JUDGE"] == judge][
+        "FINALIST_1_MINUS"
+    ].values[0]
+    f2_plus = predikce_viteze_df[predikce_viteze_df["JUDGE"] == judge][
+        "FINALIST_2_PLUS"
+    ].values[0]
+    f2_minus = predikce_viteze_df[predikce_viteze_df["JUDGE"] == judge][
+        "FINALIST_2_MINUS"
+    ].values[0]
     f1_perc = (f1_plus + f2_minus) / (f1_plus + f1_minus + f2_plus + f2_minus) * 100
-    return dmc.Grid([
-        dmc.Col([
-            dmc.Text(judge, style={"width": "58px"})
-        ], span="content", pl=0),
-        dmc.Col([
-            dmc.Text("+" + str(f1_plus) + " / -" + str(f1_minus), style={"width": "59px"})
-        ], span="content"),
-        dmc.Col([
-            dmc.Stack(
-                dmc.Progress(
-                    size="xl",
-                    sections=[
-                        {"value": round(f1_perc), "color": "red", "label": str(round(f1_perc)) + "%"},
-                        {"value": round(100 - f1_perc), "color": "blue", "label": str(round(100 - f1_perc)) + "%"}
-                    ],
-                    radius="lg",
-                ),
-                justify="center",
-                style={"height": "100%"},
-            )
-        ], span="auto", p=0),
-        dmc.Col([
-            dmc.Text("+" + str(f2_plus) + " / -" + str(f2_minus), style={"width": "59px"})
-        ], span="content", pr=0),
-    ])
+    return dmc.Grid(
+        [
+            dmc.Col([dmc.Text(judge, style={"width": "58px"})], span="content", pl=0),
+            dmc.Col(
+                [
+                    dmc.Text(
+                        "+" + str(f1_plus) + " / -" + str(f1_minus),
+                        style={"width": "59px"},
+                    )
+                ],
+                span="content",
+            ),
+            dmc.Col(
+                [
+                    dmc.Stack(
+                        dmc.Progress(
+                            size="xl",
+                            sections=[
+                                {
+                                    "value": round(f1_perc),
+                                    "color": "red",
+                                    "label": str(round(f1_perc)) + "%",
+                                },
+                                {
+                                    "value": round(100 - f1_perc),
+                                    "color": "blue",
+                                    "label": str(round(100 - f1_perc)) + "%",
+                                },
+                            ],
+                            radius="lg",
+                        ),
+                        justify="center",
+                        style={"height": "100%"},
+                    )
+                ],
+                span="auto",
+                p=0,
+            ),
+            dmc.Col(
+                [
+                    dmc.Text(
+                        "+" + str(f2_plus) + " / -" + str(f2_minus),
+                        style={"width": "59px"},
+                    )
+                ],
+                span="content",
+                pr=0,
+            ),
+        ]
+    )
 
 
 def icon_with_tip(icon, label, icon_size=18):
@@ -421,7 +486,7 @@ def predikce_viteze(
                                                                 [
                                                                     dmc.Text(
                                                                         "Individuálne imunity",
-                                                                        pr=12
+                                                                        pr=12,
                                                                     ),
                                                                     DashIconify(
                                                                         icon="icon-park-outline:diamond-necklace",
@@ -434,7 +499,7 @@ def predikce_viteze(
                                                                 [
                                                                     dmc.Text(
                                                                         "Vyhrané duely",
-                                                                        pr=12
+                                                                        pr=12,
                                                                     ),
                                                                     DashIconify(
                                                                         icon="material-symbols:swords-outline",
@@ -447,7 +512,7 @@ def predikce_viteze(
                                                                 [
                                                                     dmc.Text(
                                                                         "Zahrané skryté imunity",
-                                                                        pr=12
+                                                                        pr=12,
                                                                     ),
                                                                     DashIconify(
                                                                         icon="material-symbols:token-outline",
@@ -460,7 +525,7 @@ def predikce_viteze(
                                                                 [
                                                                     dmc.Text(
                                                                         "Zahrané výhody",
-                                                                        pr=12
+                                                                        pr=12,
                                                                     ),
                                                                     DashIconify(
                                                                         icon="material-symbols:trending-up",
@@ -473,7 +538,7 @@ def predikce_viteze(
                                                                 [
                                                                     dmc.Text(
                                                                         "Úspěšné odhlasování",
-                                                                        pr=12
+                                                                        pr=12,
                                                                     ),
                                                                     DashIconify(
                                                                         icon="mdi:bookmark-success-outline",
@@ -486,7 +551,7 @@ def predikce_viteze(
                                                                 [
                                                                     dmc.Text(
                                                                         "Obdržených hlasů proti",
-                                                                        pr=12
+                                                                        pr=12,
                                                                     ),
                                                                     DashIconify(
                                                                         icon="material-symbols:how-to-vote",
@@ -500,7 +565,7 @@ def predikce_viteze(
                                                                 [
                                                                     dmc.Text(
                                                                         "Body za výzvy",
-                                                                        pr=12
+                                                                        pr=12,
                                                                     ),
                                                                     DashIconify(
                                                                         icon="fluent-mdl2:mountain-climbing",
@@ -513,7 +578,7 @@ def predikce_viteze(
                                                                 [
                                                                     dmc.Text(
                                                                         "Body za kmenové rady",
-                                                                        pr=12
+                                                                        pr=12,
                                                                     ),
                                                                     DashIconify(
                                                                         icon="game-icons:totem",
@@ -527,7 +592,7 @@ def predikce_viteze(
                                                                 [
                                                                     dmc.Text(
                                                                         "Šance na vítězství",
-                                                                        pr=8
+                                                                        pr=8,
                                                                     ),
                                                                     DashIconify(
                                                                         icon="mdi:crown",
@@ -983,49 +1048,77 @@ def predikce_viteze(
                                                             dmc.Space(h=123),
                                                             dmc.Center(
                                                                 [
-                                                                    icon_with_tip("icon-park-outline:diamond-necklace", "Individuálne imunity"),
+                                                                    icon_with_tip(
+                                                                        "icon-park-outline:diamond-necklace",
+                                                                        "Individuálne imunity",
+                                                                    ),
                                                                 ]
                                                             ),
                                                             dmc.Center(
                                                                 [
-                                                                    icon_with_tip("material-symbols:swords-outline", "Vyhrané duely"),
+                                                                    icon_with_tip(
+                                                                        "material-symbols:swords-outline",
+                                                                        "Vyhrané duely",
+                                                                    ),
                                                                 ]
                                                             ),
                                                             dmc.Center(
                                                                 [
-                                                                    icon_with_tip("material-symbols:token-outline", "Zahrané skryté imunity"),
+                                                                    icon_with_tip(
+                                                                        "material-symbols:token-outline",
+                                                                        "Zahrané skryté imunity",
+                                                                    ),
                                                                 ]
                                                             ),
                                                             dmc.Center(
                                                                 [
-                                                                    icon_with_tip("material-symbols:trending-up", "Zahrané výhody"),
+                                                                    icon_with_tip(
+                                                                        "material-symbols:trending-up",
+                                                                        "Zahrané výhody",
+                                                                    ),
                                                                 ]
                                                             ),
                                                             dmc.Center(
                                                                 [
-                                                                    icon_with_tip("mdi:bookmark-success-outline", "Úspěšné odhlasování"),
+                                                                    icon_with_tip(
+                                                                        "mdi:bookmark-success-outline",
+                                                                        "Úspěšné odhlasování",
+                                                                    ),
                                                                 ]
                                                             ),
                                                             dmc.Center(
                                                                 [
-                                                                    icon_with_tip("material-symbols:how-to-vote", "Obdržených hlasů proti"),
+                                                                    icon_with_tip(
+                                                                        "material-symbols:how-to-vote",
+                                                                        "Obdržených hlasů proti",
+                                                                    ),
                                                                 ]
                                                             ),
                                                             dmc.Space(h=20),
                                                             dmc.Center(
                                                                 [
-                                                                    icon_with_tip("fluent-mdl2:mountain-climbing", "Body za výzvy"),
+                                                                    icon_with_tip(
+                                                                        "fluent-mdl2:mountain-climbing",
+                                                                        "Body za výzvy",
+                                                                    ),
                                                                 ]
                                                             ),
                                                             dmc.Center(
                                                                 [
-                                                                    icon_with_tip("game-icons:totem", "Body za kmenové rady"),
+                                                                    icon_with_tip(
+                                                                        "game-icons:totem",
+                                                                        "Body za kmenové rady",
+                                                                    ),
                                                                 ]
                                                             ),
                                                             dmc.Space(h=20),
                                                             dmc.Center(
                                                                 [
-                                                                    icon_with_tip("mdi:crown", "Šance na vítězství", 30),
+                                                                    icon_with_tip(
+                                                                        "mdi:crown",
+                                                                        "Šance na vítězství",
+                                                                        30,
+                                                                    ),
                                                                 ]
                                                             ),
                                                         ],
@@ -1482,14 +1575,10 @@ def information_bubble(content_container, desktop_width=800, icon_size=25):
                     dmc.Container(
                         content_container,
                         p=10,
-                        style={
-                            "max-width": "97vw"
-                        },
+                        style={"max-width": "97vw"},
                     ),
                     largerThan="sm",
-                    styles={
-                        "max-width": str(desktop_width) + "px"
-                    },
+                    styles={"max-width": str(desktop_width) + "px"},
                 )
             ),
         ],
@@ -1722,214 +1811,278 @@ def best_team(card_label, title_icon, by_id, num_label):
 def player_card(player):
     return dmc.Card(
         [
-            dmc.Stack([
-                dmc.Grid([
-                    dmc.Col([
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        dmc.Center(
-                                            [
-                                                dmc.Text(
-                                                    players[player]["Jméno"], size="lg", weight=600
-                                                ),
-                                                dmc.Badge(
-                                                    ("TOP " + str(players[player]["Poradie"]))
-                                                    if players[player]["Poradie"] is not None
-                                                    else "Ve hře",
-                                                    variant="dot"
-                                                    if players[player]["Poradie"] is None
-                                                    else "outline",
-                                                    color="green"
-                                                    if players[player]["Poradie"] is None
-                                                    else "blue",
-                                                    size="lg",
-                                                    style={"margin-left": "8px"},
-                                                ),
-                                            ]
-                                        )
-                                    ]
-                                )
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        dmc.Tooltip(
-                                            dmc.Avatar(
-                                                src=players[player]["profile_picture"],
-                                                radius="lg",
-                                                size="lg",
-                                            ),
-                                            label=player,
-                                            position="top",
-                                            transition="pop",
-                                        )
-                                    ],
-                                    span="content",
-                                ),
-                                dmc.Col(
-                                    [
-                                        dmc.Grid(
-                                            [
-                                                dmc.Col(
-                                                    [dmc.Text("Věk: " + players[player]["Věk"])],
-                                                    style={
-                                                        "padding-top": "4px",
-                                                        "padding-bottom": "6px",
-                                                    },
-                                                )
-                                            ]
-                                        ),
-                                        dmc.Grid(
-                                            [
-                                                dmc.Col(
-                                                    [dmc.Text(players[player]["Povolání"])],
-                                                    style={
-                                                        "padding-top": "0px",
-                                                        "padding-bottom": "8px",
-                                                    },
-                                                )
-                                            ]
-                                        ),
-                                    ],
-                                    span="auto",
-                                ),
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [dmc.Text("Úspěchy:", weight=600)],
-                                    style={"padding-bottom": "0px", "padding-top": "5px"},
-                                )
-                            ]
-                        ),
-                        dmc.Grid(
-                            []
-                            + (
-                                    [
-                                        dmc.Col(
-                                            dmc.Tooltip(
-                                                DashIconify(
-                                                    icon="icon-park-outline:diamond-necklace",
-                                                    width=30,
-                                                    height=30,
-                                                    style={"color": "#868e96"},
-                                                ),
-                                                label="Osobní imunita",
-                                                position="top",
-                                                transition="pop",
-                                            ),
-                                            span="content",
-                                            style={
-                                                "padding-left": "4px",
-                                                "padding-right": "4px",
-                                                "padding-bottom": "0px",
-                                            },
-                                        )
-                                    ]
-                                    * players[player]["Imunity"]
-                            )
-                            + (
-                                    [
-                                        dmc.Col(
-                                            dmc.Tooltip(
-                                                DashIconify(
-                                                    icon="material-symbols:swords-outline",
-                                                    width=30,
-                                                    height=30,
-                                                    style={"color": "#868e96"},
-                                                ),
-                                                label="Výhra v duelu",
-                                                position="top",
-                                                transition="pop",
-                                            ),
-                                            span="content",
-                                            style={
-                                                "padding-left": "4px",
-                                                "padding-right": "4px",
-                                                "padding-bottom": "0px",
-                                            },
-                                        )
-                                    ]
-                                    * players[player]["Duely"]
-                            )
-                            + (
+            dmc.Stack(
+                [
+                    dmc.Grid(
+                        [
+                            dmc.Col(
                                 [
-                                    dmc.Col(
-                                        dmc.Tooltip(
-                                            DashIconify(
-                                                icon="material-symbols:token-outline",
-                                                width=34,
-                                                height=34,
-                                                style={"color": "#868e96"},
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    dmc.Center(
+                                                        [
+                                                            dmc.Text(
+                                                                players[player][
+                                                                    "Jméno"
+                                                                ],
+                                                                size="lg",
+                                                                weight=600,
+                                                            ),
+                                                            dmc.Badge(
+                                                                (
+                                                                    "TOP "
+                                                                    + str(
+                                                                        players[player][
+                                                                            "Poradie"
+                                                                        ]
+                                                                    )
+                                                                )
+                                                                if players[player][
+                                                                    "Poradie"
+                                                                ]
+                                                                is not None
+                                                                else "Ve hře",
+                                                                variant="dot"
+                                                                if players[player][
+                                                                    "Poradie"
+                                                                ]
+                                                                is None
+                                                                else "outline",
+                                                                color="green"
+                                                                if players[player][
+                                                                    "Poradie"
+                                                                ]
+                                                                is None
+                                                                else "blue",
+                                                                size="lg",
+                                                                style={
+                                                                    "margin-left": "8px"
+                                                                },
+                                                            ),
+                                                        ]
+                                                    )
+                                                ]
+                                            )
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    dmc.Tooltip(
+                                                        dmc.Avatar(
+                                                            src=players[player][
+                                                                "profile_picture"
+                                                            ],
+                                                            radius="lg",
+                                                            size="lg",
+                                                        ),
+                                                        label=player,
+                                                        position="top",
+                                                        transition="pop",
+                                                    )
+                                                ],
+                                                span="content",
                                             ),
-                                            label=i,
-                                            position="top",
-                                            transition="pop",
+                                            dmc.Col(
+                                                [
+                                                    dmc.Grid(
+                                                        [
+                                                            dmc.Col(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "Věk: "
+                                                                        + players[
+                                                                            player
+                                                                        ]["Věk"]
+                                                                    )
+                                                                ],
+                                                                style={
+                                                                    "padding-top": "4px",
+                                                                    "padding-bottom": "6px",
+                                                                },
+                                                            )
+                                                        ]
+                                                    ),
+                                                    dmc.Grid(
+                                                        [
+                                                            dmc.Col(
+                                                                [
+                                                                    dmc.Text(
+                                                                        players[player][
+                                                                            "Povolání"
+                                                                        ]
+                                                                    )
+                                                                ],
+                                                                style={
+                                                                    "padding-top": "0px",
+                                                                    "padding-bottom": "8px",
+                                                                },
+                                                            )
+                                                        ]
+                                                    ),
+                                                ],
+                                                span="auto",
+                                            ),
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [dmc.Text("Úspěchy:", weight=600)],
+                                                style={
+                                                    "padding-bottom": "0px",
+                                                    "padding-top": "5px",
+                                                },
+                                            )
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        []
+                                        + (
+                                            [
+                                                dmc.Col(
+                                                    dmc.Tooltip(
+                                                        DashIconify(
+                                                            icon="icon-park-outline:diamond-necklace",
+                                                            width=30,
+                                                            height=30,
+                                                            style={"color": "#868e96"},
+                                                        ),
+                                                        label="Osobní imunita",
+                                                        position="top",
+                                                        transition="pop",
+                                                    ),
+                                                    span="content",
+                                                    style={
+                                                        "padding-left": "4px",
+                                                        "padding-right": "4px",
+                                                        "padding-bottom": "0px",
+                                                    },
+                                                )
+                                            ]
+                                            * players[player]["Imunity"]
+                                        )
+                                        + (
+                                            [
+                                                dmc.Col(
+                                                    dmc.Tooltip(
+                                                        DashIconify(
+                                                            icon="material-symbols:swords-outline",
+                                                            width=30,
+                                                            height=30,
+                                                            style={"color": "#868e96"},
+                                                        ),
+                                                        label="Výhra v duelu",
+                                                        position="top",
+                                                        transition="pop",
+                                                    ),
+                                                    span="content",
+                                                    style={
+                                                        "padding-left": "4px",
+                                                        "padding-right": "4px",
+                                                        "padding-bottom": "0px",
+                                                    },
+                                                )
+                                            ]
+                                            * players[player]["Duely"]
+                                        )
+                                        + (
+                                            [
+                                                dmc.Col(
+                                                    dmc.Tooltip(
+                                                        DashIconify(
+                                                            icon="material-symbols:token-outline",
+                                                            width=34,
+                                                            height=34,
+                                                            style={"color": "#868e96"},
+                                                        ),
+                                                        label=i,
+                                                        position="top",
+                                                        transition="pop",
+                                                    ),
+                                                    span="content",
+                                                    style={
+                                                        "padding-left": "4px",
+                                                        "padding-right": "4px",
+                                                        "padding-bottom": "0px",
+                                                    },
+                                                    pt=6,
+                                                )
+                                                for i in event_log_df[
+                                                    (
+                                                        event_log_df["EVENT_TYPE"]
+                                                        == "Výhoda"
+                                                    )
+                                                    & (
+                                                        event_log_df["WINNING_ROSTER"]
+                                                        == player
+                                                    )
+                                                ]["EVENT_DESC"]
+                                            ]
+                                        )
+                                        + (
+                                            [
+                                                dmc.Col(
+                                                    dmc.Tooltip(
+                                                        DashIconify(
+                                                            icon="material-symbols:merge-rounded",
+                                                            width=36,
+                                                            height=36,
+                                                            style={"color": "#868e96"},
+                                                        ),
+                                                        label="Sloučení",
+                                                        position="top",
+                                                        transition="pop",
+                                                    ),
+                                                    span="content",
+                                                    px=0,
+                                                    pt=4,
+                                                    pb=0,
+                                                )
+                                                if player
+                                                in event_log_df[
+                                                    event_log_df["EVENT_TYPE"]
+                                                    == "Sloučení"
+                                                ]["WINNING_ROSTER"].values[0]
+                                                else None
+                                            ]
                                         ),
-                                        span="content",
-                                        style={
-                                            "padding-left": "4px",
-                                            "padding-right": "4px",
-                                            "padding-bottom": "0px",
+                                        style={"padding-left": "8px"},
+                                    ),
+                                ]
+                            )
+                        ]
+                    ),
+                    dmc.Grid(
+                        [
+                            dmc.Col(
+                                [
+                                    dmc.Button(
+                                        "Zobrazit detail soutěžícího",
+                                        id={
+                                            "type": "show-player-detail",
+                                            "subtype": player,
                                         },
-                                        pt=6,
-                                    )
-                                    for i in event_log_df[
-                                    (event_log_df["EVENT_TYPE"] == "Výhoda")
-                                    & (event_log_df["WINNING_ROSTER"] == player)
-                                    ]["EVENT_DESC"]
+                                        fullWidth=True,
+                                        variant="light",
+                                        color="gray",
+                                        radius="xl",
+                                        leftIcon=DashIconify(
+                                            icon="ph:list-magnifying-glass"
+                                        ),
+                                        style={"height": "26px"},
+                                    ),
                                 ]
                             )
-                            + (
-                                [
-                                    dmc.Col(
-                                        dmc.Tooltip(
-                                            DashIconify(
-                                                icon="material-symbols:merge-rounded",
-                                                width=36,
-                                                height=36,
-                                                style={"color": "#868e96"},
-                                            ),
-                                            label="Sloučení",
-                                            position="top",
-                                            transition="pop",
-                                        ),
-                                        span="content",
-                                        px=0,
-                                        pt=4,
-                                        pb=0,
-                                    )
-                                    if player
-                                       in event_log_df[event_log_df["EVENT_TYPE"] == "Sloučení"][
-                                           "WINNING_ROSTER"
-                                       ].values[0]
-                                    else None
-                                ]
-                            ),
-                            style={"padding-left": "8px"},
-                        ),
-                    ])
-                ]),
-                dmc.Grid([
-                    dmc.Col([
-                        dmc.Button(
-                            "Zobrazit detail soutěžícího",
-                            id={"type": "show-player-detail", "subtype": player},
-                            fullWidth=True,
-                            variant="light",
-                            color="gray",
-                            radius="xl",
-                            leftIcon=DashIconify(icon="ph:list-magnifying-glass"),
-                            style={"height": "26px"}
-                        ),
-                    ])
-                ])
-            ], justify="space-between", style={"height": "100%"})
+                        ]
+                    ),
+                ],
+                justify="space-between",
+                style={"height": "100%"},
+            )
         ],
         withBorder=True,
         shadow="sm",
@@ -4373,1199 +4526,1223 @@ def kmenovka_hlasovani_item(episode, day, first=False):
     return out
 
 
-def layout(utm_source=None, utm_medium=None, utm_campaign=None):
-    return [
-        dmc.Header(
-            height=60,
-            children=[
-                dmc.Grid(
-                    [
-                        dmc.Col(
-                            [
-                                dmc.MediaQuery(
-                                    dmc.Container(
+def layout():  # utm_source=None, utm_medium=None, utm_campaign=None
+    return dmc.Grid(
+        [
+            dmc.Col(
+                [
+                    dmc.Divider(
+                        label="Survivor Česko & Slovensko 2023 - Statistiky",
+                        size="sm",
+                        styles={"label": {"font-size": "25px", "font-weight": 600}},
+                        p=20,
+                    ),
+                    dmc.Grid(
+                        [
+                            dmc.Col(
+                                [
+                                    dmc.Grid(
                                         [
-                                            dmc.Text(
-                                                "SURVIVOR 2023", weight=500, size=20
-                                            ),
-                                        ],
-                                        style={
-                                            "padding": "0px",
-                                            "padding-left": "10px",
-                                        },
-                                    ),
-                                    largerThan="sm",
-                                    styles={"display": "none"},
-                                ),
-                                dmc.MediaQuery(
-                                    dmc.Container(
-                                        [
-                                            dmc.Text(
-                                                "Survivor Česko & Slovensko 2023 - Statistiky",
-                                                weight=500,
-                                                size=20,
-                                            ),
-                                        ],
-                                        style={
-                                            "padding": "0px",
-                                            "padding-left": "30px",
-                                        },
-                                    ),
-                                    smallerThan="sm",
-                                    styles={"display": "none"},
-                                ),
-                            ],
-                            span="content",
-                        ),
-                        dmc.Col(
-                            [
-                                dmc.MediaQuery(
-                                    dmc.Container(
-                                        [
-                                            dmc.Grid(
+                                            dmc.Col(
                                                 [
-                                                    dmc.Col(
+                                                    dmc.Text(
+                                                        "Finálová predikce:",
+                                                        size="xl",
+                                                        weight=600,
+                                                    )
+                                                ],
+                                                span="content",
+                                            ),
+                                            dmc.Col(
+                                                [
+                                                    information_bubble(
                                                         [
-                                                            dmc.ActionIcon(
-                                                                DashIconify(
-                                                                    icon="radix-icons:blending-mode",
-                                                                    width=30,
-                                                                ),
-                                                                size="lg",
-                                                                id="color-scheme-toggle",
+                                                            dmc.Text(
+                                                                "Body za výzvy - súčet bodov za individuálne disciplíny a úspechy:"
+                                                            ),
+                                                            dmc.Text(
+                                                                "Individuálna imunita: +1 bod"
+                                                            ),
+                                                            dmc.Text(
+                                                                "Vyhraný duel: +0.5 bodu"
+                                                            ),
+                                                            dmc.Text(
+                                                                "Zahraná skrytá imunita: +1 bod"
+                                                            ),
+                                                            dmc.Text(
+                                                                "Zahraná výhoda: +0.5 bodu"
+                                                            ),
+                                                            dmc.Space(h=10),
+                                                            dmc.Text(
+                                                                "Body za kmenové rady - pomer úspešných odhlasovaní iného hráča a schopnosti ochrániť sám seba"
+                                                            ),
+                                                            dmc.Text(
+                                                                "PO = Počet Odhlasovaní"
+                                                            ),
+                                                            dmc.Text(
+                                                                "OH = Obdržené hlasy"
+                                                            ),
+                                                            dmc.Text(
+                                                                "PZK = Počet zúčastnených kmeňových rád"
+                                                            ),
+                                                            dmc.Text(
+                                                                "Vzorec: 4 * [PO / (4+OH)] * (22 / PZK)"
+                                                            ),
+                                                            dmc.Space(h=10),
+                                                            dmc.Text(
+                                                                "Šance na vítězství - pomer súčtu bodov za výzvy a bodov za kmenové rady v %"
                                                             ),
                                                         ],
-                                                        span="content",
-                                                        style={"padding": "0px"},
-                                                    ),
-                                                    dmc.Col(
-                                                        [
-                                                            html.A(
-                                                                dmc.Tooltip(
-                                                                    dmc.ActionIcon(
-                                                                        DashIconify(
-                                                                            icon="mdi:github",
-                                                                            width=30,
-                                                                        ),
-                                                                        size="lg",
-                                                                    ),
-                                                                    label="Github",
-                                                                    position="top",
-                                                                    transition="pop",
-                                                                ),
-                                                                href="https://github.com/martin2097/",
-                                                                target="_blank",
-                                                            ),
-                                                        ],
-                                                        span="content",
-                                                        style={"padding": "0px"},
-                                                    ),
-                                                    dmc.Col(
-                                                        [
-                                                            html.A(
-                                                                dmc.Tooltip(
-                                                                    dmc.ActionIcon(
-                                                                        DashIconify(
-                                                                            icon="mdi:linkedin",
-                                                                            width=30,
-                                                                        ),
-                                                                        size="lg",
-                                                                    ),
-                                                                    label="Linkedin",
-                                                                    position="top",
-                                                                    transition="pop",
-                                                                ),
-                                                                href="https://linkedin.com/in/martin-rapavy",
-                                                                target="_blank",
-                                                            )
-                                                        ],
-                                                        span="content",
+                                                        500,
+                                                    )
+                                                ],
+                                                span="content",
+                                                pl=0,
+                                                pt=12,
+                                            ),
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    dmc.Card(
+                                                        predikce_viteze(
+                                                            "Martin",
+                                                            "Karolína",
+                                                            "Tomáš",
+                                                            "rgb(224, 49, 49)",
+                                                            "rgb(34, 139, 230)",
+                                                        ),
+                                                        withBorder=True,
+                                                        shadow="sm",
+                                                        radius="lg",
                                                         style={
-                                                            "padding": "0px",
-                                                            "padding-right": "10px",
+                                                            "padding": "10px",
+                                                            "overflow": "visible",
+                                                        },
+                                                    )
+                                                ]
+                                            )
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    dmc.Text(
+                                                        "Nejlepší hráči:",
+                                                        size="xl",
+                                                        weight=600,
+                                                    )
+                                                ]
+                                            )
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    best_players_card(
+                                                        "Král osobních imunit",
+                                                        "icon-park-outline:diamond-necklace",
+                                                        personal_stats_df_heat.sort_values(
+                                                            [
+                                                                "IMMUNITY_WINS",
+                                                                "POWER_INDEX",
+                                                            ],
+                                                            ascending=False,
+                                                        ).iloc[
+                                                            0:5
+                                                        ][
+                                                            [
+                                                                "IMMUNITY_WINS",
+                                                                "POWER_INDEX",
+                                                            ]
+                                                        ],
+                                                        [
+                                                            "",
+                                                            "Immunity",
+                                                            "Power Index",
+                                                        ],
+                                                        "Imunity",
+                                                    ),
+                                                ],
+                                                xl=4,
+                                                sm=6,
+                                            ),
+                                            dmc.Col(
+                                                [
+                                                    best_players_card(
+                                                        "Král duelů",
+                                                        "material-symbols:swords-outline",
+                                                        pd.DataFrame.from_dict(
+                                                            players,
+                                                            orient="index",
+                                                        )
+                                                        .sort_values(
+                                                            ["Duely"],
+                                                            ascending=False,
+                                                        )
+                                                        .iloc[0:5][["Duely"]],
+                                                        ["", "Duely"],
+                                                        "Duely",
+                                                    ),
+                                                ],
+                                                xl=4,
+                                                sm=6,
+                                            ),
+                                            dmc.Col(
+                                                [
+                                                    best_players_card(
+                                                        "Účasti na odměnách",
+                                                        "mdi:gift-outline",
+                                                        pd.DataFrame.from_dict(
+                                                            players,
+                                                            orient="index",
+                                                        )
+                                                        .sort_values(
+                                                            ["Odměny"],
+                                                            ascending=False,
+                                                        )
+                                                        .iloc[0:5][["Odměny"]],
+                                                        ["", "Odměny"],
+                                                        "Odměny",
+                                                    ),
+                                                ],
+                                                xl=4,
+                                                sm=6,
+                                            ),
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    dmc.Text(
+                                                        "Statistiky hlasování:",
+                                                        size="xl",
+                                                        weight=600,
+                                                    )
+                                                ]
+                                            )
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    best_players_card(
+                                                        "Nejvíc obdržených hlasů",
+                                                        "material-symbols:how-to-vote",
+                                                        kmenovky_hlasovani_df[
+                                                            kmenovky_hlasovani_df[
+                                                                "TYPE"
+                                                            ]
+                                                            == "Primární"
+                                                        ]
+                                                        .iloc[:, 3:]
+                                                        .stack()
+                                                        .reset_index()[0]
+                                                        .str.split(pat=", ")
+                                                        .explode()
+                                                        .value_counts()
+                                                        .rename_axis("unique_values")
+                                                        .reset_index(name="Počet hlasů")
+                                                        .set_index("unique_values")
+                                                        .iloc[0:5],
+                                                        ["", "Počet hlasů"],
+                                                        "Hlasů",
+                                                    ),
+                                                ],
+                                                xl=4,
+                                                sm=6,
+                                            ),
+                                            dmc.Col(
+                                                [
+                                                    best_players_card(
+                                                        "Nejmíň obdržených hlasů",
+                                                        "game-icons:avoidance",
+                                                        kmenovky_hlasovani_df[
+                                                            kmenovky_hlasovani_df[
+                                                                "TYPE"
+                                                            ]
+                                                            == "Primární"
+                                                        ]
+                                                        .iloc[:, 3:]
+                                                        .stack()
+                                                        .reset_index()[0]
+                                                        .str.split(pat=", ")
+                                                        .explode()
+                                                        .value_counts(ascending=True)
+                                                        .rename_axis("unique_values")
+                                                        .reset_index(name="Počet hlasů")
+                                                        .set_index("unique_values")
+                                                        .iloc[0:5],
+                                                        ["", "Počet hlasů"],
+                                                        "Hlasů",
+                                                    ),
+                                                ],
+                                                xl=4,
+                                                sm=6,
+                                            ),
+                                            dmc.Col(
+                                                [
+                                                    best_players_card(
+                                                        "Nejvíc úspěšných odhlasování",
+                                                        "mdi:bookmark-success-outline",
+                                                        df_uspesne_hlasovani.sort_values(
+                                                            by="Vyhlasování",
+                                                            ascending=False,
+                                                        ).iloc[
+                                                            0:5
+                                                        ][
+                                                            ["Vyhlasování"]
+                                                        ],
+                                                        ["", "Vyhlasování"],
+                                                        "Počet",
+                                                    ),
+                                                ],
+                                                xl=4,
+                                                sm=6,
+                                            ),
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    dmc.Center(
+                                                        [
+                                                            html.A(
+                                                                dmc.Group(
+                                                                    [
+                                                                        DashIconify(
+                                                                            icon="material-symbols:keyboard-double-arrow-down",
+                                                                            style={
+                                                                                "color": "#868e96",
+                                                                            },
+                                                                            width=20,
+                                                                            height=20,
+                                                                        ),
+                                                                        dmc.Text(
+                                                                            "Přehled všech hlasování",
+                                                                            color="dimmed",
+                                                                            size="md",
+                                                                            variant="text",
+                                                                        ),
+                                                                    ],
+                                                                    spacing=0,
+                                                                ),
+                                                                style={
+                                                                    "textTransform": "capitalize",
+                                                                    "textDecoration": "none",
+                                                                },
+                                                                href="#kmenovky-hlasovani",
+                                                            ),
+                                                        ]
+                                                    )
+                                                ],
+                                                p=2,
+                                                pt=4,
+                                            )
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    dmc.Text(
+                                                        "Skryté imunity a výhody:",
+                                                        size="xl",
+                                                        weight=600,
+                                                    )
+                                                ]
+                                            )
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    best_players_card(
+                                                        "Nejvíc zahraných imunit",
+                                                        "material-symbols:token-outline",
+                                                        pd.DataFrame.from_dict(
+                                                            players,
+                                                            orient="index",
+                                                        )
+                                                        .sort_values(
+                                                            ["Skryté Imunity"],
+                                                            ascending=False,
+                                                        )
+                                                        .iloc[0:5][["Skryté Imunity"]],
+                                                        ["", "Skryté Imunity"],
+                                                        "Imunity",
+                                                    ),
+                                                ],
+                                                xl=4,
+                                                sm=6,
+                                            ),
+                                            dmc.Col(
+                                                [
+                                                    best_players_card(
+                                                        "Nejvíc zahraných výhod",
+                                                        "material-symbols:trending-up",
+                                                        pd.DataFrame.from_dict(
+                                                            players,
+                                                            orient="index",
+                                                        )
+                                                        .sort_values(
+                                                            ["Výhody"],
+                                                            ascending=False,
+                                                        )
+                                                        .iloc[0:5][["Výhody"]],
+                                                        ["", "Výhody"],
+                                                        "Výhody",
+                                                    ),
+                                                ],
+                                                xl=4,
+                                                sm=6,
+                                            ),
+                                            dmc.Col(
+                                                [
+                                                    best_players_card(
+                                                        "Nejvíc nezapočítaných hlasů",
+                                                        "mdi:trash-can-outline",
+                                                        df_nezapocitane_hlasy.sort_values(
+                                                            ["cnt"],
+                                                            ascending=False,
+                                                        ).iloc[
+                                                            0:5
+                                                        ][
+                                                            ["cnt"]
+                                                        ],
+                                                        [
+                                                            "",
+                                                            "Nezapočítané hlasy",
+                                                        ],
+                                                        "Hlasy",
+                                                    ),
+                                                ],
+                                                xl=4,
+                                                sm=6,
+                                            ),
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    dmc.Text(
+                                                        "Týmové výkony:",
+                                                        size="xl",
+                                                        weight=600,
+                                                    )
+                                                ]
+                                            )
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    best_team(
+                                                        "Celková vítězství",
+                                                        "mdi:trophy",
+                                                        "all",
+                                                        "Výhry",
+                                                    )
+                                                ],
+                                                xl=4,
+                                                sm=6,
+                                            ),
+                                            dmc.Col(
+                                                [
+                                                    best_team(
+                                                        "Souboje o imunity",
+                                                        "game-icons:diablo-skull",
+                                                        "Souboj o imunitu",
+                                                        "Imunity",
+                                                    )
+                                                ],
+                                                xl=4,
+                                                sm=6,
+                                            ),
+                                            dmc.Col(
+                                                [
+                                                    best_team(
+                                                        "Souboje o odměnu",
+                                                        "mdi:gift-outline",
+                                                        "Souboj o odměnu",
+                                                        "Odměny",
+                                                    )
+                                                ],
+                                                xl=4,
+                                                sm=6,
+                                            ),
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    dmc.Text(
+                                                        "Hráči:",
+                                                        size="xl",
+                                                        weight=600,
+                                                    )
+                                                ]
+                                            )
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    dmc.ScrollArea(
+                                                        dmc.Grid(
+                                                            [
+                                                                dmc.Col(
+                                                                    player_card(player),
+                                                                    span="content",
+                                                                )
+                                                                for player in list(
+                                                                    df_players.sort_values(
+                                                                        "Poradie",
+                                                                        na_position="first",
+                                                                    ).index
+                                                                )
+                                                            ],
+                                                            style={"width": "7584px"},
+                                                        ),
+                                                        style={
+                                                            "height": "286px",
+                                                            "padding": "8px",
+                                                        },
+                                                        type="always",
+                                                    ),
+                                                ],
+                                                style={"padding": "0px"},
+                                            )
+                                        ]
+                                    ),
+                                    dmc.Drawer(
+                                        id="player-detail-drawer",
+                                        padding="md",
+                                        size="xl",
+                                        position="right",
+                                        zIndex=10000,
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    dmc.Grid(
+                                                        [
+                                                            dmc.Col(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "Počet diváků:",
+                                                                        size="xl",
+                                                                        weight=600,
+                                                                    )
+                                                                ],
+                                                                span="content",
+                                                            ),
+                                                            dmc.Col(
+                                                                [
+                                                                    information_bubble(
+                                                                        [
+                                                                            dmc.Text(
+                                                                                "Skupina 15+"
+                                                                            ),
+                                                                            dmc.Space(
+                                                                                h=20
+                                                                            ),
+                                                                            dmc.Text(
+                                                                                "Zdroj dat: ATO - Nielsen"
+                                                                            ),
+                                                                        ],
+                                                                        500,
+                                                                    )
+                                                                ],
+                                                                span="content",
+                                                                pl=0,
+                                                                pt=12,
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    dmc.Grid(
+                                                        [
+                                                            dmc.Col(
+                                                                [
+                                                                    dmc.Card(
+                                                                        [
+                                                                            dcc.Graph(
+                                                                                id="sledovanost",
+                                                                                # style={"height": "90vh"},
+                                                                                # config={
+                                                                                #     "staticPlot": True
+                                                                                # },
+                                                                                config={
+                                                                                    "displayModeBar": False,
+                                                                                    "scrollZoom": False,
+                                                                                    "doubleClick": False,
+                                                                                    "showAxisDragHandles": False,
+                                                                                },
+                                                                            )
+                                                                        ],
+                                                                        withBorder=True,
+                                                                        shadow="sm",
+                                                                        radius="lg",
+                                                                        style={
+                                                                            "padding": "10px",
+                                                                        },
+                                                                    ),
+                                                                ]
+                                                            )
+                                                        ]
+                                                    ),
+                                                ],
+                                                xl=6,
+                                            ),
+                                            dmc.Col(
+                                                [
+                                                    dmc.Grid(
+                                                        [
+                                                            dmc.Col(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "Podíl na trhu:",
+                                                                        size="xl",
+                                                                        weight=600,
+                                                                    )
+                                                                ],
+                                                                span="content",
+                                                            ),
+                                                            dmc.Col(
+                                                                [
+                                                                    information_bubble(
+                                                                        [
+                                                                            dmc.Text(
+                                                                                "Skupina 15+"
+                                                                            ),
+                                                                            dmc.Space(
+                                                                                h=20
+                                                                            ),
+                                                                            dmc.Text(
+                                                                                "Zdroj dat: ATO - Nielsen"
+                                                                            ),
+                                                                        ],
+                                                                        500,
+                                                                    )
+                                                                ],
+                                                                span="content",
+                                                                pl=0,
+                                                                pt=12,
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    dmc.Grid(
+                                                        [
+                                                            dmc.Col(
+                                                                [
+                                                                    dmc.Card(
+                                                                        [
+                                                                            dcc.Graph(
+                                                                                id="sledovanost-share",
+                                                                                # style={"height": "90vh"},
+                                                                                # config={
+                                                                                #     "staticPlot": True
+                                                                                # },
+                                                                                config={
+                                                                                    "displayModeBar": False,
+                                                                                    "scrollZoom": False,
+                                                                                    "doubleClick": False,
+                                                                                    "showAxisDragHandles": False,
+                                                                                },
+                                                                            ),
+                                                                        ],
+                                                                        withBorder=True,
+                                                                        shadow="sm",
+                                                                        radius="lg",
+                                                                        style={
+                                                                            "padding": "10px",
+                                                                        },
+                                                                    ),
+                                                                ]
+                                                            )
+                                                        ]
+                                                    ),
+                                                ],
+                                                xl=6,
+                                            ),
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    dmc.Grid(
+                                                        [
+                                                            dmc.Col(
+                                                                [
+                                                                    dmc.Text(
+                                                                        "Vývoj Power Indexu:",
+                                                                        size="xl",
+                                                                        weight=600,
+                                                                    ),
+                                                                ],
+                                                                span="content",
+                                                            ),
+                                                            dmc.Col(
+                                                                [
+                                                                    dmc.Menu(
+                                                                        transition="pop",
+                                                                        shadow="sm",
+                                                                        radius="lg",
+                                                                        position="bottom-start",
+                                                                        # withArrow=True,
+                                                                        offset=0,
+                                                                        # arrowSize=10,
+                                                                        children=[
+                                                                            dmc.MenuTarget(
+                                                                                DashIconify(
+                                                                                    icon="material-symbols:info-outline",
+                                                                                    width=25,
+                                                                                )
+                                                                            ),
+                                                                            dmc.MenuDropdown(
+                                                                                dmc.MediaQuery(
+                                                                                    dmc.Container(
+                                                                                        [
+                                                                                            dmc.Text(
+                                                                                                "Power Index reprezentuje invertované priemerné relatívne umiestnenie jednotlivých hráčov. To znamená, že hráč, ktorý vyhrá všetky súťaže bude mať Power Index = 1"
+                                                                                            ),
+                                                                                            dmc.Space(
+                                                                                                h=20
+                                                                                            ),
+                                                                                            dmc.Text(
+                                                                                                "Aktivní hráči - iba hráči, ktorí sú stále v hre"
+                                                                                            ),
+                                                                                            dmc.Text(
+                                                                                                "Aktualní forma - zohľadňuje iba výsledky z posledných 5 súťaží"
+                                                                                            ),
+                                                                                            dmc.Space(
+                                                                                                h=20
+                                                                                            ),
+                                                                                            dmc.Text(
+                                                                                                color="dimmed",
+                                                                                                children="Príklad: Hráč sa zúčastní 3 súťaží, v každej z nich bude 11 súťažiacich. Hráč sa umiestni na 1., 3. a 8. mieste. Za prvú súťaž do výpočtu vstúpi hodnota 1, za druhú 0.8 a za tretiu 0.3. Výslednou hodnotou Power Indexu bude priemer týchto 3 hodnôt teda 0.7.",
+                                                                                            ),
+                                                                                            dmc.Text(
+                                                                                                color="dimmed",
+                                                                                                children="Jednotlivé hodnoty vznikajú vzorcom: 1 - ((umiestnenie - 1) / (počet účastníkov - 1)).",
+                                                                                            ),
+                                                                                        ],
+                                                                                        p=10,
+                                                                                        style={
+                                                                                            "max-width": "97vw"
+                                                                                        },
+                                                                                    ),
+                                                                                    largerThan="sm",
+                                                                                    styles={
+                                                                                        "max-width": "800px"
+                                                                                    },
+                                                                                )
+                                                                            ),
+                                                                        ],
+                                                                    ),
+                                                                ],
+                                                                span="content",
+                                                                pl=0,
+                                                                pt=12,
+                                                            ),
+                                                        ]
+                                                    )
+                                                ],
+                                                span="content",
+                                                p=8,
+                                            ),
+                                            dmc.Col(
+                                                [
+                                                    dmc.Grid(
+                                                        [
+                                                            dmc.Col(
+                                                                [
+                                                                    dmc.Switch(
+                                                                        id="power_index_active_switch",
+                                                                        size="md",
+                                                                        radius="lg",
+                                                                        label="Aktivní hráči",
+                                                                        checked=False,
+                                                                    )
+                                                                ],
+                                                                span="content",
+                                                            ),
+                                                            dmc.Col(
+                                                                [
+                                                                    dmc.Switch(
+                                                                        id="power_index_current_switch",
+                                                                        size="md",
+                                                                        radius="lg",
+                                                                        label="Aktualní forma",
+                                                                        checked=False,
+                                                                    )
+                                                                ],
+                                                                span="content",
+                                                            ),
+                                                        ],
+                                                        align="flex-end",
+                                                    ),
+                                                ],
+                                                span="content",
+                                            ),
+                                        ],
+                                        justify="space-between",
+                                        align="flex-end",
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    dmc.Card(
+                                                        [
+                                                            dmc.Grid(
+                                                                [
+                                                                    dmc.Col(
+                                                                        [
+                                                                            dmc.ScrollArea(
+                                                                                [
+                                                                                    dmc.Grid(
+                                                                                        [
+                                                                                            dmc.Col(
+                                                                                                [
+                                                                                                    dcc.Graph(
+                                                                                                        id="power_index_history_heatmap",
+                                                                                                        config={
+                                                                                                            "staticPlot": True
+                                                                                                        },
+                                                                                                        responsive=True,
+                                                                                                        style={
+                                                                                                            "height": "650px",
+                                                                                                            "min-width": "820px",
+                                                                                                        },
+                                                                                                    ),
+                                                                                                ],
+                                                                                                style={
+                                                                                                    "padding": "0px",
+                                                                                                },
+                                                                                            )
+                                                                                        ],
+                                                                                        justify="center",
+                                                                                        style={
+                                                                                            "margin": "0px"
+                                                                                        },
+                                                                                    )
+                                                                                ],
+                                                                            )
+                                                                        ],
+                                                                    )
+                                                                ]
+                                                            ),
+                                                        ],
+                                                        withBorder=True,
+                                                        shadow="sm",
+                                                        radius="lg",
+                                                        style={
+                                                            "padding": "10px",
                                                         },
                                                     ),
                                                 ]
                                             )
-                                        ],
-                                        style={"padding": "0px"},
+                                        ]
                                     ),
-                                    largerThan="sm",
-                                    styles={"padding-right": "20px"},
-                                )
-                            ],
-                            span="content",
-                        ),
-                    ],
-                    align="center",
-                    justify="space-between",
-                    style={"height": "60px", "margin": "0px"},
-                )
-            ],
-        ),
-        dmc.Grid(
-            [
-                dmc.Col(
-                    [
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [dmc.Text("Finálová predikce:", size="xl", weight=600)], span="content"
-                                ),
-                                dmc.Col(
-                                    [
-                                        information_bubble(
-                                            [
-                                                dmc.Text("Body za výzvy - súčet bodov za individuálne disciplíny a úspechy:"),
-                                                dmc.Text("Individuálna imunita: +1 bod"),
-                                                dmc.Text("Vyhraný duel: +0.5 bodu"),
-                                                dmc.Text("Zahraná skrytá imunita: +1 bod"),
-                                                dmc.Text("Zahraná výhoda: +0.5 bodu"),
-                                                dmc.Space(h=10),
-                                                dmc.Text(
-                                                    "Body za kmenové rady - pomer úspešných odhlasovaní iného hráča a schopnosti ochrániť sám seba"),
-                                                dmc.Text("PO = Počet Odhlasovaní"),
-                                                dmc.Text("OH = Obdržené hlasy"),
-                                                dmc.Text("PZK = Počet zúčastnených kmeňových rád"),
-                                                dmc.Text("Vzorec: 4 * [PO / (4+OH)] * (22 / PZK)"),
-                                                dmc.Space(h=10),
-                                                dmc.Text("Šance na vítězství - pomer súčtu bodov za výzvy a bodov za kmenové rady v %"),
-                                            ], 500)
-                                    ],
-                                    span="content",
-                                    pl=0,
-                                    pt=12,
-                                )
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        dmc.Card(
-                                            predikce_viteze("Martin", "Karolína", "Tomáš", "rgb(224, 49, 49)", "rgb(34, 139, 230)"),
-                                            withBorder=True,
-                                            shadow="sm",
-                                            radius="lg",
-                                            style={
-                                                "padding": "10px",
-                                                "overflow": "visible",
-                                            },
-                                        )
-                                    ]
-                                )
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [dmc.Text("Nejlepší hráči:", size="xl", weight=600)]
-                                )
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        best_players_card(
-                                            "Král osobních imunit",
-                                            "icon-park-outline:diamond-necklace",
-                                            personal_stats_df_heat.sort_values(
-                                                ["IMMUNITY_WINS", "POWER_INDEX"],
-                                                ascending=False,
-                                            ).iloc[0:5][
-                                                ["IMMUNITY_WINS", "POWER_INDEX"]
-                                            ],
-                                            ["", "Immunity", "Power Index"],
-                                            "Imunity",
-                                        ),
-                                    ],
-                                    xl=4,
-                                    sm=6,
-                                ),
-                                dmc.Col(
-                                    [
-                                        best_players_card(
-                                            "Král duelů",
-                                            "material-symbols:swords-outline",
-                                            pd.DataFrame.from_dict(
-                                                players, orient="index"
-                                            )
-                                            .sort_values(
-                                                ["Duely"],
-                                                ascending=False,
-                                            )
-                                            .iloc[0:5][["Duely"]],
-                                            ["", "Duely"],
-                                            "Duely",
-                                        ),
-                                    ],
-                                    xl=4,
-                                    sm=6,
-                                ),
-                                dmc.Col(
-                                    [
-                                        best_players_card(
-                                            "Účasti na odměnách",
-                                            "mdi:gift-outline",
-                                            pd.DataFrame.from_dict(
-                                                players, orient="index"
-                                            )
-                                            .sort_values(
-                                                ["Odměny"],
-                                                ascending=False,
-                                            )
-                                            .iloc[0:5][["Odměny"]],
-                                            ["", "Odměny"],
-                                            "Odměny",
-                                        ),
-                                    ],
-                                    xl=4,
-                                    sm=6,
-                                ),
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        dmc.Text(
-                                            "Statistiky hlasování:",
-                                            size="xl",
-                                            weight=600,
-                                        )
-                                    ]
-                                )
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        best_players_card(
-                                            "Nejvíc obdržených hlasů",
-                                            "material-symbols:how-to-vote",
-                                            kmenovky_hlasovani_df[
-                                                kmenovky_hlasovani_df["TYPE"]
-                                                == "Primární"
-                                            ]
-                                            .iloc[:, 3:]
-                                            .stack()
-                                            .reset_index()[0]
-                                            .str.split(pat=", ")
-                                            .explode()
-                                            .value_counts()
-                                            .rename_axis("unique_values")
-                                            .reset_index(name="Počet hlasů")
-                                            .set_index("unique_values")
-                                            .iloc[0:5],
-                                            ["", "Počet hlasů"],
-                                            "Hlasů",
-                                        ),
-                                    ],
-                                    xl=4,
-                                    sm=6,
-                                ),
-                                dmc.Col(
-                                    [
-                                        best_players_card(
-                                            "Nejmíň obdržených hlasů",
-                                            "game-icons:avoidance",
-                                            kmenovky_hlasovani_df[
-                                                kmenovky_hlasovani_df["TYPE"]
-                                                == "Primární"
-                                            ]
-                                            .iloc[:, 3:]
-                                            .stack()
-                                            .reset_index()[0]
-                                            .str.split(pat=", ")
-                                            .explode()
-                                            .value_counts(ascending=True)
-                                            .rename_axis("unique_values")
-                                            .reset_index(name="Počet hlasů")
-                                            .set_index("unique_values")
-                                            .iloc[0:5],
-                                            ["", "Počet hlasů"],
-                                            "Hlasů",
-                                        ),
-                                    ],
-                                    xl=4,
-                                    sm=6,
-                                ),
-                                dmc.Col(
-                                    [
-                                        best_players_card(
-                                            "Nejvíc úspěšných odhlasování",
-                                            "mdi:bookmark-success-outline",
-                                            df_uspesne_hlasovani.sort_values(
-                                                by="Vyhlasování", ascending=False
-                                            ).iloc[0:5][["Vyhlasování"]],
-                                            ["", "Vyhlasování"],
-                                            "Počet",
-                                        ),
-                                    ],
-                                    xl=4,
-                                    sm=6,
-                                ),
-                            ]
-                        ),
-                        dmc.Grid([
-                           dmc.Col([
-                               dmc.Center([
-                                   html.A(
-                                       dmc.Group([
-                                           DashIconify(
-                                               icon="material-symbols:keyboard-double-arrow-down",
-                                               style={
-                                                   "color": "#868e96",
-                                               },
-                                               width=20,
-                                               height=20,
-                                           ),
-                                           dmc.Text("Přehled všech hlasování", color="dimmed", size="md",
-                                                    variant="text"),
-                                       ], spacing=0),
-                                       style={"textTransform": "capitalize", "textDecoration": "none"},
-                                       href="#kmenovky-hlasovani",
-                                   ),
-                               ])
-                           ], p=2, pt=4)
-                        ]),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        dmc.Text(
-                                            "Skryté imunity a výhody:",
-                                            size="xl",
-                                            weight=600,
-                                        )
-                                    ]
-                                )
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        best_players_card(
-                                            "Nejvíc zahraných imunit",
-                                            "material-symbols:token-outline",
-                                            pd.DataFrame.from_dict(
-                                                players, orient="index"
-                                            )
-                                            .sort_values(
-                                                ["Skryté Imunity"],
-                                                ascending=False,
-                                            )
-                                            .iloc[0:5][["Skryté Imunity"]],
-                                            ["", "Skryté Imunity"],
-                                            "Imunity",
-                                        ),
-                                    ],
-                                    xl=4,
-                                    sm=6,
-                                ),
-                                dmc.Col(
-                                    [
-                                        best_players_card(
-                                            "Nejvíc zahraných výhod",
-                                            "material-symbols:trending-up",
-                                            pd.DataFrame.from_dict(
-                                                players, orient="index"
-                                            )
-                                            .sort_values(
-                                                ["Výhody"],
-                                                ascending=False,
-                                            )
-                                            .iloc[0:5][["Výhody"]],
-                                            ["", "Výhody"],
-                                            "Výhody",
-                                        ),
-                                    ],
-                                    xl=4,
-                                    sm=6,
-                                ),
-                                dmc.Col(
-                                    [
-                                        best_players_card(
-                                            "Nejvíc nezapočítaných hlasů",
-                                            "mdi:trash-can-outline",
-                                            df_nezapocitane_hlasy
-                                            .sort_values(
-                                                ["cnt"],
-                                                ascending=False,
-                                            )
-                                            .iloc[0:5][["cnt"]],
-                                            ["", "Nezapočítané hlasy"],
-                                            "Hlasy",
-                                        ),
-                                    ],
-                                    xl=4,
-                                    sm=6,
-                                ),
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [dmc.Text("Týmové výkony:", size="xl", weight=600)]
-                                )
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        best_team(
-                                            "Celková vítězství",
-                                            "mdi:trophy",
-                                            "all",
-                                            "Výhry",
-                                        )
-                                    ],
-                                    xl=4,
-                                    sm=6,
-                                ),
-                                dmc.Col(
-                                    [
-                                        best_team(
-                                            "Souboje o imunity",
-                                            "game-icons:diablo-skull",
-                                            "Souboj o imunitu",
-                                            "Imunity",
-                                        )
-                                    ],
-                                    xl=4,
-                                    sm=6,
-                                ),
-                                dmc.Col(
-                                    [
-                                        best_team(
-                                            "Souboje o odměnu",
-                                            "mdi:gift-outline",
-                                            "Souboj o odměnu",
-                                            "Odměny",
-                                        )
-                                    ],
-                                    xl=4,
-                                    sm=6,
-                                ),
-                            ]
-                        ),
-                        dmc.Grid(
-                            [dmc.Col([dmc.Text("Hráči:", size="xl", weight=600)])]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        dmc.ScrollArea(
-                                            dmc.Grid(
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
                                                 [
-                                                    dmc.Col(
-                                                        player_card(player),
-                                                        span="content",
+                                                    dmc.Text(
+                                                        "Individuálne výsledky:",
+                                                        size="xl",
+                                                        weight=600,
                                                     )
-                                                    for player in list(
-                                                        df_players.sort_values(
-                                                            "Poradie",
-                                                            na_position="first",
-                                                        ).index
+                                                ]
+                                            )
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    dmc.Card(
+                                                        [
+                                                            DataTable(
+                                                                data=personal_stats_df_heat.reset_index().to_dict(
+                                                                    "records"
+                                                                ),
+                                                                columns=[
+                                                                    {
+                                                                        "name": y,
+                                                                        "id": x,
+                                                                        "type": "numeric"
+                                                                        if x
+                                                                        == "POWER_INDEX"
+                                                                        else None,
+                                                                        "format": Format(
+                                                                            precision=2,
+                                                                            scheme=Scheme.fixed,
+                                                                        )
+                                                                        if x
+                                                                        == "POWER_INDEX"
+                                                                        else None,
+                                                                    }
+                                                                    for x, y in zip(
+                                                                        [
+                                                                            "index",
+                                                                            "POWER_INDEX",
+                                                                            "IMMUNITY_WINS",
+                                                                        ]
+                                                                        + list(
+                                                                            personal_stats_df_heat.reset_index()
+                                                                            .iloc[
+                                                                                :,
+                                                                                1:-2,
+                                                                            ]
+                                                                            .columns
+                                                                        ),
+                                                                        [
+                                                                            "Hráč",
+                                                                            "Power Index",
+                                                                            "Imunity",
+                                                                        ]
+                                                                        + list(
+                                                                            i
+                                                                            for i in personal_stats_df_heat.reset_index()
+                                                                            .iloc[
+                                                                                :,
+                                                                                1:-2,
+                                                                            ]
+                                                                            .columns
+                                                                        ),
+                                                                    )  # "Den " +
+                                                                ],
+                                                                style_table={
+                                                                    "overflowX": "auto"
+                                                                },
+                                                                # fill_width=False,
+                                                                style_data={
+                                                                    "lineHeight": "8px",
+                                                                    "minWidth": "50px",
+                                                                    "border": "none",
+                                                                },
+                                                                style_cell={
+                                                                    "backgroundColor": "rgba(0,0,0,0)",
+                                                                    "font-family": "Segoe UI",
+                                                                    "font_size": "14px",
+                                                                    "padding": "5px",
+                                                                    "border": "none",
+                                                                },
+                                                                cell_selectable=False,
+                                                                # style_as_list_view=True,
+                                                                style_header={
+                                                                    "backgroundColor": "rgba(0,0,0,0)",
+                                                                    "fontWeight": "bold",
+                                                                },
+                                                                style_data_conditional=discrete_background_color_bins(
+                                                                    personal_stats_df_heat,
+                                                                    columns=[
+                                                                        "POWER_INDEX"
+                                                                    ],
+                                                                ),
+                                                            ),
+                                                        ],
+                                                        withBorder=True,
+                                                        shadow="sm",
+                                                        radius="lg",
+                                                        style={"padding": "20px"},
+                                                    )
+                                                ]
+                                            )
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    dmc.Text(
+                                                        "Výsledky hlasování na kmenových radách:",
+                                                        size="xl",
+                                                        weight=600,
+                                                        id="kmenovky-hlasovani",
+                                                    )
+                                                ]
+                                            )
+                                        ]
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    dmc.Card(
+                                                        [
+                                                            kmenovka_hlasovani_item(
+                                                                episode,
+                                                                day,
+                                                                True
+                                                                if i == 0
+                                                                else False,
+                                                            )
+                                                            for episode, day, i in zip(
+                                                                kmenovky_hlasovani_df[
+                                                                    kmenovky_hlasovani_df[
+                                                                        "TYPE"
+                                                                    ]
+                                                                    == "Primární"
+                                                                ]["EPISODE"].values,
+                                                                kmenovky_hlasovani_df[
+                                                                    kmenovky_hlasovani_df[
+                                                                        "TYPE"
+                                                                    ]
+                                                                    == "Primární"
+                                                                ]["DAY"].values,
+                                                                range(
+                                                                    len(
+                                                                        kmenovky_hlasovani_df[
+                                                                            kmenovky_hlasovani_df[
+                                                                                "TYPE"
+                                                                            ]
+                                                                            == "Primární"
+                                                                        ][
+                                                                            "DAY"
+                                                                        ].values
+                                                                    )
+                                                                ),
+                                                            )
+                                                        ],
+                                                        withBorder=True,
+                                                        shadow="sm",
+                                                        radius="lg",
+                                                        style={
+                                                            "padding": "10px",
+                                                        },
+                                                    )
+                                                ]
+                                            )
+                                        ]
+                                    ),
+                                ],
+                                xl=9,
+                                lg=8,
+                            ),
+                            dmc.Col(
+                                [
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    dmc.Text(
+                                                        "Časová osa:",
+                                                        size="xl",
+                                                        weight=600,
                                                     )
                                                 ],
-                                                style={"width": "7584px"},
+                                                span="content",
                                             ),
-                                            style={"height": "286px", "padding": "8px"},
-                                            type="always",
-                                        ),
-                                    ],
-                                    style={"padding": "0px"},
-                                )
-                            ]
-                        ),
-                        dmc.Drawer(
-                            id="player-detail-drawer",
-                            padding="md",
-                            size="xl",
-                            position="right",
-                            zIndex=10000,
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        dmc.Grid(
-                                            [
-                                                dmc.Col(
-                                                    [
-                                                        dmc.Text(
-                                                            "Počet diváků:",
-                                                            size="xl",
-                                                            weight=600,
-                                                        )
-                                                    ],
-                                                    span="content"
-                                                ),
-                                                dmc.Col(
-                                                    [
-                                                        information_bubble(
-                                                            [
-                                                                dmc.Text("Skupina 15+"),
-                                                                dmc.Space(
-                                                                    h=20
-                                                                ),
-                                                                dmc.Text("Zdroj dat: ATO - Nielsen")
-                                                             ], 500)
-                                                    ],
-                                                    span="content",
-                                                    pl=0,
-                                                    pt=12,
-                                                )
-                                            ]
-                                        ),
-                                        dmc.Grid(
-                                            [
-                                                dmc.Col(
-                                                    [
-                                                        dmc.Card(
-                                                            [
-                                                                dcc.Graph(
-                                                                    id="sledovanost",
-                                                                    # style={"height": "90vh"},
-                                                                    # config={
-                                                                    #     "staticPlot": True
-                                                                    # },
-                                                                    config={
-                                                                        "displayModeBar": False,
-                                                                        "scrollZoom": False,
-                                                                        "doubleClick": False,
-                                                                        "showAxisDragHandles": False,
+                                            dmc.Col(
+                                                [
+                                                    dmc.Menu(
+                                                        transition="pop",
+                                                        shadow="md",
+                                                        radius="lg",
+                                                        position="bottom-end",
+                                                        # withArrow=True,
+                                                        offset=0,
+                                                        # arrowSize=10,
+                                                        children=[
+                                                            dmc.MenuTarget(
+                                                                dmc.ActionIcon(
+                                                                    DashIconify(
+                                                                        icon="material-symbols:filter-alt-outline",
+                                                                        width=30,
+                                                                    ),
+                                                                    size="lg",
+                                                                )
+                                                            ),
+                                                            dmc.MenuDropdown(
+                                                                dmc.MediaQuery(
+                                                                    dmc.Container(
+                                                                        [
+                                                                            dmc.Grid(
+                                                                                [
+                                                                                    dmc.Col(
+                                                                                        [
+                                                                                            dmc.Text(
+                                                                                                "Typ události",
+                                                                                                weight=600,
+                                                                                            ),
+                                                                                        ],
+                                                                                        span="content",
+                                                                                    ),
+                                                                                    dmc.Col(
+                                                                                        [
+                                                                                            dmc.ActionIcon(
+                                                                                                DashIconify(
+                                                                                                    icon="bi:check-all",
+                                                                                                    width=25,
+                                                                                                ),
+                                                                                                id="filter-event-all",
+                                                                                                n_clicks=0,
+                                                                                            )
+                                                                                        ],
+                                                                                        span="content",
+                                                                                        pt=6,
+                                                                                        pl=0,
+                                                                                    ),
+                                                                                ],
+                                                                                # justify="space-between",
+                                                                            ),
+                                                                            dmc.Grid(
+                                                                                [
+                                                                                    dmc.Col(
+                                                                                        [
+                                                                                            dmc.ChipGroup(
+                                                                                                [
+                                                                                                    dmc.Chip(
+                                                                                                        x,
+                                                                                                        value=x,
+                                                                                                        variant="outline",
+                                                                                                        color="yellow",
+                                                                                                    )
+                                                                                                    for x in event_log_df[
+                                                                                                        "EVENT_TYPE"
+                                                                                                    ].unique()
+                                                                                                ],
+                                                                                                id="filter-event",
+                                                                                                value=event_log_df[
+                                                                                                    "EVENT_TYPE"
+                                                                                                ].unique(),
+                                                                                                multiple=True,
+                                                                                                spacing=5,
+                                                                                            ),
+                                                                                        ]
+                                                                                    )
+                                                                                ]
+                                                                            ),
+                                                                            dmc.Grid(
+                                                                                [
+                                                                                    dmc.Col(
+                                                                                        [
+                                                                                            dmc.Button(
+                                                                                                "Filtrovat",
+                                                                                                id="event-log-filter-button",
+                                                                                                variant="filled",
+                                                                                                size="sm",
+                                                                                                radius="xl",
+                                                                                                color="yellow",
+                                                                                                fullWidth=True,
+                                                                                                leftIcon=DashIconify(
+                                                                                                    icon="material-symbols:filter-alt-outline",
+                                                                                                    width=25,
+                                                                                                    height=25,
+                                                                                                ),
+                                                                                            ),
+                                                                                        ]
+                                                                                    )
+                                                                                ]
+                                                                            ),
+                                                                        ],
+                                                                        p=10,
+                                                                        style={
+                                                                            "max-width": "70vw"
+                                                                        },
+                                                                    ),
+                                                                    largerThan="sm",
+                                                                    styles={
+                                                                        "max-width": "300px"
                                                                     },
                                                                 )
-                                                            ],
-                                                            withBorder=True,
-                                                            shadow="sm",
-                                                            radius="lg",
-                                                            style={
-                                                                "padding": "10px",
-                                                            },
-                                                        ),
-                                                    ]
-                                                )
-                                            ]
-                                        ),
-                                    ],
-                                    xl=6,
-                                ),
-                                dmc.Col(
-                                    [
-                                        dmc.Grid(
-                                            [
-                                                dmc.Col(
-                                                    [
-                                                        dmc.Text(
-                                                            "Podíl na trhu:",
-                                                            size="xl",
-                                                            weight=600,
-                                                        )
-                                                    ],
-                                                    span="content",
-                                                ),
-                                                dmc.Col(
-                                                    [
-                                                        information_bubble(
-                                                            [
-                                                                dmc.Text("Skupina 15+"),
-                                                                dmc.Space(
-                                                                    h=20
-                                                                ),
-                                                                dmc.Text("Zdroj dat: ATO - Nielsen")
-                                                             ], 500)
-                                                    ],
-                                                    span="content",
-                                                    pl=0,
-                                                    pt=12,
-                                                )
-                                            ]
-                                        ),
-                                        dmc.Grid(
-                                            [
-                                                dmc.Col(
-                                                    [
-                                                        dmc.Card(
-                                                            [
-                                                                dcc.Graph(
-                                                                    id="sledovanost-share",
-                                                                    # style={"height": "90vh"},
-                                                                    # config={
-                                                                    #     "staticPlot": True
-                                                                    # },
-                                                                    config={
-                                                                        "displayModeBar": False,
-                                                                        "scrollZoom": False,
-                                                                        "doubleClick": False,
-                                                                        "showAxisDragHandles": False,
-                                                                    },
-                                                                ),
-                                                            ],
-                                                            withBorder=True,
-                                                            shadow="sm",
-                                                            radius="lg",
-                                                            style={
-                                                                "padding": "10px",
-                                                            },
-                                                        ),
-                                                    ]
-                                                )
-                                            ]
-                                        ),
-                                    ],
-                                    xl=6,
-                                ),
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        dmc.Grid(
-                                            [
-                                                dmc.Col(
-                                                    [
-                                                        dmc.Text(
-                                                            "Vývoj Power Indexu:",
-                                                            size="xl",
-                                                            weight=600,
-                                                        ),
-                                                    ],
-                                                    span="content",
-                                                ),
-                                                dmc.Col(
-                                                    [
-                                                        dmc.Menu(
-                                                            transition="pop",
-                                                            shadow="sm",
-                                                            radius="lg",
-                                                            position="bottom-start",
-                                                            # withArrow=True,
-                                                            offset=0,
-                                                            # arrowSize=10,
-                                                            children=[
-                                                                dmc.MenuTarget(
-                                                                    DashIconify(
-                                                                        icon="material-symbols:info-outline",
-                                                                        width=25,
+                                                            ),
+                                                        ],
+                                                    ),
+                                                ],
+                                                span="content",
+                                                # pr=20,
+                                            ),
+                                        ],
+                                        justify="space-between",
+                                    ),
+                                    dmc.Grid(
+                                        [
+                                            dmc.Col(
+                                                [
+                                                    dmc.Card(
+                                                        children=[
+                                                            dmc.Grid(
+                                                                [
+                                                                    dmc.Col(
+                                                                        [
+                                                                            create_event_log(
+                                                                                event_log_df.tail(
+                                                                                    61
+                                                                                )
+                                                                            )
+                                                                        ],
+                                                                        id="event-log-output",
                                                                     )
-                                                                ),
-                                                                dmc.MenuDropdown(
-                                                                    dmc.MediaQuery(
-                                                                        dmc.Container(
-                                                                            [
-                                                                                dmc.Text(
-                                                                                    "Power Index reprezentuje invertované priemerné relatívne umiestnenie jednotlivých hráčov. To znamená, že hráč, ktorý vyhrá všetky súťaže bude mať Power Index = 1"
+                                                                ]
+                                                            ),
+                                                            dmc.Grid(
+                                                                [
+                                                                    dmc.Col(
+                                                                        [
+                                                                            dmc.Button(
+                                                                                "Ukázat vše",
+                                                                                id="event-log-more-button",
+                                                                                variant="light",
+                                                                                size="md",
+                                                                                radius="xl",
+                                                                                color="gray",
+                                                                                fullWidth=True,
+                                                                                leftIcon=DashIconify(
+                                                                                    icon="material-symbols:expand-more-rounded",
+                                                                                    width=25,
+                                                                                    height=25,
                                                                                 ),
-                                                                                dmc.Space(
-                                                                                    h=20
-                                                                                ),
-                                                                                dmc.Text(
-                                                                                    "Aktivní hráči - iba hráči, ktorí sú stále v hre"
-                                                                                ),
-                                                                                dmc.Text(
-                                                                                    "Aktualní forma - zohľadňuje iba výsledky z posledných 5 súťaží"
-                                                                                ),
-                                                                                dmc.Space(
-                                                                                    h=20
-                                                                                ),
-                                                                                dmc.Text(
-                                                                                    color="dimmed",
-                                                                                    children="Príklad: Hráč sa zúčastní 3 súťaží, v každej z nich bude 11 súťažiacich. Hráč sa umiestni na 1., 3. a 8. mieste. Za prvú súťaž do výpočtu vstúpi hodnota 1, za druhú 0.8 a za tretiu 0.3. Výslednou hodnotou Power Indexu bude priemer týchto 3 hodnôt teda 0.7.",
-                                                                                ),
-                                                                                dmc.Text(
-                                                                                    color="dimmed",
-                                                                                    children="Jednotlivé hodnoty vznikajú vzorcom: 1 - ((umiestnenie - 1) / (počet účastníkov - 1)).",
-                                                                                ),
-                                                                            ],
-                                                                            p=10,
-                                                                            style={
-                                                                                "max-width": "97vw"
-                                                                            },
-                                                                        ),
-                                                                        largerThan="sm",
-                                                                        styles={
-                                                                            "max-width": "800px"
+                                                                            ),
+                                                                        ],
+                                                                        span="auto",
+                                                                        style={
+                                                                            "padding-top": "16px"
                                                                         },
                                                                     )
-                                                                ),
-                                                            ],
-                                                        ),
-                                                    ],
-                                                    span="content",
-                                                    pl=0,
-                                                    pt=12,
-                                                ),
-                                            ]
-                                        )
-                                    ],
-                                    span="content",
-                                    p=8,
-                                ),
-                                dmc.Col(
-                                    [
-                                        dmc.Grid(
-                                            [
-                                                dmc.Col(
-                                                    [
-                                                        dmc.Switch(
-                                                            id="power_index_active_switch",
-                                                            size="md",
-                                                            radius="lg",
-                                                            label="Aktivní hráči",
-                                                            checked=False,
-                                                        )
-                                                    ],
-                                                    span="content",
-                                                ),
-                                                dmc.Col(
-                                                    [
-                                                        dmc.Switch(
-                                                            id="power_index_current_switch",
-                                                            size="md",
-                                                            radius="lg",
-                                                            label="Aktualní forma",
-                                                            checked=False,
-                                                        )
-                                                    ],
-                                                    span="content",
-                                                ),
-                                            ],
-                                            align="flex-end",
-                                        ),
-                                    ],
-                                    span="content",
-                                ),
-                            ],
-                            justify="space-between",
-                            align="flex-end",
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        dmc.Card(
-                                            [
-                                                dmc.Grid(
-                                                    [
-                                                        dmc.Col(
-                                                            [
-                                                                dmc.ScrollArea(
-                                                                    [
-                                                                        dmc.Grid(
-                                                                            [
-                                                                                dmc.Col(
-                                                                                    [
-                                                                                        dcc.Graph(
-                                                                                            id="power_index_history_heatmap",
-                                                                                            config={
-                                                                                                "staticPlot": True
-                                                                                            },
-                                                                                            responsive=True,
-                                                                                            style={"height": "650px", "min-width": "820px"}
-                                                                                        ),
-                                                                                    ],
-                                                                                    style={
-                                                                                        "padding": "0px",
-                                                                                    },
-                                                                                )
-                                                                            ],
-                                                                            justify="center",
-                                                                            style={
-                                                                                "margin": "0px"
-                                                                            },
-                                                                        )
-                                                                    ],
-                                                                )
-                                                            ],
-                                                        )
-                                                    ]
-                                                ),
-                                            ],
-                                            withBorder=True,
-                                            shadow="sm",
-                                            radius="lg",
-                                            style={
-                                                "padding": "10px",
-                                            },
-                                        ),
-                                    ]
-                                )
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        dmc.Text(
-                                            "Individuálne výsledky:",
-                                            size="xl",
-                                            weight=600,
-                                        )
-                                    ]
-                                )
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        dmc.Card(
-                                            [
-                                                DataTable(
-                                                    data=personal_stats_df_heat.reset_index().to_dict(
-                                                        "records"
-                                                    ),
-                                                    columns=[
-                                                        {
-                                                            "name": y,
-                                                            "id": x,
-                                                            "type": "numeric"
-                                                            if x == "POWER_INDEX"
-                                                            else None,
-                                                            "format": Format(
-                                                                precision=2,
-                                                                scheme=Scheme.fixed,
-                                                            )
-                                                            if x == "POWER_INDEX"
-                                                            else None,
-                                                        }
-                                                        for x, y in zip(
-                                                            [
-                                                                "index",
-                                                                "POWER_INDEX",
-                                                                "IMMUNITY_WINS",
-                                                            ]
-                                                            + list(
-                                                                personal_stats_df_heat.reset_index()
-                                                                .iloc[:, 1:-2]
-                                                                .columns
+                                                                ],
+                                                                justify="center",
                                                             ),
-                                                            [
-                                                                "Hráč",
-                                                                "Power Index",
-                                                                "Imunity",
-                                                            ]
-                                                            + list(
-                                                                i
-                                                                for i in personal_stats_df_heat.reset_index()
-                                                                .iloc[:, 1:-2]
-                                                                .columns
-                                                            ),
-                                                        )  # "Den " +
-                                                    ],
-                                                    style_table={"overflowX": "auto"},
-                                                    # fill_width=False,
-                                                    style_data={
-                                                        "lineHeight": "8px",
-                                                        "minWidth": "50px",
-                                                        "border": "none",
-                                                    },
-                                                    style_cell={
-                                                        "backgroundColor": "rgba(0,0,0,0)",
-                                                        "font-family": "Segoe UI",
-                                                        "font_size": "14px",
-                                                        "padding": "5px",
-                                                        "border": "none",
-                                                    },
-                                                    cell_selectable=False,
-                                                    # style_as_list_view=True,
-                                                    style_header={
-                                                        "backgroundColor": "rgba(0,0,0,0)",
-                                                        "fontWeight": "bold",
-                                                    },
-                                                    style_data_conditional=discrete_background_color_bins(
-                                                        personal_stats_df_heat,
-                                                        columns=["POWER_INDEX"],
+                                                        ],
+                                                        withBorder=True,
+                                                        shadow="sm",
+                                                        radius="lg",
+                                                        p=10,
                                                     ),
-                                                ),
-                                            ],
-                                            withBorder=True,
-                                            shadow="sm",
-                                            radius="lg",
-                                            style={"padding": "20px"},
-                                        )
-                                    ]
-                                )
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        dmc.Text(
-                                            "Výsledky hlasování na kmenových radách:",
-                                            size="xl",
-                                            weight=600,
-                                            id="kmenovky-hlasovani"
-                                        )
-                                    ]
-                                )
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        dmc.Card(
-                                            [
-                                                kmenovka_hlasovani_item(
-                                                    episode,
-                                                    day,
-                                                    True if i == 0 else False,
-                                                )
-                                                for episode, day, i in zip(
-                                                    kmenovky_hlasovani_df[
-                                                        kmenovky_hlasovani_df["TYPE"]
-                                                        == "Primární"
-                                                    ]["EPISODE"].values,
-                                                    kmenovky_hlasovani_df[
-                                                        kmenovky_hlasovani_df["TYPE"]
-                                                        == "Primární"
-                                                    ]["DAY"].values,
-                                                    range(
-                                                        len(
-                                                            kmenovky_hlasovani_df[
-                                                                kmenovky_hlasovani_df[
-                                                                    "TYPE"
-                                                                ]
-                                                                == "Primární"
-                                                            ]["DAY"].values
-                                                        )
-                                                    ),
-                                                )
-                                            ],
-                                            withBorder=True,
-                                            shadow="sm",
-                                            radius="lg",
-                                            style={
-                                                "padding": "10px",
-                                            },
-                                        )
-                                    ]
-                                )
-                            ]
-                        ),
-                    ],
-                    xl=9,
-                    lg=8,
-                ),
-                dmc.Col(
-                    [
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [dmc.Text("Časová osa:", size="xl", weight=600)],
-                                    span="content",
-                                ),
-                                dmc.Col(
-                                    [
-                                        dmc.Menu(
-                                            transition="pop",
-                                            shadow="md",
-                                            radius="lg",
-                                            position="bottom-end",
-                                            # withArrow=True,
-                                            offset=0,
-                                            # arrowSize=10,
-                                            children=[
-                                                dmc.MenuTarget(
-                                                    dmc.ActionIcon(
-                                                        DashIconify(
-                                                            icon="material-symbols:filter-alt-outline",
-                                                            width=30,
-                                                        ),
-                                                        size="lg",
-                                                    )
-                                                ),
-                                                dmc.MenuDropdown(
-                                                    dmc.MediaQuery(
-                                                        dmc.Container(
-                                                            [
-                                                                dmc.Grid(
-                                                                    [
-                                                                        dmc.Col(
-                                                                            [
-                                                                                dmc.Text(
-                                                                                    "Typ události",
-                                                                                    weight=600,
-                                                                                ),
-                                                                            ],
-                                                                            span="content",
-                                                                        ),
-                                                                        dmc.Col(
-                                                                            [
-                                                                                dmc.ActionIcon(
-                                                                                    DashIconify(
-                                                                                        icon="bi:check-all",
-                                                                                        width=25,
-                                                                                    ),
-                                                                                    id="filter-event-all",
-                                                                                    n_clicks=0,
-                                                                                )
-                                                                            ],
-                                                                            span="content",
-                                                                            pt=6,
-                                                                            pl=0,
-                                                                        ),
-                                                                    ],
-                                                                    # justify="space-between",
-                                                                ),
-                                                                dmc.Grid(
-                                                                    [
-                                                                        dmc.Col(
-                                                                            [
-                                                                                dmc.ChipGroup(
-                                                                                    [
-                                                                                        dmc.Chip(
-                                                                                            x,
-                                                                                            value=x,
-                                                                                            variant="outline",
-                                                                                            color="yellow",
-                                                                                        )
-                                                                                        for x in event_log_df[
-                                                                                            "EVENT_TYPE"
-                                                                                        ].unique()
-                                                                                    ],
-                                                                                    id="filter-event",
-                                                                                    value=event_log_df[
-                                                                                        "EVENT_TYPE"
-                                                                                    ].unique(),
-                                                                                    multiple=True,
-                                                                                    spacing=5,
-                                                                                ),
-                                                                            ]
-                                                                        )
-                                                                    ]
-                                                                ),
-                                                                dmc.Grid(
-                                                                    [
-                                                                        dmc.Col(
-                                                                            [
-                                                                                dmc.Button(
-                                                                                    "Filtrovat",
-                                                                                    id="event-log-filter-button",
-                                                                                    variant="filled",
-                                                                                    size="sm",
-                                                                                    radius="xl",
-                                                                                    color="yellow",
-                                                                                    fullWidth=True,
-                                                                                    leftIcon=DashIconify(
-                                                                                        icon="material-symbols:filter-alt-outline",
-                                                                                        width=25,
-                                                                                        height=25,
-                                                                                    ),
-                                                                                ),
-                                                                            ]
-                                                                        )
-                                                                    ]
-                                                                ),
-                                                            ],
-                                                            p=10,
-                                                            style={"max-width": "70vw"},
-                                                        ),
-                                                        largerThan="sm",
-                                                        styles={"max-width": "300px"},
-                                                    )
-                                                ),
-                                            ],
-                                        ),
-                                    ],
-                                    span="content",
-                                    # pr=20,
-                                ),
-                            ],
-                            justify="space-between",
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        dmc.Card(
-                                            children=[
-                                                dmc.Grid(
-                                                    [
-                                                        dmc.Col(
-                                                            [
-                                                                create_event_log(
-                                                                    event_log_df.tail(
-                                                                        61
-                                                                    )
-                                                                )
-                                                            ],
-                                                            id="event-log-output",
-                                                        )
-                                                    ]
-                                                ),
-                                                dmc.Grid(
-                                                    [
-                                                        dmc.Col(
-                                                            [
-                                                                dmc.Button(
-                                                                    "Ukázat vše",
-                                                                    id="event-log-more-button",
-                                                                    variant="light",
-                                                                    size="md",
-                                                                    radius="xl",
-                                                                    color="gray",
-                                                                    fullWidth=True,
-                                                                    leftIcon=DashIconify(
-                                                                        icon="material-symbols:expand-more-rounded",
-                                                                        width=25,
-                                                                        height=25,
-                                                                    ),
-                                                                ),
-                                                            ],
-                                                            span="auto",
-                                                            style={
-                                                                "padding-top": "16px"
-                                                            },
-                                                        )
-                                                    ],
-                                                    justify="center",
-                                                ),
-                                            ],
-                                            withBorder=True,
-                                            shadow="sm",
-                                            radius="lg",
-                                            p=10,
-                                        ),
-                                    ]
-                                )
-                            ]
-                        ),
-                    ],
-                    xl=3,
-                    lg=4,
-                ),
-            ],
-            gutterLg=40,
-            style={"margin": "0px"},
-        ),
-        dmc.Center(
-            my=20,
-            children=dmc.Group(
-                spacing="xs",
-                children=[
-                    dmc.Text("Made with"),
-                    DashIconify(
-                        icon="akar-icons:heart",
-                        width=19,
-                        color=dmc.theme.DEFAULT_COLORS["red"][8],
+                                                ]
+                                            )
+                                        ]
+                                    ),
+                                ],
+                                xl=3,
+                                lg=4,
+                            ),
+                        ],
+                        gutterLg=40,
+                        style={"margin": "0px"},
                     ),
-                    dmc.Text("by Martin Rapavý"),
                 ],
-            ),
-        ),
-    ]
+            )
+        ],
+        style={"width": "calc(100vw - 60px)", "padding-top": "40px"},
+    )
 
 
 @callback(
@@ -6145,7 +6322,8 @@ def player_detail_drawer_update(n_clicks_opened):
                                                             align="center",
                                                         ),
                                                     ]
-                                                    + hlasy_na_kmenovkach + [
+                                                    + hlasy_na_kmenovkach
+                                                    + [
                                                         dmc.Space(h=100),
                                                     ],
                                                     spacing="xs",
@@ -6169,30 +6347,3 @@ def player_detail_drawer_update(n_clicks_opened):
         ),
     )
     return True, out_cont
-
-
-
-
-clientside_callback(
-    """ function(data) { return data } """,
-    Output("mantine-docs-theme-provider", "theme"),
-    Input("theme-store", "data"),
-)
-
-
-clientside_callback(
-    """function(n_clicks, data) {
-        if (data) {
-            if (n_clicks) {
-                const scheme = data["colorScheme"] == "dark" ? "light" : "dark"
-                return { colorScheme: scheme } 
-            }
-            return dash_clientside.no_update
-        } else {
-            return { colorScheme: "light" }
-        }
-    }""",
-    Output("theme-store", "data"),
-    Input("color-scheme-toggle", "n_clicks"),
-    State("theme-store", "data"),
-)

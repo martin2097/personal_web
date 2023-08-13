@@ -10,73 +10,115 @@ import copy
 dash.register_page(__name__)
 
 layout = dmc.LoadingOverlay(
-    dmc.Grid([
-        dmc.Col([
-            dmc.Grid([
-                dmc.Col([
-                    dmc.Text("Type A:")
-                ], span="content"),
-                dmc.Col([
-                    dmc.TextInput(id="group-creator-list-input-type-a", label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):", value="500x4, 750x1, 850x5, 350x8"),
-                ], span="auto")
-            ]),
-            dmc.Grid([
-                dmc.Col([
-                    dmc.Text("Type B:")
-                ], span="content"),
-                dmc.Col([
-                    dmc.TextInput(id="group-creator-list-input-type-b", label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):"),
-                ], span="auto")
-            ]),
-            dmc.Grid([
-                dmc.Col([
-                    dmc.Text("Type C:")
-                ], span="content"),
-                dmc.Col([
-                    dmc.TextInput(id="group-creator-list-input-type-c", label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):"),
-                ], span="auto")
-            ]),
-            dmc.Grid([
-                dmc.Col([
-                    dmc.Text("Type D:")
-                ], span="content"),
-                dmc.Col([
-                    dmc.TextInput(id="group-creator-list-input-type-d", label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):"),
-                ], span="auto")
-            ]),
-            dmc.Grid([
-                dmc.Col([
-                    dmc.Text("Type E:")
-                ], span="content"),
-                dmc.Col([
-                    dmc.TextInput(id="group-creator-list-input-type-e", label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):"),
-                ], span="auto")
-            ]),
-            dmc.NumberInput(
-                id="group-creator-group-max",
-                label="Set maximal size of each group",
-                value=1100,
-                style={"width": 350},
-            ),
-            dmc.NumberInput(
-                id="group-creator-group-max-cnt",
-                label="Set maximal number of elements in each group",
-                value=20,
-                style={"width": 350},
-            ),
-            dmc.Text("Choose algorithm type: "),
-            dmc.SegmentedControl(
-                id="group-creator-algorithm-type",
-                value="best",
-                data=[
-                    {"value": "fast", "label": "Fast"},
-                    {"value": "best", "label": "Best"},
-                ],
-            ),
-            dmc.Grid(dmc.Col(dmc.Button("Calculate", id="group-creator-calculate-btn"), span="auto")),
-            dmc.Grid(id="group-creator-output")
-        ])
-    ])
+    dmc.Grid(
+        [
+            dmc.Col(
+                [
+                    dmc.Grid(
+                        [
+                            dmc.Col([dmc.Text("Type A:")], span="content"),
+                            dmc.Col(
+                                [
+                                    dmc.TextInput(
+                                        id="group-creator-list-input-type-a",
+                                        label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                        value="500x4, 750x1, 850x5, 350x8",
+                                    ),
+                                ],
+                                span="auto",
+                            ),
+                        ]
+                    ),
+                    dmc.Grid(
+                        [
+                            dmc.Col([dmc.Text("Type B:")], span="content"),
+                            dmc.Col(
+                                [
+                                    dmc.TextInput(
+                                        id="group-creator-list-input-type-b",
+                                        label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                    ),
+                                ],
+                                span="auto",
+                            ),
+                        ]
+                    ),
+                    dmc.Grid(
+                        [
+                            dmc.Col([dmc.Text("Type C:")], span="content"),
+                            dmc.Col(
+                                [
+                                    dmc.TextInput(
+                                        id="group-creator-list-input-type-c",
+                                        label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                    ),
+                                ],
+                                span="auto",
+                            ),
+                        ]
+                    ),
+                    dmc.Grid(
+                        [
+                            dmc.Col([dmc.Text("Type D:")], span="content"),
+                            dmc.Col(
+                                [
+                                    dmc.TextInput(
+                                        id="group-creator-list-input-type-d",
+                                        label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                    ),
+                                ],
+                                span="auto",
+                            ),
+                        ]
+                    ),
+                    dmc.Grid(
+                        [
+                            dmc.Col([dmc.Text("Type E:")], span="content"),
+                            dmc.Col(
+                                [
+                                    dmc.TextInput(
+                                        id="group-creator-list-input-type-e",
+                                        label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                    ),
+                                ],
+                                span="auto",
+                            ),
+                        ]
+                    ),
+                    dmc.NumberInput(
+                        id="group-creator-group-max",
+                        label="Set maximal size of each group",
+                        value=1100,
+                        style={"width": 350},
+                    ),
+                    dmc.NumberInput(
+                        id="group-creator-group-max-cnt",
+                        label="Set maximal number of elements in each group",
+                        value=20,
+                        style={"width": 350},
+                    ),
+                    dmc.Text("Choose algorithm type: "),
+                    dmc.SegmentedControl(
+                        id="group-creator-algorithm-type",
+                        value="best",
+                        data=[
+                            {"value": "fast", "label": "Fast"},
+                            {"value": "best", "label": "Best"},
+                        ],
+                    ),
+                    dmc.Grid(
+                        dmc.Col(
+                            dmc.Button("Calculate", id="group-creator-calculate-btn"),
+                            span="auto",
+                        )
+                    ),
+                    dmc.Grid(id="group-creator-output"),
+                ]
+            )
+        ],
+        style={"width": "calc(100vw - 60px)", "padding-top": "40px", "margin": "0px"},
+        gutter=40,
+    )
 )
 
 
@@ -86,7 +128,7 @@ def first_group(previous_ele, len_rema, max_len):
         output = previous_ele
     for r in range(max_len, 0, -1):
         if len_rema >= r:
-            output += next_group(previous_ele+[r], len_rema-r, max_len)
+            output += next_group(previous_ele + [r], len_rema - r, max_len)
     return output
 
 
@@ -96,7 +138,7 @@ def next_group(previous_ele, len_rema, max_len):
         output.append(previous_ele)
     for r in range(max_len, 0, -1):
         if (previous_ele[-1] in range(r, 0, -1)) and (len_rema >= r):
-            output += next_group(previous_ele+[r], len_rema-r, max_len)
+            output += next_group(previous_ele + [r], len_rema - r, max_len)
     return output
 
 
@@ -154,21 +196,21 @@ def fast_solution(lst, maxsum, max_len):
 def final_algo(lst, maxsum, max_len, alg_type):
     result = []
     for uni in set(lst):
-        if maxsum//uni > 1:
-            for times in range((lst.count(uni))//(maxsum//uni)):
-                result.append([uni] * (maxsum//uni))
-                for i in ([uni] * (maxsum//uni)):
+        if maxsum // uni > 1:
+            for times in range((lst.count(uni)) // (maxsum // uni)):
+                result.append([uni] * (maxsum // uni))
+                for i in [uni] * (maxsum // uni):
                     lst.remove(i)
-    while max(lst)+min(lst) > maxsum:
+    while max(lst) + min(lst) > maxsum:
         result.append([max(lst)])
         lst.remove(max(lst))
         if len(lst) == 0:
             break
-    if alg_type == 'fast':
+    if alg_type == "fast":
         scrubbs = fast_solution(lst, maxsum, max_len)
-    elif alg_type == 'best':
+    elif alg_type == "best":
         scrubbs = best_solution(lst, maxsum, max_len)
-    return result+scrubbs
+    return result + scrubbs
 
 
 def final_algo_with_splitting(lst, maxsum, max_len, alg_type):
@@ -176,8 +218,8 @@ def final_algo_with_splitting(lst, maxsum, max_len, alg_type):
     half_list = []
     for i in set(lst):
         cnt = lst.count(i)
-        half_list += ([i] * math.floor(cnt / 2))
-    solution = final_algo(half_list, maxsum-20, max_len, alg_type)
+        half_list += [i] * math.floor(cnt / 2)
+    solution = final_algo(half_list, maxsum - 20, max_len, alg_type)
     rest_of_list = lst.copy()
     for i in solution:
         result.append(i)
@@ -186,7 +228,7 @@ def final_algo_with_splitting(lst, maxsum, max_len, alg_type):
             rest_of_list.remove(j)
             rest_of_list.remove(j)
     rest_solution = final_algo(rest_of_list, maxsum, max_len, alg_type)
-    return result+rest_solution
+    return result + rest_solution
 
 
 def list_from_input(lst):
@@ -209,7 +251,7 @@ def one_by_one_solution(lst, maxsum):
             added = 0
             i = 0
             for c in comb:
-                if maxsum-sum(c) >= val:
+                if maxsum - sum(c) >= val:
                     comb[i] += [val]
                     added = 1
                     break
@@ -249,7 +291,7 @@ def best_one_by_one_solution(lst, maxsum):
                 added = 0
                 i = 0
                 for c in comb:
-                    if maxsum-sum(c) >= val:
+                    if maxsum - sum(c) >= val:
                         comb[i] += [val]
                         added = 1
                         break
@@ -272,7 +314,7 @@ def one_by_one_with_splitting(lst, maxsum):
     half_list = []
     for i in set(lst):
         cnt = lst.count(i)
-        half_list += ([i] * math.floor(cnt / 2))
+        half_list += [i] * math.floor(cnt / 2)
     solution = one_by_one_solution(half_list, maxsum)
     rest_of_list = lst.copy()
     for i in solution:
@@ -300,7 +342,7 @@ def best_one_by_one_with_splitting(lst, maxsum):
     half_list = []
     for i in set(lst):
         cnt = lst.count(i)
-        half_list += ([i] * math.floor(cnt / 2))
+        half_list += [i] * math.floor(cnt / 2)
     solution = best_one_by_one_solution(half_list, maxsum)
     rest_of_list = lst.copy()
     for i in solution:
@@ -351,19 +393,29 @@ def one_by_one_final(lst, maxsum, splitting, alg_type):
 
 
 @callback(
-    Output("group-creator-output", 'children'),
-    Input("group-creator-calculate-btn", 'n_clicks'),
-    State("group-creator-list-input-type-a", 'value'),
-    State("group-creator-list-input-type-b", 'value'),
-    State("group-creator-list-input-type-c", 'value'),
-    State("group-creator-list-input-type-d", 'value'),
-    State("group-creator-list-input-type-e", 'value'),
+    Output("group-creator-output", "children"),
+    Input("group-creator-calculate-btn", "n_clicks"),
+    State("group-creator-list-input-type-a", "value"),
+    State("group-creator-list-input-type-b", "value"),
+    State("group-creator-list-input-type-c", "value"),
+    State("group-creator-list-input-type-d", "value"),
+    State("group-creator-list-input-type-e", "value"),
     State("group-creator-group-max", "value"),
     State("group-creator-group-max-cnt", "value"),
     State("group-creator-algorithm-type", "value"),
-    prevent_initial_call=True
+    prevent_initial_call=True,
 )
-def update_output_div(n_clicks, lst_type_a, lst_type_b, lst_type_c, lst_type_d, lst_type_e, group_max, max_len, alg_type):
+def update_output_div(
+    n_clicks,
+    lst_type_a,
+    lst_type_b,
+    lst_type_c,
+    lst_type_d,
+    lst_type_e,
+    group_max,
+    max_len,
+    alg_type,
+):
     lst_type_a = list_from_input(lst_type_a)
     lst_type_b = list_from_input(lst_type_b)
     lst_type_c = list_from_input(lst_type_c)
@@ -376,7 +428,9 @@ def update_output_div(n_clicks, lst_type_a, lst_type_b, lst_type_c, lst_type_d, 
         # solution = final_algo(lst_type_a, group_max, max_len, alg_type)
         solution = one_by_one_final(lst_type_a, group_max, False, alg_type)
         if solution is None:
-            out.append(dmc.Col(dmc.Text("Type A solution does not exist"), span="content"))
+            out.append(
+                dmc.Col(dmc.Text("Type A solution does not exist"), span="content")
+            )
         else:
             inout = []
             inout.append(dmc.Text("Type A Solution:"))
@@ -392,7 +446,9 @@ def update_output_div(n_clicks, lst_type_a, lst_type_b, lst_type_c, lst_type_d, 
         # solution = final_algo(lst_type_b, group_max, max_len, alg_type)
         solution = one_by_one_final(lst_type_b, group_max, False, alg_type)
         if solution is None:
-            out.append(dmc.Col(dmc.Text("Type B solution does not exist"), span="content"))
+            out.append(
+                dmc.Col(dmc.Text("Type B solution does not exist"), span="content")
+            )
         else:
             inout = []
             inout.append(dmc.Text("Type B Solution:"))
@@ -406,9 +462,13 @@ def update_output_div(n_clicks, lst_type_a, lst_type_b, lst_type_c, lst_type_d, 
     # C, D, E
     if len(lst_type_c) + len(lst_type_d) + len(lst_type_e) > 0:
         # solution = final_algo_with_splitting(lst_type_c+lst_type_d+lst_type_e, group_max, max_len, alg_type)
-        solution = one_by_one_final(lst_type_c+lst_type_d+lst_type_e, group_max-20, True, alg_type)
+        solution = one_by_one_final(
+            lst_type_c + lst_type_d + lst_type_e, group_max - 20, True, alg_type
+        )
         if solution is None:
-            out.append(dmc.Col(dmc.Text("Type C,D,E solution does not exist"), span="content"))
+            out.append(
+                dmc.Col(dmc.Text("Type C,D,E solution does not exist"), span="content")
+            )
         else:
             inout = []
             inout.append(dmc.Text("Type C,D,E Solution:"))
@@ -431,10 +491,21 @@ def update_output_div(n_clicks, lst_type_a, lst_type_b, lst_type_c, lst_type_d, 
                     text_group = text_group + part + str(i) + " "
                 text_group = text_group + "   (sum " + str(sum(groups)) + ")"
                 inout.append(dmc.Text(text_group))
-                if ((inc % 2) == 1) & (solution[inc-1] == solution[inc]):
+                if ((inc % 2) == 1) & (solution[inc - 1] == solution[inc]):
                     inout.append(dmc.Text("---"))
                 inc += 1
             out.append(dmc.Col(inout, span="content"))
     end = time()
-    out.append(dmc.Col([dmc.Text("Last Update:"), dmc.Text(datetime.now()), dmc.Text("Evaluation Time:"), dmc.Text(end-start)], span="content", offset=1))
+    out.append(
+        dmc.Col(
+            [
+                dmc.Text("Last Update:"),
+                dmc.Text(datetime.now()),
+                dmc.Text("Evaluation Time:"),
+                dmc.Text(end - start),
+            ],
+            span="content",
+            offset=1,
+        )
+    )
     return out
