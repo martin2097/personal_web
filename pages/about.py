@@ -4,7 +4,14 @@ from dash import html
 from dash_iconify import DashIconify
 from lib.utils import visit_link_icon, mid_col_responsive
 
-dash.register_page(__name__, title="Martin Rapavý - About Me")
+dash.register_page(
+    __name__,
+    title="Martin Rapavý - About Me",
+    description="I am passionate about data, Python and especially Dash. I also enjoy making other people's lives "
+    "easier. It may be data insight presented in a user-friendly way, or it could be teaching them how "
+    "to do it themselves.",
+    image="personal-page-view.png",
+)
 
 about_me_p1 = (
     "My name is Martin, and I enjoy making other people's lives easier. It may be data insight presented in a "

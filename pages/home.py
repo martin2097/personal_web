@@ -2,7 +2,14 @@ import dash
 import dash_mantine_components as dmc
 from lib.utils import gradient_text, mid_col_responsive
 
-dash.register_page(__name__, path="/", title="Martin Rapavý - Home")
+dash.register_page(
+    __name__,
+    path="/",
+    title="Martin Rapavý - Home",
+    description="I am passionate about data, Python and especially Dash. This is my personal platform where I can "
+    "showcase my work and share my expertise and experience with the community.",
+    image="personal-page-view.png",
+)
 
 layout = mid_col_responsive(
     dmc.Center(

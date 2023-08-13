@@ -3,7 +3,13 @@ import dash_mantine_components as dmc
 from dash import html
 from lib.utils import mid_col_responsive
 
-dash.register_page(__name__, title="Martin Rapavý - Experience")
+dash.register_page(
+    __name__,
+    title="Martin Rapavý - Experience",
+    description="I am passionate about data, Python and especially Dash. I've been working at a major Czech bank for "
+    "the last five years, trying to establish the data culture to meet the most recent standards.",
+    image="personal-page-view.png",
+)
 
 work_experience = [
     {

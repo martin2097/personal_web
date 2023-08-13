@@ -4,7 +4,13 @@ from dash import html
 from dash_iconify import DashIconify
 from lib.utils import visit_link_icon, mid_col_responsive
 
-dash.register_page(__name__, title="Martin Rapavý - Contact Me")
+dash.register_page(
+    __name__,
+    title="Martin Rapavý - Contact Me",
+    description="I am passionate about data, Python and especially Dash. If you have any questions, comments, or other "
+    "feedback, don't hesitate to get in touch with me.",
+    image="personal-page-view.png",
+)
 
 layout = mid_col_responsive(
     dmc.Center(
