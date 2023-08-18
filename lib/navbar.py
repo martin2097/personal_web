@@ -1,5 +1,5 @@
 import dash_mantine_components as dmc
-from dash import dcc
+from dash import dcc, html
 from dash_iconify import DashIconify
 from lib.utils import visit_link_icon
 
@@ -131,24 +131,26 @@ def navbar(links, brand_icon, brand_name):
                         pt=20,
                         children=dmc.Stack(
                             [
-                                dmc.NavLink(
-                                    label=links[link]["label"],
-                                    href=link,
+                                html.A(
+                                    dmc.NavLink(
+                                        label=links[link]["label"],
+                                        href=link,
+                                        n_clicks=0,
+                                        style={
+                                            "padding": "7px",
+                                            "width": "auto",
+                                        },
+                                        styles={
+                                            "label": {
+                                                "color": "#868E96",
+                                                "font-weight": "500",
+                                                "font-size": "24px",
+                                            },
+                                        },
+                                    ),
                                     id={
                                         "type": "navlink",
                                         "index": link,
-                                    },
-                                    n_clicks=0,
-                                    style={
-                                        "padding": "7px",
-                                        "width": "auto",
-                                    },
-                                    styles={
-                                        "label": {
-                                            "color": "#868E96",
-                                            "font-weight": "500",
-                                            "font-size": "24px",
-                                        },
                                     },
                                 )
                                 for link in links
