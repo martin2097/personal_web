@@ -182,7 +182,6 @@ def parse_contents(contents, filename, date):
     content_type, content_string = contents.split(",")
 
     decoded = base64.b64decode(content_string)
-    print(filename)
     try:
         if "csv" in filename:
             # Assume that the user uploaded a CSV file
@@ -207,7 +206,6 @@ def parse_contents(contents, filename, date):
 def update_output(list_of_contents, list_of_names, list_of_dates):
     if list_of_contents is not None:
         children = parse_contents(list_of_contents, list_of_names, list_of_dates)
-        # print(children)
         return children.to_json(date_format="iso", orient="split")
 
 
@@ -251,10 +249,6 @@ def find_pattern(in_str):
 
 
 def calculate_plate_height(type_a, type_b, type_c, nop):
-    print(type_a)
-    print(type_b)
-    print(type_c)
-    print(nop)
     if type_a == "B30":
         if type_c == "SC-H":
             if type_b == "D":
@@ -534,7 +528,6 @@ def run_from_excel(stored_df_as_json):
         ),
         axis=1,
     )
-    print(df)
     return "Done", dcc.send_data_frame(
         df.to_excel, "ouput_excel.xlsx", sheet_name="Sheet_1"
     )
@@ -661,7 +654,6 @@ def list_from_input(lst):
 
 def one_by_one_solution(lst, maxsum):
     ordered_unique_lst = list(set(lst))
-    print(ordered_unique_lst)
     ordered_unique_lst.sort(reverse=True)
     comb = []
     for val in ordered_unique_lst:
