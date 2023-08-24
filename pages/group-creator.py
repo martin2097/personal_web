@@ -410,7 +410,7 @@ def first_non_empty(list_of_string):
     try:
         return int(next(s for s in list_of_string if s))
     except:
-        return None
+        return np.NaN
 
 
 def calculate_nop(input_string):
@@ -511,7 +511,6 @@ def run_from_excel(stored_df_as_json):
         .drop(columns=["Connection"])
         .rename(columns={"Height": "CONNECTION_F_HEIGHT"})
     )
-
     df = (
         df.merge(
             type_group_df,
