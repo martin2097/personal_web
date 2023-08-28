@@ -10,6 +10,7 @@ import base64
 import io
 import pandas as pd
 import numpy as np
+import re
 
 
 dash.register_page(__name__)
@@ -414,7 +415,7 @@ def first_non_empty(list_of_string):
 
 
 def calculate_nop(input_string):
-    return sum([int(i) for i in input_string.split("x")])
+    return sum([int(i) for i in re.findall(r"\d+", input_string)])
 
 
 def calculate_final_height(connection_p_height, connection_f_height, plate_height):
