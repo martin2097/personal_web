@@ -6,6 +6,8 @@ path: /dash-adding-animations
 language: sk
 abstract: Pridávanie animácií z animate.css do Plotly Dash aplikácií.
 ---
+
+Is it autocommiting?
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMjUzODEzMDJdfQ==
+eyJoaXN0b3J5IjpbLTEzMjg4NjQ5NDRdfQ==
 -->
