@@ -4,7 +4,9 @@ from dash_iconify import DashIconify
 from lib.utils import visit_link_icon
 
 
-def navbar(links, brand_icon, brand_name):
+def navbar(links, language, brand_icon, brand_name):
+    if language not in ["en", "sk"]:
+        language = "en"
     return dmc.Header(
         height=40,
         fixed=True,
@@ -18,12 +20,15 @@ def navbar(links, brand_icon, brand_name):
                                     dcc.Link(
                                         dmc.ActionIcon(
                                             DashIconify(
-                                                icon=brand_icon, height=35, width=35
+                                                icon=brand_icon,
+                                                height=35,
+                                                width=35,
+                                                color="rgb(134, 142, 150)",
                                             ),
                                             variant="transparent",
                                             id={"type": "navlink", "index": "logo"},
                                         ),
-                                        href="/",
+                                        href="/" + language + "/",
                                     ),
                                     dmc.Anchor(
                                         brand_name,
@@ -37,8 +42,60 @@ def navbar(links, brand_icon, brand_name):
                                         href="/",
                                         underline=False,
                                     ),
+                                ]
+                                + [
+                                    dmc.MediaQuery(
+                                        dmc.NavLink(
+                                            label=links[link][language],
+                                            href="/" + language + link,
+                                            style={
+                                                "padding": "7px",
+                                                "width": "auto",
+                                            },
+                                            styles={
+                                                "label": {
+                                                    "color": "#868E96",
+                                                    "font-weight": "500",
+                                                    "font-size": "16px",
+                                                },
+                                            },
+                                        ),
+                                        smallerThan="sm",
+                                        styles={"display": "none"},
+                                    )
+                                    for link in links
+                                ]
+                                + [
+                                    dmc.MediaQuery(
+                                        dcc.Link(
+                                            dmc.Button(
+                                                "Blog",
+                                                leftIcon=DashIconify(
+                                                    icon="jam:write",
+                                                    width=16,
+                                                    height=16,
+                                                ),
+                                                variant="gradient",
+                                                radius="xl",
+                                                size="xs",
+                                                gradient={
+                                                    "from": "blue",
+                                                    "to": "teal",
+                                                    "deg": 45,
+                                                },
+                                                styles={
+                                                    "label": {"font-size": "16px"},
+                                                    "leftIcon": {"margin-right": "5px"},
+                                                },
+                                                px=20,
+                                            ),
+                                            href="/" + language + "/blog",
+                                        ),
+                                        smallerThan="sm",
+                                        styles={"display": "none"},
+                                    )
                                 ],
-                                spacing=5,
+                                spacing=20,
                                 style={"margin-left": "2vh"},
                             )
                         ],
@@ -53,32 +110,48 @@ def navbar(links, brand_icon, brand_name):
                                         [
                                             dmc.Group(
                                                 [
-                                                    dmc.MediaQuery(
-                                                        dmc.NavLink(
-                                                            label=links[link]["label"],
-                                                            href=link,
-                                                            style={
-                                                                "padding": "7px",
-                                                                "width": "auto",
+                                                    dmc.SegmentedControl(
+                                                        id="language-switch",
+                                                        value=language,
+                                                        size="sm",
+                                                        data=[
+                                                            {
+                                                                "value": "en",
+                                                                "label": "EN",
                                                             },
-                                                            styles={
-                                                                "label": {
-                                                                    "color": "#868E96",
-                                                                    "font-weight": "500",
-                                                                    "font-size": "16px",
-                                                                },
+                                                            {
+                                                                "value": "sk",
+                                                                "label": "SK",
                                                             },
-                                                        ),
-                                                        smallerThan="sm",
-                                                        styles={"display": "none"},
+                                                        ],
+                                                        style={
+                                                            "background-color": "rgba(0,0,0,0)"
+                                                        },
+                                                        styles={
+                                                            "indicator": {
+                                                                "background-color": "rgba(0,0,0,0)",
+                                                                "box-shadow": "none",
+                                                            },
+                                                            "label": {
+                                                                "color": "rgb(134, 142, 150)",
+                                                                "font-size": "16px",
+                                                                "padding-left": "10px",
+                                                                "padding-right": "0px",
+                                                                "padding-top": "0px",
+                                                                "padding-bottom": "0px",
+                                                            },
+                                                            "controlActive": {
+                                                                "color": "rgb(34, 139, 230)"
+                                                            },
+                                                        },
                                                     )
-                                                    for link in links
                                                 ]
                                                 + [
                                                     dmc.ActionIcon(
                                                         DashIconify(
                                                             icon="radix-icons:blending-mode",
                                                             width=25,
+                                                            color="rgb(134, 142, 150)",
                                                         ),
                                                         variant="transparent",
                                                         id="color-scheme-toggle",
@@ -90,6 +163,7 @@ def navbar(links, brand_icon, brand_name):
                                                             DashIconify(
                                                                 icon="radix-icons:hamburger-menu",
                                                                 width=25,
+                                                                color="rgb(134, 142, 150)",
                                                             ),
                                                             variant="transparent",
                                                             id="burger-button",
@@ -119,61 +193,83 @@ def navbar(links, brand_icon, brand_name):
             ),
             dmc.Drawer(
                 id="navbar-drawer",
-                overlayOpacity=0.55,
-                overlayBlur=3,
+                overlayProps={"opacity": 0.55, "blur": 3},
                 zIndex=9,
                 size=300,
                 children=[
-                    dmc.ScrollArea(
-                        offsetScrollbars=True,
-                        type="scroll",
-                        style={"height": "100vh"},
-                        pt=20,
-                        children=dmc.Stack(
-                            [
-                                html.A(
-                                    dmc.NavLink(
-                                        label=links[link]["label"],
-                                        href=link,
-                                        n_clicks=0,
-                                        style={
-                                            "padding": "7px",
-                                            "width": "auto",
-                                        },
-                                        styles={
-                                            "label": {
-                                                "color": "#868E96",
-                                                "font-weight": "500",
-                                                "font-size": "24px",
-                                            },
-                                        },
-                                    ),
-                                    id={
-                                        "type": "navlink",
-                                        "index": link,
+                    dmc.Stack(
+                        [
+                            html.A(
+                                dmc.NavLink(
+                                    label=links[link][language],
+                                    href="/" + language + link,
+                                    n_clicks=0,
+                                    style={
+                                        "padding": "7px",
+                                        "width": "auto",
                                     },
-                                )
-                                for link in links
-                            ]
-                            + [
-                                dmc.Group(
-                                    [
-                                        visit_link_icon(
-                                            "https://github.com/martin2097/",
-                                            "mdi:github",
-                                        ),
-                                        visit_link_icon(
-                                            "https://linkedin.com/in/martin-rapavy",
-                                            "mdi:linkedin",
-                                        ),
-                                    ],
-                                    pt=20,
+                                    styles={
+                                        "label": {
+                                            "color": "#868E96",
+                                            "font-weight": "500",
+                                            "font-size": "24px",
+                                        },
+                                    },
                                 ),
-                            ],
-                            align="center",
-                            spacing=5,
-                        ),
-                    )
+                                id={
+                                    "type": "navlink",
+                                    "index": link,
+                                },
+                            )
+                            for link in links
+                        ]
+                        + [
+                            dcc.Link(
+                                dmc.Button(
+                                    "Blog",
+                                    leftIcon=DashIconify(
+                                        icon="jam:write",
+                                        width=24,
+                                        height=24,
+                                    ),
+                                    fullWidth=True,
+                                    size="lg",
+                                    variant="gradient",
+                                    radius="xl",
+                                    gradient={
+                                        "from": "blue",
+                                        "to": "teal",
+                                        "deg": 45,
+                                    },
+                                    styles={
+                                        "label": {
+                                            "font-weight": "500",
+                                            "font-size": "24px",
+                                        }
+                                    },
+                                ),
+                                href="/" + language + "/blog",
+                                style={"width": "80%", "text-decoration": "none"},
+                            )
+                        ]
+                        + [
+                            dmc.Group(
+                                [
+                                    visit_link_icon(
+                                        "https://github.com/martin2097/",
+                                        "mdi:github",
+                                    ),
+                                    visit_link_icon(
+                                        "https://linkedin.com/in/martin-rapavy",
+                                        "mdi:linkedin",
+                                    ),
+                                ],
+                                pt=20,
+                            ),
+                        ],
+                        align="center",
+                        spacing=5,
+                    ),
                 ],
             ),
         ],

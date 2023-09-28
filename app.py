@@ -11,10 +11,21 @@ from dash import (
     ALL,
 )
 import dash_mantine_components as dmc
+import dash
 from lib.utils import visit_link_icon
 from lib.navbar import navbar
+from flask import redirect, Flask
 
-app = Dash(__name__, use_pages=True)
+server = Flask(__name__)
+
+
+@server.route("/")
+def index_redirect():
+    return redirect("/en/")
+
+
+app = Dash(__name__, server=server, use_pages=True)
+
 server = app.server
 
 app.index_string = """<!DOCTYPE html>
@@ -45,71 +56,13 @@ app.index_string = """<!DOCTYPE html>
     </body>
 </html>"""
 
-links = {
-    "about": {"label": "About Me"},
-    "experience": {"label": "Experience"},
-    "contact": {"label": "Contact Me"},
-}
-
 
 app.layout = html.Div(
     [
         dcc.Store(id="theme-store", storage_type="local"),
+        dcc.Location(id="url", refresh="callback-nav"),
         dmc.MantineProvider(
-            [
-                navbar(links, "tabler:square-rounded-letter-m", ""),
-                dmc.Grid(
-                    [
-                        dmc.MediaQuery(
-                            dmc.Col(
-                                dmc.Stack(
-                                    [
-                                        visit_link_icon(
-                                            "https://github.com/martin2097/",
-                                            "mdi:github",
-                                        ),
-                                        visit_link_icon(
-                                            "https://linkedin.com/in/martin-rapavy",
-                                            "mdi:linkedin",
-                                        ),
-                                        dmc.Center(
-                                            dmc.Divider(
-                                                orientation="vertical",
-                                                style={"height": "25vh"},
-                                                size="sm",
-                                            ),
-                                        ),
-                                    ],
-                                    spacing=0,
-                                    justify="flex-end",
-                                    align="center",
-                                    style={"height": "100%"},
-                                ),
-                                p=0,
-                                m=0,
-                                style={"height": "100%", "width": "60px"},
-                            ),
-                            smallerThan="sm",
-                            styles={"display": "none"},
-                            # innerBoxStyle={"height": "calc(100vh - 43px)"},
-                        ),
-                        dmc.Col(
-                            [
-                                dmc.ScrollArea(
-                                    page_container,
-                                    style={"width": "100%", "height": "100vh"},
-                                    type="scroll",
-                                )
-                            ],
-                            span="auto",
-                            style={"overflow": "hidden"},
-                            p=0,
-                        ),
-                    ],
-                    m=0,
-                    style={"height": "100vh", "width": "100vw"},
-                ),
-            ],
+            page_container,
             theme={"colorScheme": "dark"},
             withGlobalStyles=True,
             id="theme-provider",
@@ -163,6 +116,19 @@ clientside_callback(
     Input({"index": ALL, "type": "navlink"}, "n_clicks"),
     prevent_initial_call=True,
 )
+
+
+@callback(
+    Output("url", "pathname"),
+    Input("language-switch", "value"),
+    State("url", "pathname"),
+)
+def switch_language(language, pathname):
+    try:
+        split_path = pathname.split("/", 2)
+        return "/" + language + "/" + split_path[2]
+    except:
+        return dash.no_update
 
 
 if __name__ == "__main__":

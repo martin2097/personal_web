@@ -162,7 +162,7 @@ layout = dmc.LoadingOverlay(
                                 )
                             ]
                         ),
-                        dmc.Grid(id="group-creator-output"),
+                        dmc.Grid(dmc.Col(id="group-creator-output")),
                     ]
                 )
             ],

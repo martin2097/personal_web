@@ -25,10 +25,7 @@ def visit_link_icon(link, icon):
     """
     return html.A(
         dmc.ActionIcon(
-            DashIconify(
-                icon=icon,
-                width=30,
-            ),
+            DashIconify(icon=icon, width=30, color="rgb(134, 142, 150)"),
             size="lg",
             variant="transparent",
         ),
@@ -49,7 +46,7 @@ def mid_col_responsive(content):
                 offsetSm=2,
                 offsetXl=3,
                 p=0,
-                pt=40,
+                pt=20,
             ),
             m=0,
         ),

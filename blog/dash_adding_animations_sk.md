@@ -1,10 +1,11 @@
 ---
-title: Animácie v Plotly Dash aplikáciách
+title: Animácie v Dash aplikáciách
 author: Martin Rapavý
-date: 24.9.2023
+date: 28.9.2023
 path: /dash-adding-animations
 language: sk
 abstract: Pridávanie animácií z animate.css do Plotly Dash aplikácií.
+image: /assets/dash_adding_animations_text_up_sk.gif
 ---
 
 Animácie na webových stránkach môžu mať rôzny účel - či už estetický, alebo môžu slúžiť na upútanie pozornosti na konkrétne prvky. V tomto článku si na dvoch príkladoch ukážeme, ako vieme pomocou projektu [`animate.css`](https://animate.style/) takéto animácie pridať do Dash aplikácií.
@@ -31,8 +32,17 @@ app.layout = dmc.Grid(
     [  
         dmc.Col(  
             dmc.Text(  
-                "Knižnica Plotly Dash je nesmierne užitočná pre vývojárov a analytikov dát z niekoľkých dôvodov. "  
- "S jej jednoduchým rozhraním a bohatou paletou komponentov je možné rýchlo vytvárať interaktívne webové" " aplikácie, čím umožňuje užívateľom interagovať s dátami. Táto flexibilita je podporená možnosťou " "vytvárať rôzne typy vizualizácií, ako sú grafy, tabuľky a heatmapy, čo pomáha efektívnejšie " "komunikovať informácie. Plotly Dash je postavený na Pythone, čo uľahčuje integráciu s existujúcimi " "nástrojmi a knižnicami pre analýzu dát. S týmto open-source nástrojom a aktívnou komunitou vývojárov " "máte prístup k pravidelným aktualizáciám a podpore. Navyše, jednoduché nasadenie na rôzne platformy " "robí z Plotly Dash skvelý nástroj pre zdieľanie aplikácií a integráciu do rôznych systémov.",  
+                "Knižnica Plotly Dash je nesmierne užitočná pre vývojárov a analytikov dát z "
+                "niekoľkých dôvodov. S jej jednoduchým rozhraním a bohatou paletou komponentov "
+                "je možné rýchlo vytvárať interaktívne webové aplikácie, čím umožňuje užívateľom "
+                "interagovať s dátami. Táto flexibilita je podporená možnosťou vytvárať rôzne "
+                "typy vizualizácií, ako sú grafy, tabuľky a heatmapy, čo pomáha efektívnejšie "
+                "komunikovať informácie. Plotly Dash je postavený na Pythone, čo uľahčuje "
+                "integráciu s existujúcimi nástrojmi a knižnicami pre analýzu dát. S týmto "
+                "open-source nástrojom a aktívnou komunitou vývojárov máte prístup k pravidelným "
+                "aktualizáciám a podpore. Navyše, jednoduché nasadenie na rôzne platformy robí "
+                "z Plotly Dash skvelý nástroj pre zdieľanie aplikácií a integráciu do rôznych "
+                "systémov.",
                 size=20,  
                 weight=500,  
             ),  
@@ -48,7 +58,9 @@ if __name__ == "__main__":
     app.run(debug=True)
 ```
 
-![enter image description here](https://i.ibb.co/B2p2ZBx/dash-adding-animations-example-preview.png)
+.. exec::blog.media.dash_adding_animations_example_preview_sk
+    :code: false
+    :border: false
 
 Animácie pridáme u komponent z knižnice Dash Mantine Components pomocou parametru `className` (u komponent z knižnice Dash Bootstrap Components by sme použili parameter `class_name`). Do tohto parametru musíme priradiť textový reťazec, ktorý obsahuje `animate__animated` a následne názov danej animácie - v našom prípade to bude `animate__fadeInUp`.  Okrem týchto základných možností môžeme priradiť aj nasledujúce [voliteľné možnosti](https://animate.style/#utilities):
 
@@ -76,10 +88,10 @@ Animácie pridáme u komponent z knižnice Dash Mantine Components pomocou param
 
 V našom príklade si teda navyše animáciu zrýchlime pomocou možnosti `animate__fast`. 
 
-.. admonition::`id` komponenty  
+.. admonition::id komponenty  
     :icon: mdi:alert
-  
-	Pokiaľ v našej aplikácii využijeme viacero animácií rovnakého typu na rôzne komponenty, je nutné, aby sme u týchto komponent pridali unikátny identifikátor `id`, inak sa tieto animácie nespustia správne.
+
+    Pokiaľ v našej aplikácii využijeme viacero animácií rovnakého typu na rôzne komponenty, je nutné, aby sme u týchto komponent pridali unikátny identifikátor id, inak sa tieto animácie nespustia správne.
 
 Náš kód teda upravíme nasledovne:
 
@@ -93,8 +105,17 @@ app.layout = dmc.Grid(
     [  
         dmc.Col(  
             dmc.Text(  
-                "Knižnica Plotly Dash je nesmierne užitočná pre vývojárov a analytikov dát z niekoľkých dôvodov. "  
- "S jej jednoduchým rozhraním a bohatou paletou komponentov je možné rýchlo vytvárať interaktívne webové" " aplikácie, čím umožňuje užívateľom interagovať s dátami. Táto flexibilita je podporená možnosťou " "vytvárať rôzne typy vizualizácií, ako sú grafy, tabuľky a heatmapy, čo pomáha efektívnejšie " "komunikovať informácie. Plotly Dash je postavený na Pythone, čo uľahčuje integráciu s existujúcimi " "nástrojmi a knižnicami pre analýzu dát. S týmto open-source nástrojom a aktívnou komunitou vývojárov " "máte prístup k pravidelným aktualizáciám a podpore. Navyše, jednoduché nasadenie na rôzne platformy " "robí z Plotly Dash skvelý nástroj pre zdieľanie aplikácií a integráciu do rôznych systémov.",  
+                "Knižnica Plotly Dash je nesmierne užitočná pre vývojárov a analytikov dát z "
+                "niekoľkých dôvodov. S jej jednoduchým rozhraním a bohatou paletou komponentov "
+                "je možné rýchlo vytvárať interaktívne webové aplikácie, čím umožňuje užívateľom "
+                "interagovať s dátami. Táto flexibilita je podporená možnosťou vytvárať rôzne "
+                "typy vizualizácií, ako sú grafy, tabuľky a heatmapy, čo pomáha efektívnejšie "
+                "komunikovať informácie. Plotly Dash je postavený na Pythone, čo uľahčuje "
+                "integráciu s existujúcimi nástrojmi a knižnicami pre analýzu dát. S týmto "
+                "open-source nástrojom a aktívnou komunitou vývojárov máte prístup k pravidelným "
+                "aktualizáciám a podpore. Navyše, jednoduché nasadenie na rôzne platformy robí "
+                "z Plotly Dash skvelý nástroj pre zdieľanie aplikácií a integráciu do rôznych "
+                "systémov.",
                 size=20,  
                 weight=500,  
                 id="animated-text",  
@@ -112,7 +133,9 @@ if __name__ == "__main__":
     app.run(debug=True)
 ```
 
-![enter image description here](https://i.ibb.co/yQkcCcF/dash-adding-animations-text-up.gif)
+.. exec::blog.media.dash_adding_animations_text_up_sk
+    :code: false
+    :border: false
 
 ### Upútanie pozornosti
 
@@ -121,63 +144,62 @@ if __name__ == "__main__":
 V tomto príklade využijeme komponentu [`dmc.Accordion`](https://www.dash-mantine-components.com/components/accordion) a pomocou animácie `animate__flash` by sme chceli upozorniť na šípku v panely. Tým dáme užívateľovi najavo, že na panel je možné kliknúť a akordeón rozbaliť. Vďaka [Styles API](https://www.dash-mantine-components.com/styles-api), konkrétne parametru `classNames`, môžeme animáciu priradiť práve na šípku pomocou selectoru `chevron`. Okrem toho využijeme voliteľné možnosti `animate__delay-3s` (aby sa animácia nespustila hneď pri načítaní stránky) a `animate__repeat-2`(aby sa animácia zopakovala dva krát).
 
 ```python
-import dash_mantine_components as dmc  
-from dash import Dash  
-  
-app = Dash(__name__)  
-  
-app.layout = dmc.Stack(  
-    [  
-        dmc.Divider(  
-            label="Example Section",  
-            style={"width": "400px"},  
-            styles={"label": {"font-size": "20px", "font-weight": 600}},  
-        ),  
-        dmc.Accordion(  
-            children=[  
-                dmc.AccordionItem(  
-                    [  
-                        dmc.AccordionControl("Item"),  
-                        dmc.AccordionPanel("This is the first item of the accordion."),  
-                    ],  
-                    value="item",  
-                ),  
-                dmc.AccordionItem(  
-                    [  
-                        dmc.AccordionControl("Another item"),  
-                        dmc.AccordionPanel("Second item."),  
-                    ],  
-                    value="another-item",  
-                ),  
-                dmc.AccordionItem(  
-                    [  
-                        dmc.AccordionControl("Super secret item"),  
-                        dmc.AccordionPanel("BAZINGA!"),  
-                    ],  
-                    value="super-secret-item",  
-                ),  
-            ],  
-            chevronPosition="left",  
-            variant="separated",  
-            style={"width": "400px"},  
-            classNames={  
-                "chevron": "animate__animated animate__flash animate__delay-3s animate__repeat-2"  
-  },  
-        ),  
-    ],  
-    m=40,  
-)  
-  
-if __name__ == "__main__":  
+import dash_mantine_components as dmc
+from dash import Dash
+
+app = Dash(__name__)
+
+app.layout = dmc.Stack(
+    [
+        dmc.Divider(
+            label="Ukážková sekcia",
+            style={"width": "400px"},
+            styles={"label": {"font-size": "20px", "font-weight": 600}},
+        ),
+        dmc.Accordion(
+            children=[
+                dmc.AccordionItem(
+                    [
+                        dmc.AccordionControl("Položka"),
+                        dmc.AccordionPanel("Toto je prvá položka akordeónu."),
+                    ],
+                    value="polozka",
+                ),
+                dmc.AccordionItem(
+                    [
+                        dmc.AccordionControl("Ďalšia položka"),
+                        dmc.AccordionPanel("Druhá položka."),
+                    ],
+                    value="dalsia-polozka",
+                ),
+                dmc.AccordionItem(
+                    [
+                        dmc.AccordionControl("Super tajná položka"),
+                        dmc.AccordionPanel("BAZINGA!"),
+                    ],
+                    value="super-tajna-polozka",
+                ),
+            ],
+            chevronPosition="left",
+            variant="separated",
+            style={"width": "400px"},
+            id="akordeon",
+            classNames={
+                "chevron": "animate__animated animate__flash animate__delay-3s animate__repeat-2"
+            },
+        ),
+    ],
+    m=40,
+)
+
+if __name__ == "__main__":
     app.run(debug=True)
 ```
 
-![enter image description here](https://i.ibb.co/znvRmZf/dash-adding-animations-accordion-chevron.gif)
+.. exec::blog.media.dash_adding_animations_accordion_chevron_sk
+    :code: false
+    :border: false
 
 ### Záver
 
 V tomto článku sme sa naučili ako pridať animácie do Dash aplikácie. Nezabúdajme ale na to, že animácie by mali mať jasný účel a nemali by sa používať zbytočne ([Best Practice](https://animate.style/#best-practices) z dokumentácie `animate.css`).
-<!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE0ODI4NTc1MzMsLTEzMjg4NjQ5NDRdfQ
-==
--->
