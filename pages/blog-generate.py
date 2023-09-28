@@ -106,6 +106,7 @@ for file in files:
         name=metadata["title"],
         title="Martin Rapavý - " + metadata["title"],
         description=metadata["abstract"],
+        image=metadata["image"],
         layout=layout,
     )
 

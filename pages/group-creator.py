@@ -11,9 +11,7 @@ import io
 import pandas as pd
 import numpy as np
 import re
-
-
-dash.register_page(__name__)
+from lib.page_templates import page_template
 
 pd.set_option("display.max_rows", 100)
 pd.set_option("display.max_columns", 100)
@@ -28,154 +26,181 @@ type_group_df = pd.read_excel(
     sheet_name="type_group",
 )
 
-layout = dmc.LoadingOverlay(
-    [
-        dmc.Grid(
+
+def layout(language):
+    return page_template(
+        dmc.LoadingOverlay(
             [
-                dmc.Col(
+                dmc.Grid(
                     [
-                        dmc.Grid(
+                        dmc.Col(
                             [
-                                dmc.Col([dmc.Text("Type A:")], span="content"),
-                                dmc.Col(
+                                dmc.Grid(
                                     [
-                                        dmc.TextInput(
-                                            id="group-creator-list-input-type-a",
-                                            label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
-                                            value="500x4, 750x1, 850x5, 350x8",
+                                        dmc.Col([dmc.Text("Type A:")], span="content"),
+                                        dmc.Col(
+                                            [
+                                                dmc.TextInput(
+                                                    id="group-creator-list-input-type-a",
+                                                    label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                                    value="500x4, 750x1, 850x5, 350x8",
+                                                ),
+                                            ],
+                                            span="auto",
                                         ),
-                                    ],
-                                    span="auto",
+                                    ]
                                 ),
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col([dmc.Text("Type B:")], span="content"),
-                                dmc.Col(
+                                dmc.Grid(
                                     [
-                                        dmc.TextInput(
-                                            id="group-creator-list-input-type-b",
-                                            label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                        dmc.Col([dmc.Text("Type B:")], span="content"),
+                                        dmc.Col(
+                                            [
+                                                dmc.TextInput(
+                                                    id="group-creator-list-input-type-b",
+                                                    label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                                ),
+                                            ],
+                                            span="auto",
                                         ),
-                                    ],
-                                    span="auto",
+                                    ]
                                 ),
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col([dmc.Text("Type C:")], span="content"),
-                                dmc.Col(
+                                dmc.Grid(
                                     [
-                                        dmc.TextInput(
-                                            id="group-creator-list-input-type-c",
-                                            label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                        dmc.Col([dmc.Text("Type C:")], span="content"),
+                                        dmc.Col(
+                                            [
+                                                dmc.TextInput(
+                                                    id="group-creator-list-input-type-c",
+                                                    label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                                ),
+                                            ],
+                                            span="auto",
                                         ),
-                                    ],
-                                    span="auto",
+                                    ]
                                 ),
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col([dmc.Text("Type D:")], span="content"),
-                                dmc.Col(
+                                dmc.Grid(
                                     [
-                                        dmc.TextInput(
-                                            id="group-creator-list-input-type-d",
-                                            label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                        dmc.Col([dmc.Text("Type D:")], span="content"),
+                                        dmc.Col(
+                                            [
+                                                dmc.TextInput(
+                                                    id="group-creator-list-input-type-d",
+                                                    label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                                ),
+                                            ],
+                                            span="auto",
                                         ),
-                                    ],
-                                    span="auto",
+                                    ]
                                 ),
-                            ]
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col([dmc.Text("Type E:")], span="content"),
-                                dmc.Col(
+                                dmc.Grid(
                                     [
-                                        dmc.TextInput(
-                                            id="group-creator-list-input-type-e",
-                                            label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                        dmc.Col([dmc.Text("Type E:")], span="content"),
+                                        dmc.Col(
+                                            [
+                                                dmc.TextInput(
+                                                    id="group-creator-list-input-type-e",
+                                                    label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                                ),
+                                            ],
+                                            span="auto",
                                         ),
+                                    ]
+                                ),
+                                dmc.NumberInput(
+                                    id="group-creator-group-max",
+                                    label="Set maximal size of each group",
+                                    value=1100,
+                                    style={"width": 350},
+                                ),
+                                dmc.NumberInput(
+                                    id="group-creator-group-max-cnt",
+                                    label="Set maximal number of elements in each group",
+                                    value=20,
+                                    style={"width": 350},
+                                ),
+                                dmc.Text("Choose algorithm type: "),
+                                dmc.SegmentedControl(
+                                    id="group-creator-algorithm-type",
+                                    value="best",
+                                    data=[
+                                        {"value": "fast", "label": "Fast"},
+                                        {"value": "best", "label": "Best"},
                                     ],
-                                    span="auto",
                                 ),
-                            ]
-                        ),
-                        dmc.NumberInput(
-                            id="group-creator-group-max",
-                            label="Set maximal size of each group",
-                            value=1100,
-                            style={"width": 350},
-                        ),
-                        dmc.NumberInput(
-                            id="group-creator-group-max-cnt",
-                            label="Set maximal number of elements in each group",
-                            value=20,
-                            style={"width": 350},
-                        ),
-                        dmc.Text("Choose algorithm type: "),
-                        dmc.SegmentedControl(
-                            id="group-creator-algorithm-type",
-                            value="best",
-                            data=[
-                                {"value": "fast", "label": "Fast"},
-                                {"value": "best", "label": "Best"},
-                            ],
-                        ),
-                        dmc.Grid(
-                            dmc.Col(
-                                dmc.Button(
-                                    "Calculate", id="group-creator-calculate-btn"
+                                dmc.Grid(
+                                    dmc.Col(
+                                        dmc.Button(
+                                            "Calculate",
+                                            id="group-creator-calculate-btn",
+                                        ),
+                                        span="auto",
+                                    )
                                 ),
-                                span="auto",
-                            )
-                        ),
-                        dmc.Grid(
-                            [
-                                dmc.Col(
+                                dmc.Grid(
                                     [
-                                        dcc.Upload(
-                                            id="upload-data",
-                                            children=html.Div(
-                                                [
-                                                    "Drag and Drop or ",
-                                                    html.A("Select Files"),
-                                                ]
-                                            ),
-                                            style={
-                                                "width": "100%",
-                                                "height": "60px",
-                                                "lineHeight": "60px",
-                                                "borderWidth": "1px",
-                                                "borderStyle": "dashed",
-                                                "borderRadius": "5px",
-                                                "textAlign": "center",
-                                                "margin": "10px",
-                                            },
-                                        ),
-                                    ],
-                                    span=12,
-                                )
+                                        dmc.Col(
+                                            [
+                                                dcc.Upload(
+                                                    id="upload-data",
+                                                    children=html.Div(
+                                                        [
+                                                            "Drag and Drop or ",
+                                                            html.A("Select Files"),
+                                                        ]
+                                                    ),
+                                                    style={
+                                                        "width": "100%",
+                                                        "height": "60px",
+                                                        "lineHeight": "60px",
+                                                        "borderWidth": "1px",
+                                                        "borderStyle": "dashed",
+                                                        "borderRadius": "5px",
+                                                        "textAlign": "center",
+                                                        "margin": "10px",
+                                                    },
+                                                ),
+                                            ],
+                                            span=12,
+                                        )
+                                    ]
+                                ),
+                                dmc.Grid(dmc.Col(id="group-creator-output")),
                             ]
-                        ),
-                        dmc.Grid(dmc.Col(id="group-creator-output")),
-                    ]
-                )
-            ],
-            style={
-                "width": "calc(100vw - 60px)",
-                "padding-top": "40px",
-                "margin": "0px",
-            },
-            gutter=40,
+                        )
+                    ],
+                    style={
+                        "width": "calc(100vw - 60px)",
+                        "padding-top": "40px",
+                        "margin": "0px",
+                    },
+                    gutter=40,
+                ),
+                dcc.Store(id="input-excel"),
+                dcc.Download(id="download-xlsx"),
+            ]
         ),
-        dcc.Store(id="input-excel"),
-        dcc.Download(id="download-xlsx"),
-    ]
+        language=language,
+    )
+
+
+dash.register_page(
+    module="group-creator-sk",
+    path="/sk/group-creator",
+    redirect_from=["/group-creator"],
+    title="Martin Rapavý - Group Creator",
+    description="Zaujímam sa o dáta, Python a obzvlášť o Dash. Toto je projekt pre konkrétnu firmu.",
+    image="personal-page-view.png",
+    layout=layout("sk"),
+)
+
+
+dash.register_page(
+    module="group-creator-en",
+    path="/en/group-creator",
+    title="Martin Rapavý - Group Creator",
+    description="I am passionate about data, Python and especially Dash. This is a project for specific company.",
+    image="personal-page-view.png",
+    layout=layout("en"),
 )
 
 
