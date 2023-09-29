@@ -37,10 +37,111 @@ def layout(language):
                             [
                                 dmc.Grid(
                                     [
+                                        dmc.Col([dmc.Text("Type A:")], span="content"),
+                                        dmc.Col(
+                                            [
+                                                dmc.TextInput(
+                                                    id="group-creator-list-input-type-a",
+                                                    label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                                    value="500x4, 750x1, 850x5, 350x8",
+                                                ),
+                                            ],
+                                            span="auto",
+                                        ),
+                                    ]
+                                ),
+                                dmc.Grid(
+                                    [
+                                        dmc.Col([dmc.Text("Type B:")], span="content"),
+                                        dmc.Col(
+                                            [
+                                                dmc.TextInput(
+                                                    id="group-creator-list-input-type-b",
+                                                    label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                                ),
+                                            ],
+                                            span="auto",
+                                        ),
+                                    ]
+                                ),
+                                dmc.Grid(
+                                    [
+                                        dmc.Col([dmc.Text("Type C:")], span="content"),
+                                        dmc.Col(
+                                            [
+                                                dmc.TextInput(
+                                                    id="group-creator-list-input-type-c",
+                                                    label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                                ),
+                                            ],
+                                            span="auto",
+                                        ),
+                                    ]
+                                ),
+                                dmc.Grid(
+                                    [
+                                        dmc.Col([dmc.Text("Type D:")], span="content"),
+                                        dmc.Col(
+                                            [
+                                                dmc.TextInput(
+                                                    id="group-creator-list-input-type-d",
+                                                    label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                                ),
+                                            ],
+                                            span="auto",
+                                        ),
+                                    ]
+                                ),
+                                dmc.Grid(
+                                    [
+                                        dmc.Col([dmc.Text("Type E:")], span="content"),
+                                        dmc.Col(
+                                            [
+                                                dmc.TextInput(
+                                                    id="group-creator-list-input-type-e",
+                                                    label="Enter the list of numbers (i.e. 500x4, 750x1, 850x5, 350x8):",
+                                                ),
+                                            ],
+                                            span="auto",
+                                        ),
+                                    ]
+                                ),
+                                dmc.NumberInput(
+                                    id="group-creator-group-max",
+                                    label="Set maximal size of each group",
+                                    value=1100,
+                                    style={"width": 350},
+                                ),
+                                dmc.NumberInput(
+                                    id="group-creator-group-max-cnt",
+                                    label="Set maximal number of elements in each group",
+                                    value=20,
+                                    style={"width": 350},
+                                ),
+                                dmc.Text("Choose algorithm type: "),
+                                dmc.SegmentedControl(
+                                    id="group-creator-algorithm-type",
+                                    value="best",
+                                    data=[
+                                        {"value": "fast", "label": "Fast"},
+                                        {"value": "best", "label": "Best"},
+                                    ],
+                                ),
+                                dmc.Grid(
+                                    dmc.Col(
+                                        dmc.Button(
+                                            "Calculate",
+                                            id="group-creator-calculate-btn",
+                                        ),
+                                        span="auto",
+                                    )
+                                ),
+                                dmc.Grid(
+                                    [
                                         dmc.Col(
                                             [
                                                 dcc.Upload(
-                                                    id="upload-data",
+                                                    id="upload-data-legacy",
                                                     children=html.Div(
                                                         [
                                                             "Drag and Drop or ",
@@ -63,7 +164,7 @@ def layout(language):
                                         )
                                     ]
                                 ),
-                                dmc.Grid(dmc.Col(id="group-creator-output")),
+                                dmc.Grid(dmc.Col(id="group-creator-output-legacy")),
                             ]
                         )
                     ],
@@ -74,8 +175,8 @@ def layout(language):
                     },
                     gutter=40,
                 ),
-                dcc.Store(id="input-excel"),
-                dcc.Download(id="download-xlsx"),
+                dcc.Store(id="input-excel-legacy"),
+                dcc.Download(id="download-xlsx-legacy"),
             ]
         ),
         language=language,
@@ -83,10 +184,10 @@ def layout(language):
 
 
 dash.register_page(
-    module="group-creator-sk",
-    path="/sk/group-creator",
-    redirect_from=["/group-creator"],
-    title="Martin Rapavý - Group Creator",
+    module="group-creator-legacy-sk",
+    path="/sk/group-creator-legacy",
+    redirect_from=["/group-creator-legacy"],
+    title="Martin Rapavý - Group Creator Legacy",
     description="Zaujímam sa o dáta, Python a obzvlášť o Dash. Toto je projekt pre konkrétnu firmu.",
     image="personal-page-view.png",
     layout=layout("sk"),
@@ -94,9 +195,9 @@ dash.register_page(
 
 
 dash.register_page(
-    module="group-creator-en",
-    path="/en/group-creator",
-    title="Martin Rapavý - Group Creator",
+    module="group-creator-legacy-en",
+    path="/en/group-creator-legacy",
+    title="Martin Rapavý - Group Creator Legacy",
     description="I am passionate about data, Python and especially Dash. This is a project for specific company.",
     image="personal-page-view.png",
     layout=layout("en"),
@@ -122,10 +223,10 @@ def parse_contents(contents, filename, date):
 
 
 @callback(
-    Output("input-excel", "data"),
-    Input("upload-data", "contents"),
-    State("upload-data", "filename"),
-    State("upload-data", "last_modified"),
+    Output("input-excel-legacy", "data"),
+    Input("upload-data-legacy", "contents"),
+    State("upload-data-legacy", "filename"),
+    State("upload-data-legacy", "last_modified"),
     prevent_initial_call=True,
 )
 def update_output(list_of_contents, list_of_names, list_of_dates):
@@ -135,17 +236,12 @@ def update_output(list_of_contents, list_of_names, list_of_dates):
 
 
 def find_pattern(in_str):
-    if in_str is None:
-        return None
-    elif in_str == " ":
-        return None
-    extracted_number = re.findall(r"\d+", in_str)[0]
     if in_str[0:3] == "B30":
         return "B30"
-    elif in_str[1:4] == "35H":
-        return "35H"
-    elif in_str[1:4] == "35T":
-        return "35T"
+    elif in_str[0:4] == "B35H":
+        return "B35H"
+    elif in_str[0:4] == "B35T":
+        return "B35T"
     elif in_str[0:5] == "B315M":
         return "B315M"
     elif in_str[0:3] == "B56":
@@ -154,26 +250,26 @@ def find_pattern(in_str):
         return "120T"
     elif "200TH" in in_str:
         return "200TH"
+    elif "300" in in_str:
+        return "300"
+    elif "310" in in_str:
+        return "310"
     elif "320HT" in in_str:
         return "320HT"
     elif "320LT" in in_str:
         return "320LT"
+    elif "50" in in_str:
+        return "50"
+    elif "185" in in_str:
+        return "185"
+    elif "220" in in_str:
+        return "220"
     elif "250ASH" in in_str:
         return "250ASH"
+    elif "57" in in_str:
+        return "57"
     elif "BDW35TDW" in in_str:
         return "BDW35TDW"
-    elif extracted_number == "300":
-        return "300"
-    elif extracted_number == "310":
-        return "310"
-    elif extracted_number == "50":
-        return "50"
-    elif extracted_number == "185":
-        return "185"
-    elif extracted_number == "220":
-        return "220"
-    elif extracted_number == "57":
-        return "57"
     else:
         return "XNA"
 
@@ -189,7 +285,7 @@ def calculate_plate_height(type_a, type_b, type_c, nop):
             return 6 + 2.12 * nop
         else:
             return None
-    elif type_a == "35H":
+    elif type_a == "B35H":
         if type_c == "SC-S":
             if type_b == "D":
                 return 12.7 + 2.34 * nop
@@ -197,7 +293,7 @@ def calculate_plate_height(type_a, type_b, type_c, nop):
                 return 8 + 2.34 * nop
         else:
             return None
-    elif type_a == "35T":
+    elif type_a == "B35T":
         if type_c == "SC-S":
             if type_b == "D":
                 return 14.6 + 2.26 * nop
@@ -221,7 +317,7 @@ def calculate_plate_height(type_a, type_b, type_c, nop):
         else:
             return None
     elif type_a == "B56":
-        if type_c[0:2] == "SC":
+        if type_c == "SC":
             if type_b == "D":
                 return 23.8 + 2.44 * nop
             else:
@@ -344,56 +440,32 @@ def first_non_empty(list_of_string):
 
 
 def calculate_nop(input_string):
-    if input_string is None:
-        return 0
-    try:
-        if math.isnan(input_string):
-            return 0
-    except:
-        return sum([int(i) for i in re.findall(r"\d+", input_string)])
+    return sum([int(i) for i in re.findall(r"\d+", input_string)])
 
 
 def calculate_final_height(connection_p_height, connection_f_height, plate_height):
-    try:
-        if (connection_p_height in (20, 30)) & (connection_f_height in (20, 30)):
-            return 60 + plate_height + 60
-        elif (connection_p_height in (20, 30)) & (math.isnan(connection_f_height)):
-            return 20 + plate_height + 60
-        elif (math.isnan(connection_p_height)) & (connection_f_height in (20, 30)):
-            return 20 + 60 + plate_height
-        elif connection_p_height in (20, 30):
-            return 60 + plate_height + connection_f_height + 18
-        elif connection_f_height in (20, 30):
-            return 20 + 18 + connection_p_height + plate_height + 60
-        elif math.isnan(connection_f_height):
-            return 20 + 18 + connection_p_height + plate_height
-        elif math.isnan(connection_p_height):
-            return 20 + plate_height + connection_f_height + 18
-        else:
-            return (
-                20 + 18 + connection_p_height + plate_height + connection_f_height + 18
-            )
-    except:
-        return None
-
-
-def find_type_b(in_str):
-    if in_str is None:
-        return None
-    try:
-        if math.isnan(in_str):
-            return None
-    except:
-        if "D" in in_str:
-            return "D"
-        else:
-            return "XNA"
+    if (connection_p_height in (20, 30)) & (connection_f_height in (20, 30)):
+        return 60 + plate_height + 60
+    elif (connection_p_height in (20, 30)) & (math.isnan(connection_f_height)):
+        return 20 + plate_height + 60
+    elif (math.isnan(connection_p_height)) & (connection_f_height in (20, 30)):
+        return 20 + 60 + plate_height
+    elif connection_p_height in (20, 30):
+        return 60 + plate_height + connection_f_height + 18
+    elif connection_f_height in (20, 30):
+        return 20 + 18 + connection_p_height + plate_height + 60
+    elif math.isnan(connection_f_height):
+        return 20 + 18 + connection_p_height + plate_height
+    elif math.isnan(connection_p_height):
+        return 20 + plate_height + connection_f_height + 18
+    else:
+        return 20 + 18 + connection_p_height + plate_height + connection_f_height + 18
 
 
 @callback(
-    Output("group-creator-output", "children", allow_duplicate=True),
-    Output("download-xlsx", "data"),
-    Input("input-excel", "data"),
+    Output("group-creator-output-legacy", "children", allow_duplicate=True),
+    Output("download-xlsx-legacy", "data"),
+    Input("input-excel-legacy", "data"),
     prevent_initial_call=True,
 )
 def run_from_excel(stored_df_as_json):
@@ -401,12 +473,7 @@ def run_from_excel(stored_df_as_json):
     df = stored_df.copy()
     df = df[["Job No", "Item description", "CONNECTIONS F", "CONNECTIONS P"]]
     df["TYPE_A"] = (
-        df["Item description"]
-        .str.split(n=1, pat="/")
-        .str.get(0)
-        .str.split(n=1, pat="x")
-        .str.get(0)
-        .apply(find_pattern)
+        df["Item description"].str.split(n=1, pat="/").str.get(0).apply(find_pattern)
     )
     df["TYPE_B"] = (
         df["Item description"]
@@ -414,7 +481,7 @@ def run_from_excel(stored_df_as_json):
         .str.get(1)
         .str.split(n=1, pat=" ")
         .str.get(0)
-        .apply(find_type_b)
+        .apply(lambda in_str: "D" if "D" in in_str else "XNA")
     )
     df["TYPE_C"] = (
         df["Item description"]
@@ -758,3 +825,123 @@ def one_by_one_final(lst, maxsum, splitting, alg_type):
             return one_by_one_solution(lst, maxsum)
         elif alg_type == "best":
             return best_one_by_one_solution(lst, maxsum)
+
+
+@callback(
+    Output("group-creator-output-legacy", "children"),
+    Input("group-creator-calculate-btn", "n_clicks"),
+    State("group-creator-list-input-type-a", "value"),
+    State("group-creator-list-input-type-b", "value"),
+    State("group-creator-list-input-type-c", "value"),
+    State("group-creator-list-input-type-d", "value"),
+    State("group-creator-list-input-type-e", "value"),
+    State("group-creator-group-max", "value"),
+    State("group-creator-group-max-cnt", "value"),
+    State("group-creator-algorithm-type", "value"),
+    prevent_initial_call=True,
+)
+def update_output_div(
+    n_clicks,
+    lst_type_a,
+    lst_type_b,
+    lst_type_c,
+    lst_type_d,
+    lst_type_e,
+    group_max,
+    max_len,
+    alg_type,
+):
+    lst_type_a = list_from_input(lst_type_a)
+    lst_type_b = list_from_input(lst_type_b)
+    lst_type_c = list_from_input(lst_type_c)
+    lst_type_d = list_from_input(lst_type_d)
+    lst_type_e = list_from_input(lst_type_e)
+
+    out = []
+    start = time()
+    # A
+    if len(lst_type_a) > 0:
+        # solution = final_algo(lst_type_a, group_max, max_len, alg_type)
+        solution = one_by_one_final(lst_type_a, group_max, False, alg_type)
+        if solution is None:
+            out.append(
+                dmc.Col(dmc.Text("Type A solution does not exist"), span="content")
+            )
+        else:
+            inout = []
+            inout.append(dmc.Text("Type A Solution:"))
+            for groups in solution:
+                text_group = ""
+                for i in groups:
+                    text_group = text_group + "A" + str(i) + " "
+                text_group = text_group + "   (sum " + str(sum(groups)) + ")"
+                inout.append(dmc.Text(text_group))
+            out.append(dmc.Col(inout, span="content"))
+    # B
+    if len(lst_type_b) > 0:
+        # solution = final_algo(lst_type_b, group_max, max_len, alg_type)
+        solution = one_by_one_final(lst_type_b, group_max, False, alg_type)
+        if solution is None:
+            out.append(
+                dmc.Col(dmc.Text("Type B solution does not exist"), span="content")
+            )
+        else:
+            inout = []
+            inout.append(dmc.Text("Type B Solution:"))
+            for groups in solution:
+                text_group = ""
+                for i in groups:
+                    text_group = text_group + "B" + str(i) + " "
+                text_group = text_group + "   (sum " + str(sum(groups)) + ")"
+                inout.append(dmc.Text(text_group))
+            out.append(dmc.Col(inout, span="content"))
+    # C, D, E
+    if len(lst_type_c) + len(lst_type_d) + len(lst_type_e) > 0:
+        # solution = final_algo_with_splitting(lst_type_c+lst_type_d+lst_type_e, group_max, max_len, alg_type)
+        solution = one_by_one_final(
+            lst_type_c + lst_type_d + lst_type_e, group_max - 20, True, alg_type
+        )
+        if solution is None:
+            out.append(
+                dmc.Col(dmc.Text("Type C,D,E solution does not exist"), span="content")
+            )
+        else:
+            inout = []
+            inout.append(dmc.Text("Type C,D,E Solution:"))
+            lst_type_c_fo = lst_type_c.copy()
+            lst_type_d_fo = lst_type_d.copy()
+            lst_type_e_fo = lst_type_e.copy()
+            inc = 0
+            for groups in solution:
+                text_group = ""
+                for i in groups:
+                    if i in lst_type_c_fo:
+                        part = "C"
+                        lst_type_c_fo.remove(i)
+                    elif i in lst_type_d_fo:
+                        part = "D"
+                        lst_type_d_fo.remove(i)
+                    elif i in lst_type_e_fo:
+                        part = "E"
+                        lst_type_e_fo.remove(i)
+                    text_group = text_group + part + str(i) + " "
+                text_group = text_group + "   (sum " + str(sum(groups)) + ")"
+                inout.append(dmc.Text(text_group))
+                if ((inc % 2) == 1) & (solution[inc - 1] == solution[inc]):
+                    inout.append(dmc.Text("---"))
+                inc += 1
+            out.append(dmc.Col(inout, span="content"))
+    end = time()
+    out.append(
+        dmc.Col(
+            [
+                dmc.Text("Last Update:"),
+                dmc.Text(datetime.now()),
+                dmc.Text("Evaluation Time:"),
+                dmc.Text(end - start),
+            ],
+            span="content",
+            offset=1,
+        )
+    )
+    return out
