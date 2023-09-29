@@ -216,7 +216,6 @@ def parse_contents(contents, filename, date):
             # Assume that the user uploaded an excel file
             df = pd.read_excel(io.BytesIO(decoded))
     except Exception as e:
-        print(e)
         return no_update
 
     return df
