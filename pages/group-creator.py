@@ -139,7 +139,9 @@ def find_pattern(in_str):
         return "B30"
     elif in_str[1:4] == "35H":
         return "35H"
-    elif in_str[1:4] == "35T":
+    elif "BDW35TDW" in in_str:
+        return "BDW35TDW"
+    elif "35T" in in_str:  # !!!Musí byť až za BDW35TDW
         return "35T"
     elif in_str[0:5] == "B315M":
         return "B315M"
@@ -149,14 +151,14 @@ def find_pattern(in_str):
         return "120T"
     elif "200TH" in in_str:
         return "200TH"
+    elif "200H" in in_str:
+        return "200H"
     elif "320HT" in in_str:
         return "320HT"
     elif "320LT" in in_str:
         return "320LT"
     elif "250ASH" in in_str:
         return "250ASH"
-    elif "BDW35TDW" in in_str:
-        return "BDW35TDW"
     elif extracted_number == "300":
         return "300"
     elif extracted_number == "310":
@@ -243,6 +245,14 @@ def calculate_plate_height(type_a, type_b, type_c, nop):
                 return 22 + 2.29 * nop
             else:
                 return 10 + 2.29 * nop
+    elif type_a == "200H":
+        if type_b == "D":
+            return 24.1 + 2.34 * nop
+        else:
+            if type_c == "SC-H":
+                return 22 + 2.34 * nop
+            else:
+                return 10 + 2.34 * nop
     elif type_a == "300":
         if type_c == "SC-M":
             return 10 + 1.89 * nop
