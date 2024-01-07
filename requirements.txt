@@ -9,3 +9,4 @@ plotly==5.15.0
 python_frontmatter==1.0.0
 gunicorn
 openpyxl
+binpacking==1.5.2

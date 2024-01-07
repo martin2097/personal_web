@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 import re
 from lib.page_templates import page_template
+import binpacking
 
 pd.set_option("display.max_rows", 100)
 pd.set_option("display.max_columns", 100)
@@ -59,6 +60,7 @@ def layout(language):
                                         )
                                     ]
                                 ),
+                                dmc.Button("Run planning", id="run-planning"),
                                 dmc.Grid(dmc.Col(id="group-creator-output")),
                             ]
                         )
@@ -71,6 +73,7 @@ def layout(language):
                     gutter=40,
                 ),
                 dcc.Store(id="input-excel"),
+                dcc.Store(id="excel-with-heights"),
                 dcc.Download(id="download-xlsx"),
             ]
         ),
@@ -398,13 +401,19 @@ def find_type_b(in_str):
 @callback(
     Output("group-creator-output", "children", allow_duplicate=True),
     Output("download-xlsx", "data"),
+    Output("excel-with-heights", "data"),
     Input("input-excel", "data"),
     prevent_initial_call=True,
 )
 def run_from_excel(stored_df_as_json):
     stored_df = pd.read_json(stored_df_as_json, orient="split")
     df = stored_df.copy()
-    df = df[["Job No", "Item description", "CONNECTIONS F", "CONNECTIONS P"]]
+    df = df[
+        ["Job No", "Job Quantity", "Item description", "CONNECTIONS F", "CONNECTIONS P"]
+    ]
+    df.rename(
+        columns={"Job No": "JOB_NO", "Job Quantity": "JOB_QUANTITY"}, inplace=True
+    )
     df["TYPE_A"] = (
         df["Item description"]
         .str.split(n=1, pat="/")
@@ -491,6 +500,121 @@ def run_from_excel(stored_df_as_json):
         ),
         axis=1,
     )
-    return "Done", dcc.send_data_frame(
-        df.to_excel, "ouput_excel.xlsx", sheet_name="Sheet_1"
+    return (
+        "Done",
+        dcc.send_data_frame(df.to_excel, "ouput_excel.xlsx", sheet_name="Sheet_1"),
+        df.to_json(date_format="iso", orient="split"),
+    )
+
+
+def split_height(height, units, max_height):
+    h_div = max_height // height
+    u_div = units // h_div
+    u_mod = units % h_div
+
+    if u_div > 0:
+        out_h_list = [h_div * height for i in range(int(u_div))]
+    else:
+        out_h_list = []
+    if u_mod > 0:
+        out_h_list.append(u_mod * height)
+    return out_h_list
+
+
+def split_units(height, units, max_height):
+    h_div = max_height // height
+    u_div = units // h_div
+    u_mod = units % h_div
+    if u_div > 0:
+        out_u_list = [h_div for i in range(int(u_div))]
+    else:
+        out_u_list = []
+    if u_mod > 0:
+        out_u_list.append(u_mod)
+    return out_u_list
+
+
+def split_ids(height, units, max_height, job_id):
+    h_div = max_height // height
+    u_div = units // h_div
+    u_mod = units % h_div
+    job_addon = 0
+    if u_div > 0:
+        out_u_list = [str(job_id) + "-" + str(i) for i in range(int(u_div))]
+        job_addon += u_div
+    else:
+        out_u_list = []
+    if u_mod > 0:
+        out_u_list.append(str(job_id) + "-" + str(job_addon))
+    return out_u_list
+
+
+@callback(
+    Output("group-creator-output", "children", allow_duplicate=True),
+    Output("download-xlsx", "data", allow_duplicate=True),
+    Input("run-planning", "n_clicks"),
+    State("excel-with-heights", "data"),
+    prevent_initial_call=True,
+)
+def run_planning(n_clicks, stored_df_as_json):
+    max_sum = 1100
+    stored_df = pd.read_json(stored_df_as_json, orient="split")
+    stored_df["ALL_HEIGHT_LIST"] = stored_df.apply(
+        lambda x: split_height(x.FINAL_HEIGHT, x.JOB_QUANTITY, max_sum),
+        axis=1,
+    )
+    stored_df["JOB_NO"] = stored_df.apply(
+        lambda x: split_ids(x.FINAL_HEIGHT, x.JOB_QUANTITY, max_sum, x.JOB_NO),
+        axis=1,
+    )
+    stored_df["JOB_QUANTITY"] = stored_df.apply(
+        lambda x: split_units(x.FINAL_HEIGHT, x.JOB_QUANTITY, max_sum),
+        axis=1,
+    )
+    print(stored_df)
+    stored_df = stored_df.explode(["JOB_NO", "JOB_QUANTITY", "ALL_HEIGHT_LIST"])
+    print(stored_df)
+    print(stored_df["GROUP"].drop_duplicates())
+
+    bin_no = 0
+    list_df = []
+    out_msg = []
+
+    for group in stored_df["GROUP"].drop_duplicates():
+        one_group_df = stored_df[stored_df["GROUP"] == group]
+        numbers = {
+            key: value
+            for key, value in zip(
+                one_group_df["JOB_NO"], one_group_df["ALL_HEIGHT_LIST"]
+            )
+        }
+        print(numbers)
+
+        bins = binpacking.to_constant_volume(numbers, max_sum)
+
+        for one_bin in bins:
+            bin_no += 1
+            print("Bin no. " + str(bin_no))
+            out_msg.append(dmc.Text("Bin no. " + str(bin_no), size=20, weight=500))
+            s = 0
+            for one_unit in one_bin:
+                print(str(one_unit) + " : " + str(one_bin[one_unit]))
+                out_msg.append(dmc.Text(str(one_unit) + " : " + str(one_bin[one_unit])))
+                list_df.append([bin_no, one_unit, one_bin[one_unit]])
+                s += one_bin[one_unit]
+            print(s)
+            out_msg.append(dmc.Text(s))
+            print(s / max_sum * 100)
+            out_msg.append(dmc.Text(s / max_sum * 100))
+
+    out_df = pd.DataFrame(list_df, columns=["BIN", "JOB_NO", "TOTAL_HEIGHT"])
+    out_df = out_df.merge(
+        stored_df,
+        how="left",
+        left_on="JOB_NO",
+        right_on="JOB_NO",
+    )
+    print(out_df)
+    return out_msg, dcc.send_data_frame(
+        out_df.to_excel, "ouput_excel.xlsx", sheet_name="Sheet_1"
     )
