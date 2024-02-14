@@ -53,16 +53,18 @@ project_strings = {
         {
             "image": "/assets/survivor-statistky-nahlad.PNG",
             "title": "Survivor statistics",
-            "description": "Statistics of Czech & Slovak version of reality show Survivor",
-            "href": "/en/survivor-statistics",
+            "description": "Statistics of Czech & Slovak version of reality show Survivor. The project was officialy "
+            "recognized and published by TV Nova.",
+            "href": "https://survivordata.cz/",
         }
     ],
     "sk": [
         {
             "image": "/assets/survivor-statistky-nahlad.PNG",
             "title": "Survivor štatistky",
-            "description": "Štatistiky Česko-Slovenskej verzie reality show Survivor",
-            "href": "/sk/survivor-statistics",
+            "description": "Štatistiky Česko-Slovenskej verzie reality show Survivor. Projekt bol oficiálne uznaný a "
+            "publikovaný televíziou Nova.",
+            "href": "https://survivordata.cz/",
         }
     ],
 }
