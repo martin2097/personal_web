@@ -250,7 +250,9 @@ def navbar(links, language, brand_icon, brand_name):
                                         }
                                     },
                                 ),
-                                href="/" + language + "/blog",
+                                # href="/" + language + "/blog",
+                                href="https://blog.rapavy.cz/" + language + "/home",
+                                target="_blank",
                                 style={"width": "80%", "text-decoration": "none"},
                             )
                         ]
